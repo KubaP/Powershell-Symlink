@@ -12,7 +12,7 @@
 	Author = 'KubaP'
 	
 	# Company or vendor of this module
-	CompanyName = ' '
+	CompanyName = ''
 	
 	# Copyright statement for this module
 	Copyright = 'Copyright (c) 2020 KubaP'
@@ -37,11 +37,15 @@
 	# TypesToProcess = @('xml\Symlink.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	# FormatsToProcess = @('xml\Symlink.Format.ps1xml')
+	FormatsToProcess = @('xml\Symlink.Format.ps1xml')
 	
 	# Functions to export from this module
 	FunctionsToExport = @(
-		
+		"New-Symlink",
+		"Get-Symlink",
+		"Set-Symlink",
+		"Remove-Symlink",
+		"Build-Symlink"
 	)
 	
 	# Cmdlets to export from this module

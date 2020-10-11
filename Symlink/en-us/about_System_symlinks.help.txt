@@ -1,0 +1,129 @@
+TOPIC
+	about_System_symlinks
+	
+	
+SHORT DESCRIPTION
+	These cmdlets help to manage symlinks on the filesystem by improving the user experience and making it
+	easier to create, modify, and remove them.
+	
+	
+CREATING A SYMLINK
+	To create a new symlink, run:
+	
+		PS C:\> New-Symlink -Name "example" -Path "C:\path\of\symlink" -Target "D:\symlink\target"
+		
+	This will create a symlink definition in the database, as well as potentially create the symlink on the 
+	filesystem. Both folder and file symlinks are supported just like normal.
+	
+	The '-Path' and '-Target' locations can accept environment variables which have been defined on the machine.
+	You MUST use the %VARIABLE% format within the path and encapsulate it in quotation marks.
+	
+	The '-CreationCondition' parameter accepts a scriptblock, which will decide whether the symlink
+	should be created on the filesystem. If this parameter is omitted, the symlink will always be created.
+	If this parameter is given a scriptblock, that expression will be evaluated to a true/false result, 
+	based on which the decision will be made.
+	
+	If the symlink is replacing an existing file/folder, be wary of any programs which may current utilise
+	said path, as they may block the creation of a symlink.
+	
+	
+RETRIEVING A SYMLINK
+	To retrieve the details of an existing symlink, run:
+	
+		PS C:\> Get-Symlink -Names "example"
+		
+	This will return the symlink object corresponding to the name(s) given, which can be piped to the
+	'Set-Symlink', 'Build-Symlink', and 'Remove-Symlink' cmdlets.
+	
+	
+REMOVING A SYMLINK
+	To remove an existing symlink, run:
+	
+		PS C:\> Remove-Symlink -Names "example"
+		
+	This will remove the symlink definition from the database, erasing all it's properties, as well as
+	deleting the symlink from the filesystem (if it exists).
+	
+	Be wary of any programs which may currently utilise the symlink for I/O, as they may block the deletion
+	of the symlink.
+	
+	
+MODIFYING A SYMLINK
+	To change the name of an existing symlink, run:
+	
+		PS C:\> Set-Symlink -Name "example" -Property "Name" -Value "test"
+		
+	This will change the name of the "example" symlink definition to the new value of "test". You cannot
+	change the name to one which is already taken.
+	
+	To change the path of an existing symlink, run:
+	
+		PS C:\> Set-Symlink -Name "example" -Property "Path" -Value "C:\a\new\path"
+		
+	This will change the path of the "example" symlink definition, to a different path. If the symlink
+	exists, it will be deleted from the old location and re-created at the new location.
+	
+	To change the target of an existing symlink, run:
+		
+		PS C:\> Set-Symlink -Name "example" -Property "Target" -Value "D:\a\new\target"
+		
+	This will change the target of the "example" symlink definition, to a new target. If the symlink exists,
+	it will be deleted and re-created, pointing to the new target.
+	
+	To change the creation condition of an existing symlink, run:
+	
+		PS C:\> Set-Symlink -Name "example" -Property "CreationCondition" -Value {...}
+		
+	This will change the creation condition scriptblock of the "example" symlink to a new expression.
+	You can either write the scriptblock within the command, or write it beforehand and reference it as
+	a variable, e.g. $scriptblock.
+	
+	
+BUILDING SYMLINKS
+	By default, the 'New-Symlink' cmdlet will create the symlink on the filesystem. However, if it doesn't, 
+	or you have imported an existing database file, or you have modified an environment variable and you want
+	to update the existing symlinks, you can (re)create all of the symlinks by running:
+	
+		PS C:\> Build-Symlink -All
+	
+	This will go through all symlink definitions in the database and create them on the filesystem if they
+	either don't yet exist or differ from their definitions.
+	
+	You can also run this command to create only specific symlinks, by running:
+	
+		PS C:\> Build-Symlink -Names "one", "two"
+		
+	This will only create the symlinks specified.
+	
+	
+CREATION CONDITION SCRIPTBLOCK
+	This scriptblock is responsible for evaluation whether a symlink should be created. The scriptblock can 
+	run any arbitrary code of your liking, but it must return a boolean value from all logic paths, either
+	'$true' or '$false'.
+	
+	
+EXAMPLE - A symlink only created on a specific machine
+	
+	This example shows how to set up a symlink which will only get created on a certain machine,
+	by checking the machine name.
+	
+	The symlink creation command would be:
+	
+		PS C:\> New-Symlink -Name "example" -Path "~\Desktop\link" -Target "Z:\" -CreationCondition $condition
+	
+	$condition would be defined as:
+	
+		{
+			if ($env:COMPUTERNAME -eq "specific-name")
+				{ return $true } else { return $false }
+		}
+	
+	This condition checks for the computer name environment variable, and if it matches a specific string,
+	it returns true, otherwise for all other machines it returns false.
+	
+	
+KEYWORDS
+	System
+	Symlink
+	Symbolic Link
+	

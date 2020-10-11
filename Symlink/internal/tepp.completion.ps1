@@ -1,22 +1,21 @@
 ﻿# Tab expansion assignements for commands.
 
-<# $argCompleter_DataName = {
+$argCompleter_SymlinkName = {
 	param ($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 	
-	# Import all data objects from the database file.
-	$list = Read-Data
+	# Import all symlink objects from the database file.
+	$linkList = Read-Symlinks
 	
-	# If no data, just return an empty string.
-	if ($list.Count -eq 0) {
+	if ($linkList.Count -eq 0) {
 		Write-Output ""
 	}
 	
-	# Return the names which match the currently typed in pattern.
-	# This first removes any ' characters from the entered word, then performs
-	# the "likeness" check, and then surrounds the word in '' quotes so that
-	# any names containing spaces get properly entered.
-	$list.Name | Where-Object { $_ -like "$($wordToComplete.Replace(`"`'`", `"`"))*" } | ForEach-Object { "'$_'" }
-} #>
+	# Return the names which match the currently typed in pattern
+	$linkList.Name | Where-Object { $_ -like "$($wordToComplete.Replace(`"`'`", `"`"))*" } | ForEach-Object { "'$_'" }
+	
+}
 
-# Register-ArgumentCompleter -CommandName ... -ParameterName ... -Scriptblock ...
-
+Register-ArgumentCompleter -CommandName Get-Symlink -ParameterName Names -ScriptBlock $argCompleter_SymlinkName
+Register-ArgumentCompleter -CommandName Set-Symlink -ParameterName Name -ScriptBlock $argCompleter_SymlinkName
+Register-ArgumentCompleter -CommandName Remove-Symlink -ParameterName Names -ScriptBlock $argCompleter_SymlinkName
+Register-ArgumentCompleter -CommandName Build-Symlink -ParameterName Names -ScriptBlock $argCompleter_SymlinkName
