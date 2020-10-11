@@ -1,4 +1,4 @@
-# <MODULENAME>
+# Symlink
 Brief overview
 
 Who module is aimed at
@@ -7,20 +7,20 @@ Who module is aimed at
 
 [![Azure DevOps builds](https://img.shields.io/azure-devops/build/KubaP999/3d9148d2-04d0-4835-b7cb-7bf89bdbf11b/7?label=latest%20build&logo=azure-pipelines)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)
 [![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/ProgramManager/7?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)
-[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ProgramManager?logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/<ModuleName>)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ProgramManager?logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/Symlink)
 ![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/ProgramManager?logo=windows)
 [![License](https://img.shields.io/badge/license-GPLv3-blue)](./LICENSE)
 Update the img urls
 
 ## Getting Started
 ### Installation
-In order to get started with the latest build, simply download the module from the [PSGallery](https://www.powershellgallery.com/packages/<ModuleName>), or install it from powershell by running:
+In order to get started with the latest build, simply download the module from the [PSGallery](https://www.powershellgallery.com/packages/Symlink), or install it from powershell by running:
 ```powershell
-Install-Module <ModuleName>
+Install-Module Symlink
 ```
 Installing this module does not mean that it is loaded automatically on start-up. Powershell supports loading modules on-the-fly since v3, however the first time you run a command it can be a bit slow to tab-complete parameters or values. If you would like to load this module on shell start-up, add the following line to `~/Documents/Powershell/Profile.ps1` :
 ```powershell
-Import-Module <ModuleName>
+Import-Module Symlink
 ```
 
 ### Requirements
@@ -46,7 +46,7 @@ The functions support advanced tab-completion for values:
 #### Custom scriptblock support
 When adding a new package, you can pass in a scriptblock for `...`,`...` or `...`. These scriptblocks will execute during ...
 
-For details, see `about_<MODULENAME>_scriptblocks`.
+For details, see `about_Symlink_scriptblocks`.
 
 #### -WhatIf and -Confirm support
 All functions in this module support these parameters when appropiate.
@@ -63,7 +63,7 @@ Install the following:
 
 ### Clone the git repo
 ```
-git clone https://github.com/KubaP/Powershell-<MODULENAME>.git
+git clone https://github.com/KubaP/Powershell-Symlink.git
 ```
 
 ### Run the build scripts

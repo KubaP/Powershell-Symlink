@@ -1,12 +1,12 @@
 ﻿@{
 	# Script module or binary module file associated with this manifest
-	RootModule = '<MODULENAME>.psm1'
+	RootModule = 'Symlink.psm1'
 	
 	# Version number of this module.
 	ModuleVersion = '0.1.0'
 	
 	# ID used to uniquely identify this module
-	GUID = '!!!GUID!!!'
+	GUID = '7849ff1f-d264-4a49-8de2-9c01e79a22a9'
 	
 	# Author of this module
 	Author = 'KubaP'
@@ -18,10 +18,10 @@
 	Copyright = 'Copyright (c) 2020 KubaP'
 	
 	# Description of the functionality provided by this module
-	Description = '!!!'
+	Description = 'Easy and central management of symbolic links on the filesystem, with many advanced features.'
 	
 	# Minimum version of the Windows PowerShell engine required by this module
-	PowerShellVersion = '5.0'
+	PowerShellVersion = '6.0'
 	
 	# Modules that must be imported into the global environment prior to importing
 	# this module
@@ -31,13 +31,13 @@
 	)#>
 	
 	# Assemblies that must be loaded prior to importing this module
-	# RequiredAssemblies = @('bin\<MODULENAME>.dll')
+	# RequiredAssemblies = @('bin\Symlink.dll')
 	
 	# Type files (.ps1xml) to be loaded when importing this module
-	# TypesToProcess = @('xml\<MODULENAME>.Types.ps1xml')
+	# TypesToProcess = @('xml\Symlink.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	FormatsToProcess = @('xml\<MODULENAME>.Format.ps1xml')
+	# FormatsToProcess = @('xml\Symlink.Format.ps1xml')
 	
 	# Functions to export from this module
 	FunctionsToExport = @(
@@ -66,19 +66,19 @@
 		PSData = @{
 			
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @("Windows","PSEdition_Core","PSEdition_Desktop")
+			Tags = @("Windows","Symlink","Symbolic_Link","PSEdition_Core","PSEdition_Desktop")
 			
 			# A URL to the license for this module.
 			LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
 			
 			# A URL to the main website for this project.
-			ProjectUri = 'https://github.com/KubaP/Powershell-<MODULENAME>'
+			ProjectUri = 'https://github.com/KubaP/Powershell-Symlink'
 			
 			# A URL to an icon representing this module.
 			# IconUri = ''
 			
 			# ReleaseNotes of this module
-			ReleaseNotes = 'https://github.com/KubaP/Powershell-<MODULENAME>/blob/master/<MODULENAME>/changelog.md'
+			ReleaseNotes = 'https://github.com/KubaP/Powershell-Symlink/blob/master/Symlink/changelog.md'
 			
 		} # End of PSData hashtable
 		

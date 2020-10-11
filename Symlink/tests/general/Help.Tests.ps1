@@ -41,7 +41,7 @@ Param (
 	$CommandPath = @("$PSScriptRoot\..\..\functions", "$PSScriptRoot\..\..\internal\functions"),
 	
 	[string]
-    $ModuleName = "<MODULENAME>",	
+    $ModuleName = "Symlink",	
     
 	[string]
     $ExceptionsFile = "$PSScriptRoot\Help.Exceptions.ps1"

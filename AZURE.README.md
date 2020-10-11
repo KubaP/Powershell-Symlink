@@ -74,8 +74,8 @@
             Repo: github repo
             Source: User specific tag
             Tag: v$(BuildOutput.version)
-            Title: <MODULENAME> v$(BuildOutput.version)
-            Assets: $(System.DefaultWorkingDirectory)/_KubaP_Powershell-<MODULENAME>/publish/<MODULENAME>-v$(BuildOutput.version).zip
+            Title: Symlink v$(BuildOutput.version)
+            Assets: $(System.DefaultWorkingDirectory)/_KubaP_Powershell-Symlink/publish/Symlink-v$(BuildOutput.version).zip
             Add changelog - NO
             Prerelease - YES
             

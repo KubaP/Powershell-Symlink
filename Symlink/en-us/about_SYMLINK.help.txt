@@ -1,9 +1,9 @@
 ﻿TOPIC
-	about_<MODULENAME>
+	about_Symlink
 	
 	
 SHORT DESCRIPTION
-	<MODULENAME> is a ... module designed to ...
+	Symlink is a ... module designed to ...
 	
 	
 COMMANDS...
@@ -28,15 +28,15 @@ COMMANDS...
 SCRIPTBLOCKS
 	When running ..., you can pass in ...
 	
-	For details, see: about_<MODULENAME>_scriptblocks
+	For details, see: about_Symlink_scriptblocks
 	
 	
 OTHER
-	The module stores all data in %APPDATA%\Powershell\<MODULENAME>
+	The module stores all data in %APPDATA%\Powershell\Symlink
 	It is advised to **not** manually modify any files within this directory as it could cause unintended
 	consequences.
 	
 	
 KEYWORDS
-	<MODULENAME>
+	Symlink
 	

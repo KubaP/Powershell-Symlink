@@ -21,9 +21,9 @@
 
 # Remove and re-import the module.
 Write-Host "Starting tests. Importing the module." -ForegroundColor Cyan
-Remove-Module <MODULENAME> -ErrorAction Ignore
-Import-Module "$PSScriptRoot\..\<MODULENAME>.psd1" -Verbose
-Import-Module "$PSScriptRoot\..\<MODULENAME>.psm1" -Force -Verbose
+Remove-Module Symlink -ErrorAction Ignore
+Import-Module "$PSScriptRoot\..\Symlink.psd1" -Verbose
+Import-Module "$PSScriptRoot\..\Symlink.psm1" -Force -Verbose
 
 # Create the test results directory.
 Write-Host "Creating the test result folder." -ForegroundColor Cyan
