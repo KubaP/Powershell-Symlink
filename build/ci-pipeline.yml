@@ -15,20 +15,6 @@ steps:
   inputs:
     filePath: 'build/vsts-prerequisites.ps1'
     ignoreLASTEXITCODE: true
-- task: PowerShell@2
-  inputs:
-    filePath: 'build/vsts-validate.ps1'
-    errorActionPreference: 'continue'
-    ignoreLASTEXITCODE: true
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'NUnit'
-    testResultsFiles: '**/TEST-*.xml'
-    testRunTitle: 'Powershell 5.1 Tests'
-- task: PowerShell@2
-  inputs:
-    filePath: 'build/vsts-prerequisites.ps1'
-    ignoreLASTEXITCODE: true
     pwsh: true
 - task: PowerShell@2
   inputs:
