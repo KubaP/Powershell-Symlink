@@ -22,6 +22,12 @@
 .PARAMETER DontCreateItem
 	Don't create the symlink item on the filesystem.
 	
+.PARAMETER WhatIf
+	something
+	
+.PARAMETER Confirm
+	something
+	
 .EXAMPLE
 	PS C:\> New-Symlink -Name "PowerToys" -Path "~\Appdata\Local\Microsoft\PowerToys"
 		-Target "D:\Programs\Data\PowerToys"
@@ -40,7 +46,7 @@
 #>
 function New-Symlink {
 	
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (
 		
 		[Parameter(Position = 0, Mandatory = $true)]

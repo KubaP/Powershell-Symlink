@@ -14,6 +14,12 @@
 .PARAMETER Value
 	The new value for the property.
 	
+.PARAMETER WhatIf
+	something
+	
+.PARAMETER Confirm
+	something
+	
 .EXAMPLE
 	PS C:\> Set-Symlink -Name "test" -Property "Name" -Value "hello"
 	
@@ -39,7 +45,7 @@
 #>
 function Set-Symlink {
 	
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (
 		
 		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName)]

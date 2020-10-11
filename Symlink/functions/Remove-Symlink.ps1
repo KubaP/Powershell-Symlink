@@ -11,6 +11,12 @@
 .PARAMETER DontDeleteItem
 	Don't remove the symlink item from the filesystem, i.e. keep it.
 	
+.PARAMETER WhatIf
+	something
+	
+.PARAMETER Confirm
+	something
+	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Names "test"
 	
@@ -33,7 +39,7 @@
 #>
 function Remove-Symlink {
 	
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (
 		
 		# Tab completion.

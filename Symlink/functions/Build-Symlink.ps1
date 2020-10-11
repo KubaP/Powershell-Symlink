@@ -57,7 +57,7 @@ function Build-Symlink {
 	}
 	
 	process {
-		if ($PSCmdlet.ParameterSetName -eq "All") {
+		if ($All) {
 			Write-Verbose "Creating all symlink items on the filesystem."
 			
 			# Read in all of the existing symlinks.

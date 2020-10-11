@@ -54,7 +54,7 @@ function Get-Symlink {
 	}
 	
 	process {
-		if ($PSCmdlet.ParameterSetName -eq "Specific") {
+		if (-not $All) {
 			Write-Verbose "Retrieving specified symlinks: $Names."
 			# Read in the existing symlinks.
 			$linkList = Read-Symlinks
