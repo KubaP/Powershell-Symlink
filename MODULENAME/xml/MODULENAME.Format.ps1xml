@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<Configuration>
+	<ViewDefinitions>
+		<!-- Foo.Bar -->
+		<View>
+			<Name>Foo.Bar-Description</Name>
+			<ViewSelectedBy>
+				<TypeName>Foo.Bar</TypeName>
+			</ViewSelectedBy>
+			<GroupBy>
+				<Label>Label</Label>				
+				<PropertyName>Property</PropertyName>
+			</GroupBy>
+		</View>				
+	</ViewDefinitions>
+</Configuration>

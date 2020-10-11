@@ -1,0 +1,63 @@
+﻿TOPIC
+	about_<MODULENAME>_scriptblocks
+	
+	
+SHORT DESCRIPTION
+	The <MODULENAME> module supports running custom scriptblocks on ...
+	
+	
+SCRIPTBLOCK OVERVIEW
+	The Pre-... runs before the main ... logic is executed.
+	
+	You can run any arbitrary code within these scriptblocks. There is no limit to what
+	you can do. Bear in mind that complex scripts will increase execution time.
+	
+	
+	An example of use cases for these scriptblocks:
+		- ...
+	
+	
+SCRIPTBLOCK SETUP
+	To utilise the full potential of the scriptblocks, you can manipulate data passed
+	in from the ... and ... commands.
+	
+	Whilst you can receive package data, any changes you do will be lost, as the object
+	is never returned back to the main functions.
+	
+	
+	Include this parameter definition in the scriptblock to get the ... object:
+	
+		Param (
+			
+			# The package object corresponding to the package being currently installed
+			[System.Collections.Generic.List[psobject]]
+			$package
+			
+		)
+		
+	
+	To see a full list of ... object properties, run: ...
+	
+	
+SCRIPTBLOCK EXAMPLE
+	
+	$scriptblock = {
+	Param (
+		
+		# The package object of the package being currently installed
+		[System.Collections.Generic.List[psobject]]
+		$package
+		
+	)
+	
+		...
+	
+	}
+	
+	This example ...
+	This scriptblock is run ...
+	
+	
+KEYWORDS
+	<MODULENAME>
+		
