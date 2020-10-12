@@ -80,7 +80,7 @@ function Remove-Symlink {
 		
 		# Re-export the list.
 		Write-Verbose "Re-exporting the modified database."
-		Export-Clixml -Path $script:DataPath_Symlink -InputObject $linkList | Out-Null
+		Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
 			
 	}
 	

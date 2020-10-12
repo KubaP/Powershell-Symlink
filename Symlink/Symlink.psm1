@@ -1,10 +1,10 @@
 ﻿# Create some global variables.
 $script:ModuleRoot = $PSScriptRoot
 $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\Symlink.psd1").ModuleVersion
-$script:DataPath = "$env:APPDATA\Powershell\Symlink"
+$script:DataPath = "$env:APPDATA\Powershell\Symlink\database.xml"
 
 # Create the module data-storage folder if it doesn't exist.
-if (-not (Test-Path -Path $script:DataPath -ErrorAction Ignore)) {
+if (-not (Test-Path -Path "$env:APPDATA\Powershell\Symlink" -ErrorAction Ignore)) {
 	New-Item -ItemType Directory -Path "$env:APPDATA" -Name "Powershell\Symlink" -Force -ErrorAction Stop
 }
 

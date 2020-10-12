@@ -104,7 +104,7 @@ function New-Symlink {
 	# Add the new link to the list, and then re-export the list.
 	$linkList.Add($newLink)
 	Write-Verbose "Re-exporting the modified database."
-	Export-Clixml -Path $script:DataPath_Symlink -InputObject $linkList | Out-Null
+	Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
 	
 	# Build the symlink item on the filesytem.
 	if (-not $DontCreateItem) {
