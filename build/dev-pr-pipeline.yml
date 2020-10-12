@@ -1,4 +1,7 @@
 
+trigger:
+- none
+
 pr:
 - development
 
