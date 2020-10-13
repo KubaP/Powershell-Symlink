@@ -27,10 +27,10 @@
 	Skips the creation of the symbolic-link item on the filesystem.
 	
 .PARAMETER WhatIf
-	something
+	wip
 	
 .PARAMETER Confirm
-	something
+	wip
 	
 .INPUTS
 	None

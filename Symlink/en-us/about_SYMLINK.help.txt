@@ -19,6 +19,9 @@ OVERVIEW
     variables in the %VARIABLE% notation. These will then get expanded when
     necessary, assuming the variable is actually defined on the system.
     
+  ! If the environment variable is modified, you can update the symbolic-links
+    to point to the new path by running the 'Build-Symlink' command.
+    
     
  3. The commands in this module operate on [Symlink] objects. The objects
     retrieved by the 'Get-Symlink' command can be piped to:
@@ -150,6 +153,18 @@ CHANGING A SYMLINK
     a new symlink using the 'New-Symlink' command.
     
     
+ 3. Changing the -Path property of a symlink, will result in the symbolic-link
+    item being deleted from its original location, and re-created at the new
+    location.
+    
+    Changing the -Target property of a symlink, will result in the 
+    symbolic-link item being deleted and re-created in the same location, but
+    now pointing to the new target.
+    
+  ! Changing the -CreationCondition will not change the existence of the 
+    symbolic-link item.
+    
+    
 REMOVING A SYMLINK
  1. To remove a symlink, run:
     
@@ -160,7 +175,7 @@ REMOVING A SYMLINK
     
     -Names
         The name(s)/identifier(s) of the symlinks to remove. Multiple values
-        are accepted to retrieve the data of multiple links.
+        are accepted to remove multiple links at once.
       ! This parameter tab-completes valid symlink names.
         
     OPTIONAL PARAMETERS	
@@ -181,6 +196,46 @@ REMOVING A SYMLINK
   ! You can pipe the names to this command instead.
     
     
+BUILDING/UPDATING SYMLINKS
+ 1. To create all symbolic-link items on the filesystem, run:
+    
+        PS C:\> Build-Symlink -All
+    
+    This command will go through all of the symlink definitions, and create 
+    the symbolic-link items on the filesystem, assuming the creation condition
+    for them is met.
+    
+    -All
+        Specifies to create all symlinks.
+    
+    
+ 2. To create only certain symbolic-links on the filesystem, run:
+    
+        PS C:\> Build-Symlink -Names "data","files"
+        
+    [OR]PS C:\> "data","files" | Build-Symlink -Names
+    
+    This command will only go through the symlinks given in, and create the
+    items on the filesystem.
+  ! You can pipe the names to this command instead.
+    
+    -Names
+        The name(s)/identifier(s) of the symlinks to create. Multiple values
+        are accepted to build multiple links at once.
+      ! This parameter tab-completes valid symlink names.
+    
+    
+ 3. This command can be used if you're given a database file, and want to
+    create the symbolic-link items for the first time.
+    
+    This command can also be used to update existing items. Whilst the
+    'Set-Symlink' command will update the symbolic-link items itself, changing
+    an environment variable will not. If you change the value of an environment
+    variable, you can run this command to "re-build" all of the symbolic-link
+    items and either change their location or their target (if either have
+    a variable in the path).
+    
+      
 CREATION CONDITION SCRIPTBLOCK
     When creating a new symlink, or by setting the property using the 
     'Set-Symlink' command, you can define a 'Creation Condition' scriptblock.

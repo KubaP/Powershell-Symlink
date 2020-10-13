@@ -16,10 +16,10 @@
 	link will remain afterwads.
 	
 .PARAMETER WhatIf
-	something
+	wip
 	
 .PARAMETER Confirm
-	something
+	wip
 	
 .INPUTS
 	Symlink[]

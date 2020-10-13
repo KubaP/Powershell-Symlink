@@ -18,10 +18,10 @@
 	The new value for the property to take.
 	
 .PARAMETER WhatIf
-	something
+	wip
 	
 .PARAMETER Confirm
-	something
+	wip
 	
 .INPUTS
 	Symlink[]
