@@ -1,25 +1,17 @@
 ﻿<#
 .SYNOPSIS
-	Gets a symlink.
+	Gets the details of a symlink.
 	
 .DESCRIPTION
-	Gets a symlink definition from the database.
+	Retrieves the details of symlink definition(s).
 	
 .PARAMETER Names
-	The name(s) of the symlink(s) to retrieve. This parameter supports tab-completion for the values.
+	The name(s)/identifier(s) of the symlinks to retrieve. Multiple values
+	are accepted to retrieve the data of multiple links.
+  ! This parameter tab-completes valid symlink names.
 	
 .PARAMETER All
-	Retrieve all of the defined symlinks.
-	
-.EXAMPLE
-	PS C:\> Get-Symlink -Names "test"
-	
-	Returns the symlink object for the link called "test".
-	
-.EXAMPLE
-	PS C:\> "test", "test2" | Get-Symlink
-	
-	Returns the symlink object for the links called "test" and "test2".
+	Specifies to retrieve details for all symlinks.
 	
 .INPUTS
 	System.String[]
@@ -29,6 +21,25 @@
 	
 .NOTES
 	-Names supports tab-completion.
+	
+.EXAMPLE
+	PS C:\> Get-Symlink -Names "data"
+	
+	This command will retrieve the details of the symlink named "data", and
+	output the information to the screen.
+	
+.EXAMPLE
+	PS C:\> Get-Symlink -Names "data","files"
+	
+	This command will retrieve the details of the symlinks named "data" and 
+	"files", and output both to the screen, one after another.
+  ! You can pipe the names to this command instead.
+	
+.EXAMPLE
+	PS C:\> Get-Symlink -All
+		
+	This command will retrieve the details of all symlinks, and output the
+	information to the screen.
 	
 #>
 function Get-Symlink {

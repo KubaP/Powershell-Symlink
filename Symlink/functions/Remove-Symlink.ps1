@@ -1,15 +1,19 @@
 ﻿<#
 .SYNOPSIS
-	Removes an existing symlink.
+	Removes an symlink.
 	
 .DESCRIPTION
-	Removes an existing symlink definition from the database. Also deletes the symlink from the filesystem.
+	Deletes symlink definition(s) from the database, and also deletes the 
+	symbolic-link item from the filesystem.
 	
 .PARAMETER Names
-	The name(s) of the symlink(s) to remove. This parameter supports tab-completion for the values.
+	The name(s)/identifier(s) of the symlinks to remove. Multiple values
+	are accepted to retrieve the data of multiple links.
+  ! This parameter tab-completes valid symlink names.
 	
 .PARAMETER DontDeleteItem
-	Don't remove the symlink item from the filesystem, i.e. keep it.
+	Skips the deletion of the symbolic-link item on the filesystem. The
+	link will remain afterwads.
 	
 .PARAMETER WhatIf
 	something
@@ -17,15 +21,6 @@
 .PARAMETER Confirm
 	something
 	
-.EXAMPLE
-	PS C:\> Remove-Symlink -Names "test"
-	
-	Removes and deletes the symlink called "test".
-	
-.EXAMPLE
-	PS C:\> "test", "test2" | Remove-Symlink
-	
-	Removes and deletes the symlinks called "test" and "test2".
 .INPUTS
 	Symlink[]
 	System.String[]
@@ -35,6 +30,19 @@
 	
 .NOTES
 	-Names supports tab-completion.
+	
+.EXAMPLE
+	PS C:\> Remove-Symlink -Names "data"
+	
+	This command will remove a symlink definition, named "data", and delete the
+	symbolic-link item from the filesystem.
+	
+.EXAMPLE
+	PS C:\> Remove-Symlink -Names "data","files"
+	
+	This command will remove the symlink definitions named "data" and "files",
+	and delete the symbolic-link items of both.
+  ! You can pipe the names to this command instead.
 	
 #>
 function Remove-Symlink {
