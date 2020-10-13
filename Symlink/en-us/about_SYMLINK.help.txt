@@ -1,226 +1,226 @@
 ﻿TOPIC
-	about_Symlink
-	
-	
+    about_Symlink
+    
+    
 SHORT DESCRIPTION
-	Symlink is a module designed to help manage symbolic links on the
-	filesystem, by improving the user experience and making it easier to create,
-	modify, and remove symlinks.
-	
-	
+    Symlink is a module designed to help manage symbolic links on the
+    filesystem, by improving the user experience and making it easier to create,
+    modify, and remove symlinks.
+    
+    
 OVERVIEW
  1. This module manages symlink definitions (properties defined in a database)
-	and the actual symlink items on the filesystem. When creating a new symlink,
-	you are creating a definition, which always exists unless removed, and an 
-	item on the filesystem, which may or may not exist.
-	
-	
+    and the actual symlink items on the filesystem. When creating a new symlink,
+    you are creating a definition, which always exists unless removed, and an 
+    item on the filesystem, which may or may not exist.
+    
+    
  2. When specifying any paths for any commands, you can include environment
- 	variables in the %VARIABLE% notation. These will then get expanded when
-	necessary, assuming the variable is actually defined on the system.
-	
-	
+    variables in the %VARIABLE% notation. These will then get expanded when
+    necessary, assuming the variable is actually defined on the system.
+    
+    
  3. The commands in this module operate on [Symlink] objects. The objects
-	retrieved by the 'Get-Symlink' command can be piped to:
-		- Build-Symlink
-		- Remove-Symlink
-		- Set-Symlink
-	
-	There are also methods on the [Symlink] object which can be run. To see a 
-	list of these methods/properties, run:
-	
-		PS C:\> Get-Symlink -Names "data" | Get-Member
-	
-	
+    retrieved by the 'Get-Symlink' command can be piped to:
+        - Build-Symlink
+        - Remove-Symlink
+        - Set-Symlink
+    
+    There are also methods on the [Symlink] object which can be run. To see a 
+    list of these methods/properties, run:
+    
+        PS C:\> Get-Symlink -Name "data" | Get-Member
+    
+    
  4. This module has custom-defined formatting outputs for:
-		-------			-----
-		Command			Alias
-		-------			-----
-		Format-List		fl
-		Format-Table	ft
-		Format-Custom	fc
-		Format-Wide		fw
-		
-	The 'Format-Custom' & 'Format-List' views usually contain the largest
-	amount of information regarding the symlink.
-	
-	
+        -------	        -----
+        Command	        Alias
+        -------         -----
+        Format-List     fl
+        Format-Table    ft
+        Format-Custom   fc
+        Format-Wide     fw
+    
+    The 'Format-Custom' & 'Format-List' views usually contain the largest
+    amount of information regarding the symlink.
+    
+    
  5. A font with ligatures is recommended for the best and clearest visual
-	display.
-	
-	When running in the 'Windows Terminal', fancy formatting is supported.
-	This formatting uses colours and emoji's to make the output even clearer
-	and easier to read/scan through.
-	
-	
+    display.
+    
+    When running in the 'Windows Terminal', fancy formatting is supported.
+    This formatting uses colours and emoji's to make the output even clearer
+    and easier to read/scan through.
+    
+    
 CREATING A SYMLINK
  1. To create a new symlink, run:
-	
-		PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
-	
-	This command will create a new symlink definition, named "data", and a
-	symbolic-link located in the user's document folder under a folder also
-	named "data", pointing to a folder on the D:\ drive.
-	
-	-Name
-		The name/identifier of this symlink (must be unique).
-	
-	-Path
-		The location of the symbolic-link item on the filesystem. If any parent
-		folders defined in this path don't exist, they will be created.
-	
-	-Target
-		The location which the symbolic-link will point to. This defines whether
-		the link points to a folder or file.
-	
-	OPTIONAL PARAMETERS
-	
-	-CreationCondition
-		A scriptblock which decides whether the symbolic-link is actually 
-		created or not. This does not affect the creation of the symlink
-		definition within the database. For more details about this, see the
-		SCRIPTBLOCK section down below.
-	
-	-DontCreateItem
-		Skips the creation of the symbolic-link item on the filesystem.
-	
-	
+    
+        PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
+    
+    This command will create a new symlink definition, named "data", and a
+    symbolic-link located in the user's document folder under a folder also
+    named "data", pointing to a folder on the D:\ drive.
+    
+    -Name
+        The name/identifier of this symlink (must be unique).
+    
+    -Path
+        The location of the symbolic-link item on the filesystem. If any parent
+        folders defined in this path don't exist, they will be created.
+    
+    -Target
+        The location which the symbolic-link will point to. This defines whether
+        the link points to a folder or file.
+    
+    OPTIONAL PARAMETERS
+    
+    -CreationCondition
+        A scriptblock which decides whether the symbolic-link is actually 
+        created or not. This does not affect the creation of the symlink
+        definition within the database. For more details about this, see the
+        SCRIPTBLOCK section down below.
+    
+    -DontCreateItem
+        Skips the creation of the symbolic-link item on the filesystem.
+    
+    
 RETRIEVING A SYMLINK
  1. To retrieve the details of a symlink, run:
-	
-		PS C:\> Get-Symlink -Names "data"
-	
-	This command will retrieve the details of the symlink named "data", and
-	output the information to the screen.
-	
-	-Names
-		The name(s)/identifier(s) of the symlinks to retrieve. Multiple values
-		are accepted to retrieve the data of multiple links.
-	  ! This parameter tab-completes valid symlink names.
-	
-	
+    
+        PS C:\> Get-Symlink -Name "data"
+    
+    This command will retrieve the details of the symlink named "data", and
+    output the information to the screen.
+    
+    -Names
+        The name(s)/identifier(s) of the symlinks to retrieve. Multiple values
+        are accepted to retrieve the data of multiple links.
+      ! This parameter tab-completes valid symlink names.
+    
+    
  2. To retrieve the details of multiple symlinks, run:
-	
-		PS C:\> Get-Symlink -Names "data","files"
-		
-	[OR]PS C:\> "data","files" | Get-Symlink -Names
-	
-	This command will retrieve the details of the symlinks named "data" and 
-	"files", and output both to the screen, one after another.
+    
+        PS C:\> Get-Symlink -Names "data","files"
+    
+    [OR]PS C:\> "data","files" | Get-Symlink -Names
+    
+    This command will retrieve the details of the symlinks named "data" and 
+    "files", and output both to the screen, one after another.
   ! You can pipe the names to this command instead.
-	
-	
+    
+    
  3. To retrieve the details of all symlinks, run:
-	
-		PS C:\> Get-Symlink -All
-	
-	This command will retrieve the details of all symlinks, and output the
-	information to the screen.
-	
-	-All
-		Specifies to retrieve details for all symlinks.
-	
-	
+    
+        PS C:\> Get-Symlink -All
+    
+    This command will retrieve the details of all symlinks, and output the
+    information to the screen.
+    
+    -All
+        Specifies to retrieve details for all symlinks.
+    
+    
 CHANGING A SYMLINK
  1. To change the name/identifier of a symlink, run:
-	
-		PS C:\> Set-Symlink -Name "data" -Property "Name" -Value "WORK"
-	
-	This command will change the name of the symlink called "data", to the new
-	name of "WORK". From now on, there is no symlink named "data" anymore.
-	
-	-Name
-		The name/identifier of the symlink to edit.
-	  ! This parameter tab-completes valid symlink names.
-	
-	-Property
-		The property to edit on this symlink. Valid values include:
-		"Name", "Path", "Target", and "CreationCondition".
-	  ! This parameter tab-completes valid options.
-	
-	-Value
-		The new value for the property to take.
-	
-	
+    
+        PS C:\> Set-Symlink -Name "data" -Property "Name" -Value "WORK"
+    
+    This command will change the name of the symlink called "data", to the new
+    name of "WORK". From now on, there is no symlink named "data" anymore.
+    
+    -Name
+        The name/identifier of the symlink to edit.
+      ! This parameter tab-completes valid symlink names.
+    
+    -Property
+        The property to edit on this symlink. Valid values include:
+        "Name", "Path", "Target", and "CreationCondition".
+      ! This parameter tab-completes valid options.
+    
+    -Value
+        The new value for the property to take.
+    
+    
  2. To change any other properties of a symlink, run:
-	
-		PS C:\> Set-Symlink -Name "data" -Property <...> -Value <...>
-	
-	The new value will undergo the same checks and validations as when creating
-	a new symlink using the 'New-Symlink' command.
-	
-	
+    
+        PS C:\> Set-Symlink -Name "data" -Property <...> -Value <...>
+    
+    The new value will undergo the same checks and validations as when creating
+    a new symlink using the 'New-Symlink' command.
+    
+    
 REMOVING A SYMLINK
  1. To remove a symlink, run:
-	
-		PS C:\> Remove-Symlink -Names "data"
-		
-	This command will remove a symlink definition, named "data", and delete the
-	symbolic-link item from the filesystem.
-	
-	-Names
-		The name(s)/identifier(s) of the symlinks to remove. Multiple values
-		are accepted to retrieve the data of multiple links.
-	  ! This parameter tab-completes valid symlink names.
-		
-	OPTIONAL PARAMETERS	
-	
-	-DontDeleteItem
-		Skips the deletion of the symbolic-link item on the filesystem. The
-		link will remain afterwads.
-	
-	
+    
+        PS C:\> Remove-Symlink -Name "data"
+        
+    This command will remove a symlink definition, named "data", and delete the
+    symbolic-link item from the filesystem.
+    
+    -Names
+        The name(s)/identifier(s) of the symlinks to remove. Multiple values
+        are accepted to retrieve the data of multiple links.
+      ! This parameter tab-completes valid symlink names.
+        
+    OPTIONAL PARAMETERS	
+    
+    -DontDeleteItem
+        Skips the deletion of the symbolic-link item on the filesystem. The
+        link will remain afterwads.
+    
+    
  2. To remove multiple symlinks, run:
-	
-		PS C:\> Remove-Symlink -Names "data","files"
-		
-	[OR]PS C:\> "data","files" | Remove-Symlink -Names
-	
-	This command will remove the symlink definitions named "data" and "files",
-	and delete the symbolic-link items of both.
+    
+        PS C:\> Remove-Symlink -Names "data","files"
+        
+    [OR]PS C:\> "data","files" | Remove-Symlink -Names
+    
+    This command will remove the symlink definitions named "data" and "files",
+    and delete the symbolic-link items of both.
   ! You can pipe the names to this command instead.
-	
-	
+    
+    
 CREATION CONDITION SCRIPTBLOCK
-	When creating a new symlink, or by setting the property using the 
-	'Set-Symlink' command, you can define a 'Creation Condition' scriptblock.
-	This scriptblock gets evaluated when the actual symbolic-link item is 
-	being created on the filesystem, and it determines whether it should or
-	should not be created.
-	
-	
-	For example, the scriptblock could check for the machine name, and only 
-	create the symlink on certain computers.
-	
-		The scriptblock would look like:
-		
-			{
-				if ($env:COMPUTERNAME -eq "specific-name")
-					{ return $true } else { return $false }
-			}
-		
-		Then when either the 'Build-Symlink' command, or the 
-		[Symlink].CreateFile() method are run, this scriptblock will be
-		evaluated and decide whether the creation should go through or not.
-		
-	  ! The scriptblock must return $TRUE or $FALSE values from all control
-	  	paths. This cannot be checked by the commands, so you must make sure
-		of this.
-	
-	
-	This allows the use of the same database file across multiple machines for
-	instance, even if the individual machines have slightly varying requirements
-	regarding which symlinks are actually needed on the filesystem.
-	
-	
+    When creating a new symlink, or by setting the property using the 
+    'Set-Symlink' command, you can define a 'Creation Condition' scriptblock.
+    This scriptblock gets evaluated when the actual symbolic-link item is 
+    being created on the filesystem, and it determines whether it should or
+    should not be created.
+    
+    
+    For example, the scriptblock could check for the machine name, and only 
+    create the symlink on certain computers.
+    
+        The scriptblock would look like:
+        
+            {
+                if ($env:COMPUTERNAME -eq "specific-name")
+                    { return $true } else { return $false }
+            }
+        
+        Then when either the 'Build-Symlink' command, or the 
+        [Symlink].CreateFile() method are run, this scriptblock will be
+        evaluated and decide whether the creation should go through or not.
+        
+      ! The scriptblock must return $TRUE or $FALSE values from all control
+        paths. This cannot be checked by the commands, so you must make sure
+        of this.
+    
+    
+    This allows the use of the same database file across multiple machines for
+    instance, even if the individual machines have slightly varying requirements
+    regarding which symlinks are actually needed on the filesystem.
+    
+    
 OTHER
-	The module stores all data in %APPDATA%\Powershell\Symlink
-	It is advised to **not** manually modify any files within this directory as
-	it could cause unintended consequences.
-	
-	
+    The module stores all data in %APPDATA%\Powershell\Symlink
+    It is advised to **not** manually modify any files within this directory as
+    it could cause unintended consequences.
+    
+    
 KEYWORDS
-	Symlink
-	Symbolic Link
-	Management
-	
+    Symlink
+    Symbolic Link
+    Management
+    
