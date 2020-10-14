@@ -3,36 +3,34 @@
 	Creates a new symlink.
 	
 .DESCRIPTION
-	Creates a new symlink definition in the database, and then creates the symlink on the filesystem.
+	Creates a new symlink definition in the database, and then creates the
+	symbolic-link item on the filesystem.
 	
 .PARAMETER Name
-	The human-readable name of this symlink (seperate from the actual path).
+	The name/identifier of this symlink (must be unique).
 	
 .PARAMETER Path
-	The path of the symlink location. The absence of a file extension creates a symlink folder. A specified
-	file extension creates a symlink file.
+	The location of the symbolic-link item on the filesystem. If any parent
+	folders defined in this path don't exist, they will be created.
 	
 .PARAMETER Target
-	The target directory or file which ths symlink points to.
+	The location which the symbolic-link will point to. This defines whether
+	the link points to a folder or file.
 	
 .PARAMETER CreationCondition
-	A scriptblock which contains logic to decide if the symlink should be built or not. This scriptblock
-	should return either $true or $false values. For more information, see the help at: about_System_symlinks.
+	A scriptblock which decides whether the symbolic-link is actually 
+	created or not. This does not affect the creation of the symlink
+	definition within the database. For more details about this, see the
+	help at: about_Symlink.
 	
 .PARAMETER DontCreateItem
-	Don't create the symlink item on the filesystem.
+	Skips the creation of the symbolic-link item on the filesystem.
 	
 .PARAMETER WhatIf
-	something
+	wip
 	
 .PARAMETER Confirm
-	something
-	
-.EXAMPLE
-	PS C:\> New-Symlink -Name "PowerToys" -Path "~\Appdata\Local\Microsoft\PowerToys"
-		-Target "D:\Programs\Data\PowerToys"
-	
-	Creates a symlink in the local appdata folder pointing to a seperate data folder on the D:\ drive.
+	wip
 	
 .INPUTS
 	None
@@ -41,7 +39,15 @@
 	None
 	
 .NOTES
-	For detailed help regarding the 'Creation Condition' for a symlink, see the help at: about_System_symlinks.
+	For detailed help regarding the 'Creation Condition' scriptblock, see
+	the help at: about_Symlink.
+	
+.EXAMPLE
+	PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
+	
+	This command will create a new symlink definition, named "data", and a
+	symbolic-link located in the user's document folder under a folder also
+	named "data", pointing to a folder on the D:\ drive.
 	
 #>
 function New-Symlink {

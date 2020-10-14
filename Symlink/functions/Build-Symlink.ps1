@@ -1,26 +1,18 @@
 ﻿<#
 .SYNOPSIS
-	Builds all of the symlinks.
+	Builds all of the symbolic-links.
 	
 .DESCRIPTION
-	Builds the symlinks on the filesystem. New symlinks will be created whilst modified symlinks
-	will be updated.
+	Creates the symbolic-link items on the filesystem. Non-existent items will
+	be created, whilst existing items will be updated (if necessary).
 	
 .PARAMETER Names
-	The name(s) of the symlink(s) to build. This parameter supports tab-completion for the values.
+	The name(s)/identifier(s) of the symlinks to create. Multiple values
+	are accepted to build multiple links at once.
+  ! This parameter tab-completes valid symlink names.
 	
 .PARAMETER All
-	Build all of the defined symlinks.
-	
-.EXAMPLE
-	PS C:\> Build-Symlinks -All
-	
-	Builds all of the symlinks.
-	
-.EXAMPLE
-	PS C:\> Build-Symlinks -Names "test", "test2"
-	
-	Builds only the symlinks called "test" and "test2".
+	Specifies to create all symlinks.
 	
 .INPUTS
 	Symlink[]
@@ -31,6 +23,20 @@
 	
 .NOTES
 	-Names supports tab-completion.
+	
+.EXAMPLE
+	PS C:\> Build-Symlink -All
+	
+	This command will go through all of the symlink definitions, and create 
+	the symbolic-link items on the filesystem, assuming the creation condition
+	for them is met.
+	
+.EXAMPLE
+	PS C:\> Build-Symlink -Names "data","files"
+	
+	This command will only go through the symlinks given in, and create the
+	items on the filesystem.
+  ! You can pipe the names to this command instead.
 	
 #>
 function Build-Symlink {

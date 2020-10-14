@@ -1,36 +1,27 @@
 ﻿<#
 .SYNOPSIS
-	Sets a new value for a property in a symlink definition.
+	Sets a property of a symlink.
 	
 .DESCRIPTION
-	Sets a property of an existing symlink definition to a new value.
+	Changes the property of a symlink to a new value.
 	
 .PARAMETER Name
-	The name of the symlink to modify. This parameter supports tab-completion for the values.
+	The name/identifier of the symlink to edit.
+  ! This parameter tab-completes valid symlink names.
 
 .PARAMETER Property
-	The property of the symlink to modify. Valid values are Name, Path, Target, and CreationCondition.
+	The property to edit on this symlink. Valid values include:
+	"Name", "Path", "Target", and "CreationCondition".
+  ! This parameter tab-completes valid options.
 	
 .PARAMETER Value
-	The new value for the property.
+	The new value for the property to take.
 	
 .PARAMETER WhatIf
-	something
+	wip
 	
 .PARAMETER Confirm
-	something
-	
-.EXAMPLE
-	PS C:\> Set-Symlink -Name "test" -Property "Name" -Value "hello"
-	
-	Changes the name of the "test" symlink to the value of "hello". From now on, the symlink
-	"test" doesn't exist.
-	
-.EXAMPLE
-	PS C:\> Get-Symlink -Name "test" | Set-Symlink -Property "Path" -Value "~\Desktop\link"
-	
-	Changes the path of the symlink called "test" to a new folder on the desktop. This will delete
-	the original symlink item and create the re-create it at the new path.
+	wip
 	
 .INPUTS
 	Symlink[]
@@ -40,7 +31,16 @@
 	None
 	
 .NOTES
-	For detailed help regarding the 'Creation Condition' for a symlink, see the help at: about_System_symlinks.
+	-Names supports tab-completion.
+	
+	For detailed help regarding the 'Creation Condition' scriptblock, see
+	the help at: about_Symlink.
+	
+.EXAMPLE
+	PS C:\> Set-Symlink -Name "data" -Property "Name" -Value "WORK"
+	
+	This command will change the name of the symlink called "data", to the new
+	name of "WORK". From now on, there is no symlink named "data" anymore.
 	
 #>
 function Set-Symlink {
