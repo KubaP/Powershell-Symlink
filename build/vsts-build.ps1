@@ -1,27 +1,68 @@
-﻿param (
-	# Key for publishing to PSGallery.
+﻿<#
+.SYNOPSIS
+	Short description
+.DESCRIPTION
+	Long description
+.PARAMETER ApiKey
+	The key for publishing to PSGallery.
+	
+.PARAMETER WorkingDirectory
+	The root folder for the whole project, containing the git files, build
+	files, module files, etc.
+  ! If running on Azure, don't specify any value.
+	
+.PARAMETER Repository
+	The repository to publish to, by default the PSGallery.
+	
+.PARAMETER TestRepo
+	Publish to the TESTING PSGallery instead.
+	
+.PARAMETER SkipPublish
+	Don't perform the publishing action.
+	
+.PARAMETER SkipArtifact
+	Don't package the module into a zipped file.
+	
+.EXAMPLE
+	PS C:\> .\build\vsts-build.ps1 -WorkingDirectory .\ -SkipPublish
+	
+	This is to just build and package the module locally.
+	
+.EXAMPLE
+	PS C:\> .\build\vsts-build.ps1 -WorkingDirectory .\ -SkipArtifact
+				-TestRepo -ApiKey ...
+	
+	This is to build and package the module to the TESTING PSGallery. Use this
+	for testing purposes.
+	
+.EXAMPLE
+	PS C:\> .\build\vsts-build.ps1 -ApiKey ...
+	
+	This is to build and package the module to the REAL PSGallery, and to 
+	package the module as a zip (for later use in uploading to the Github
+	Release page).
+	
+.NOTES
+	
+#>
+param (
+	[string]
 	$ApiKey,
 	
-	# The root folder for the whole project, containing the git files, build files, module files etc.
-	# If running locally, specify it to the project root folder.
-	# If running on Azure, don't specify anything.
+	[string]
 	$WorkingDirectory,
 	
-	# Repository to publish to. By default it's the PSGallery.
+	[string]
 	$Repository = 'PSGallery',
 	
-	# Publish to the testing PSGallery instead.
 	[switch]
 	$TestRepo,
 	
-	# Build only, don't publish.
 	[switch]
 	$SkipPublish,
 	
-	# Build but don't create artifacts.
 	[switch]
 	$SkipArtifact
-	
 )
 
 # Handle Working Directory paths within Azure pipelines.
@@ -126,14 +167,14 @@ if (-not $SkipPublish) {
 		Publish-Module -Path "$($publishDir.FullName)\Symlink" -NuGetApiKey $ApiKey -Force `
 			-Repository "test-repo" -Verbose
 		
-		Write-Host "Published package to test repo. Waiting 30 seconds." -ForegroundColor Cyan
-		Start-Sleep -Seconds 30
+		Write-Host "Published package to test repo. Waiting 60 seconds." -ForegroundColor Cyan
+		Start-Sleep -Seconds 60
 		
 		# Uninstall module if it already exists, to then test the installation 
 		# of the module from the test PSGallery.
 		Uninstall-Module -Name "Symlink" -Force -Verbose
 		Install-Module -Name "Symlink" -Repository "test-repo" -Force -AcceptLicense -SkipPublisherCheck -Verbose
-		Write-Host "Test Symlink module installed."
+		Write-Host "Test Symlink module installed." -ForegroundColor Cyan
 		
 		# Remove the testing repository.
 		Unregister-PSRepository -Name "test-repo" -Verbose
