@@ -44,15 +44,15 @@ OVERVIEW
         Format-Custom   fc
         Format-Wide     fw
     
-    The 'Format-Custom' & 'Format-List' views usually contain the largest
-    amount of information regarding the symlink.
+    The 'Format-Custom' & 'Format-List' views contain the largest amount
+    of information regarding the symlink.
     
     
  5. A font with ligatures is recommended for the best and clearest visual
     display.
     
     When running in the 'Windows Terminal', fancy formatting is supported.
-    This formatting uses colours and emoji's to make the output even clearer
+    This formatting uses colours and emojis to make the output even clearer
     and easier to read/scan through.
     
     

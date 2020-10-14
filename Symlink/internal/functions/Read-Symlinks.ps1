@@ -1,4 +1,25 @@
-﻿function Read-Symlinks {
+﻿<#
+.SYNOPSIS
+	Read the symlink objects in.
+	
+.DESCRIPTION
+	Deserialise the symlink objects from the database file.
+	
+.EXAMPLE
+	PS C:\> $list = $Read-Symlinks
+	
+	Reads all of the symlink objects into a variable, for maniuplation.
+	
+.INPUTS
+	None
+	
+.OUTPUTS
+	System.Collections.Generic.List[Symlink]
+	
+.NOTES
+	
+#>
+function Read-Symlinks {
 	# Create an empty symlink list.
 	$linkList = New-Object -TypeName System.Collections.Generic.List[Symlink]
 	
