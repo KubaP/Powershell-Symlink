@@ -2,6 +2,9 @@
 trigger:
 - feature/*
 
+pr:
+- none
+
 pool:
   vmImage: 'windows-2019'
 
