@@ -23,6 +23,8 @@ function Read-Symlinks {
 	# Create an empty symlink list.
 	$linkList = New-Object -TypeName System.Collections.Generic.List[Symlink]
 	
+	Write-Debug $linkList.GetType()
+	
 	# If the file doesn't exist, skip any importing.
 	if (Test-Path -Path $script:DataPath -ErrorAction SilentlyContinue) {
 		# Read the xml data in.
@@ -40,6 +42,9 @@ function Read-Symlinks {
 				}else {
 					[Symlink]::new($item.Name, $item._Path, $item._Target, [scriptblock]::Create($item._Condition))
 				}
+				
+				Write-Debug $link.GetType()
+				Write-Debug $link.Name
 				
 				$linkList.Add($link)
 			}
