@@ -1,16 +1,842 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
 <Configuration>
+	<!-- General settings. -->
+	<DefaultSettings>
+		<!-- Shows a '#ERR' string when an error occurs it retrieving data. -->
+		<DisplayError/>
+		
+	</DefaultSettings>
+	
+	<!-- Selection Sets to simplify view declerations. -->
+	<SelectionSets>
+		<!-- Symlink Set -->
+		<SelectionSet>
+			<Name>Set.Symlink</Name>
+			<Types>
+				<TypeName>Symlink</TypeName>
+				<TypeName>Deserialized.Symlink</TypeName>
+			</Types>
+		</SelectionSet>
+		
+	</SelectionSets>
+	
+	<!-- Reusable display elements. -->
+	<Controls>
+		<!-- An indented title. -->
+		<Control>
+			<Name>Control.Title</Name>
+			<CustomControl>
+				<CustomEntries>
+					<CustomEntry>
+						<CustomItem>
+						
+							<!-- The object name property. -->
+							<Frame>
+								<CustomItem>
+									<ExpressionBinding>
+										<ScriptBlock>
+											if ($env:WT_SESSION) {
+												return "`e[97;4m	Name : $($_.Name)`e[0m"
+											}else {
+												return "	Name : $($_.Name)"
+											}
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+						</CustomItem>
+					</CustomEntry>
+				</CustomEntries>
+			</CustomControl>
+		</Control>
+		
+	</Controls>
+	
+	<!-- View definitions. -->
 	<ViewDefinitions>
-		<!-- Foo.Bar -->
+		<!-- system.symlink LIST -->
 		<View>
-			<Name>Foo.Bar-Description</Name>
+			<Name>System.Symlink.List</Name>
 			<ViewSelectedBy>
-				<TypeName>Foo.Bar</TypeName>
+				<SelectionSetName>Set.Symlink</SelectionSetName>
 			</ViewSelectedBy>
+			
+			<ListControl>
+				<ListEntries>
+					<!-- Legacy Formatting -->
+					<ListEntry>
+						<ListItems>
+							
+							<!-- The symlink name. -->
+							<ListItem>
+								<PropertyName>Name</PropertyName>
+							</ListItem>
+							
+							<!-- The symlink location. -->
+							<ListItem>
+								<Label>Path</Label>
+								<ScriptBlock>
+									$_.FullPath()
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The symlink target. -->
+							<!-- Present the true and expanded path. -->
+							<ListItem>
+								<Label>Target</Label>
+								<ScriptBlock>
+									return $_.FullTarget()
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- Whether the symlink exists or not. -->
+							<ListItem>
+								<Label>Exists on Filesystem</Label>
+								<ScriptBlock>
+									switch ($_.State()) {
+										True {
+											return "$true"
+										}
+										False {
+											return "$false"
+										}
+										NeedsCreation {
+											return "$false! (Needs Creation)"
+										}
+										NeedsDeletion {
+											return "$true! (Needs Deletion)"
+										}
+										Error {
+											return "An error has occured!"
+										}
+									}
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The creation condition, only if there is one. -->
+							<!-- The default condition should not be shown. -->
+							<ListItem>
+								<Label>Creation Condition</Label>
+								<ItemSelectionCondition>
+									<ScriptBlock>
+										if ($null -ne $_._Condition) {
+											return $true
+										} else {
+											return $false
+										}
+									</ScriptBlock>
+								</ItemSelectionCondition>
+								<ScriptBlock>
+									$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
+									"{" + $var + "}"
+								</ScriptBlock>
+							</ListItem>
+							
+						</ListItems>
+					</ListEntry>
+					
+					<!-- COLOUR Formatting -->
+					<ListEntry>
+						<EntrySelectedBy>
+							<SelectionCondition>
+								<SelectionSetName>Set.Symlink</SelectionSetName>
+								<ScriptBlock>
+									if ($env:WT_SESSION) {
+										return $true
+									}
+								</ScriptBlock>
+							</SelectionCondition>
+						</EntrySelectedBy>
+						
+						<ListItems>
+							
+							<!-- The symlink name. -->
+							<ListItem>
+								<Label>Name</Label>
+								<ScriptBlock>
+									"`e[97m$($_.Name)`e[0m"
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The symlink location. -->
+							<ListItem>
+								<Label>Path</Label>
+								<ScriptBlock>
+									$_.FullPath()
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The symlink target. -->
+							<!-- Present the true and expanded path. -->
+							<ListItem>
+								<Label>Target</Label>
+								<ScriptBlock>
+									$_.FullTarget()
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- Whether the symlink exists or not. -->
+							<!-- Also shows if it needs to be created or deleted. -->
+							<ListItem>
+								<Label>Exists on Filesystem</Label>
+								<ScriptBlock>
+									switch ($_.State()) {
+										True {
+											return "`e[32m$true`e[0m"
+										}
+										False {
+											return "`e[33m$false`e[0m"
+										}
+										NeedsCreation {
+											return "`e[31;4m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
+										}
+										NeedsDeletion {
+											return "`e[33;4m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
+										}
+										Error {
+											return "`e[31;4mAn error has occured`e[0m❗"
+										}
+									}
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The creation condition, only if there is one. -->
+							<!-- A non-existent condition should not be shown. -->
+							<ListItem>
+								<Label>Creation Condition</Label>
+								<ItemSelectionCondition>
+									<ScriptBlock>
+										if ($null -ne $_._Condition) {
+											return $true
+										} else {
+											return $false
+										}
+									</ScriptBlock>
+								</ItemSelectionCondition>
+								<ScriptBlock>
+									$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
+									"{" + $var + "}"
+								</ScriptBlock>
+							</ListItem>
+							
+						</ListItems>
+					</ListEntry>
+				</ListEntries>
+			</ListControl>
+		</View>
+		
+		<!-- system.symlink CUSTOM -->
+		<View>
+			<Name>System.Symlink.Custom</Name>
+			<ViewSelectedBy>
+				<SelectionSetName>Set.Symlink</SelectionSetName>
+			</ViewSelectedBy>
+			
 			<GroupBy>
-				<Label>Label</Label>				
-				<PropertyName>Property</PropertyName>
+				<PropertyName>Name</PropertyName>
+				<CustomControlName>Control.Title</CustomControlName>
 			</GroupBy>
-		</View>				
+			
+			<CustomControl>
+				<CustomEntries>
+					
+					<!-- Legacy Formatting -->
+					<!-- The basic display if there's no custom creation condition. -->
+					<CustomEntry>
+						<CustomItem>
+							
+							<!-- The symlink location. -->
+							<Frame>
+								<CustomItem>
+									<Text>Location Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullPath()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- The symlink target. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Target Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullTarget()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- Whether the symlink exists. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Exists: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											switch ($_.State()) {
+												True {
+													return "$true"
+												}
+												False {
+													return "$false"
+												}
+												NeedsCreation {
+													return "$false! (Needs Creation)"
+												}
+												NeedsDeletion {
+													return "$true! (Needs Deletion)"
+												}
+												Error {
+													return "An error has occured!"
+												}
+											}
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+						</CustomItem>
+					</CustomEntry>
+					
+					<!-- Legacy Formatting -->
+					<!-- The advanced display if there is a custom creation condition. -->
+					<CustomEntry>
+						<!-- The creation condition, only if there is one. -->
+						<!-- The default condition should not be shown. -->
+						<EntrySelectedBy>
+							<SelectionCondition>
+								<SelectionSetName>Set.Symlink</SelectionSetName>
+								<ScriptBlock>
+									if ($null -ne $_._Condition -and -not $env:WT_SESSION) {
+										return $true
+									}
+								</ScriptBlock>
+							</SelectionCondition>
+						</EntrySelectedBy>
+						
+						<CustomItem>
+							
+							<!-- The symlink location. -->
+							<Frame>
+								<CustomItem>
+									<Text>Location Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullPath()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- The symlink target. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Target Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullTarget()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- Whether the symlink exists. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Exists: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											switch ($_.State()) {
+												True {
+													return "$true"
+												}
+												False {
+													return "$false"
+												}
+												NeedsCreation {
+													return "$false! (Needs Creation)"
+												}
+												NeedsDeletion {
+													return "$true! (Needs Deletion)"
+												}
+												Error {
+													return "An error has occured!"
+												}
+											}
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- The symlink creation condition. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Creation Condition ScriptBlock: </Text>
+									<NewLine />
+								</CustomItem>
+							</Frame>
+							
+							
+							<!-- The actual ScriptBlock is indented. -->
+							<Frame>
+								<LeftIndent>4</LeftIndent>
+								<CustomItem>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
+											"{" + $var + "}"
+										</ScriptBlock>
+									</ExpressionBinding>
+									<NewLine />
+								</CustomItem>
+							</Frame>
+							
+						</CustomItem>
+					</CustomEntry>
+					
+					<!-- COLOUR Formatting -->
+					<!-- The basic display if there's no custom creation condition. -->
+					<CustomEntry>
+						<EntrySelectedBy>
+							<SelectionCondition>
+								<SelectionSetName>Set.Symlink</SelectionSetName>
+								<ScriptBlock>
+									if ($null -eq $_._Condition -and $env:WT_SESSION) {
+										return $true
+									}
+								</ScriptBlock>
+							</SelectionCondition>
+						</EntrySelectedBy>
+						<CustomItem>
+							
+							<!-- The symlink location. -->
+							<Frame>
+								<CustomItem>
+									<Text>Location Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullPath()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- The symlink target. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Target Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullTarget()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- Whether the symlink exists. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Exists: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											switch ($_.State()) {
+												True {
+													return "`e[32m$true`e[0m✅"
+												}
+												False {
+													return "`e[33m$false`e[0m✅"
+												}
+												NeedsCreation {
+													return "`e[31;4m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
+												}
+												NeedsDeletion {
+													return "`e[33;4m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
+												}
+												Error {
+													return "`e[31;4mAn error has occured`e[0m❗"
+												}
+											}
+										</ScriptBlock>
+									</ExpressionBinding>
+									<NewLine />
+								</CustomItem>
+							</Frame>
+							
+						</CustomItem>
+					</CustomEntry>
+					
+					<!-- COLOUR Formatting -->
+					<!-- The advanced display if there is a custom creation condition. -->
+					<CustomEntry>
+						<!-- The creation condition, only if there is one. -->
+						<!-- The default condition should not be shown. -->
+						<EntrySelectedBy>
+							<SelectionCondition>
+								<SelectionSetName>Set.Symlink</SelectionSetName>
+								<ScriptBlock>
+									if ($null -ne $_._Condition -and $env:WT_SESSION) {
+										return $true
+									}
+								</ScriptBlock>
+							</SelectionCondition>
+						</EntrySelectedBy>
+						
+						<CustomItem>
+							
+							<!-- The symlink location. -->
+							<Frame>
+								<CustomItem>
+									<Text>Location Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullPath()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- The symlink target. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Target Path: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$_.FullTarget()
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- Whether the symlink exists. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Exists: </Text>
+									<ExpressionBinding>
+										<ScriptBlock>
+											switch ($_.State()) {
+												True {
+													return "`e[32m$true`e[0m✅"
+												}
+												False {
+													return "`e[33m$false`e[0m✅"
+												}
+												NeedsCreation {
+													return "`e[31;4m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
+												}
+												NeedsDeletion {
+													return "`e[33;4m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
+												}
+												Error {
+													return "`e[31;4mAn error has occured`e[0m❗"
+												}
+											}
+										</ScriptBlock>
+									</ExpressionBinding>
+								</CustomItem>
+							</Frame>
+							
+							<!-- The symlink creation condition. -->
+							<Frame>
+								<CustomItem>
+									<NewLine />
+									<Text>Creation Condition ScriptBlock: </Text>
+									<NewLine />
+								</CustomItem>
+							</Frame>
+							
+							
+							<!-- The actual ScriptBlock is indented. -->
+							<Frame>
+								<LeftIndent>4</LeftIndent>
+								<CustomItem>
+									<ExpressionBinding>
+										<ScriptBlock>
+											$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
+											"{" + $var + "}"
+										</ScriptBlock>
+									</ExpressionBinding>
+									<NewLine />
+								</CustomItem>
+							</Frame>
+							
+						</CustomItem>
+					</CustomEntry>
+					
+				</CustomEntries>
+			</CustomControl>
+		</View>
+		
+		<!-- system.symlink TABLE -->
+		<View>
+			<Name>System.Symlink.Table</Name>
+			<ViewSelectedBy>
+				<SelectionSetName>Set.Symlink</SelectionSetName>
+			</ViewSelectedBy>
+			
+			<TableControl>
+				<!-- The table headers. -->
+				<TableHeaders>
+					
+					<TableColumnHeader>
+						<Label>Name</Label>
+						<Width>25</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					
+					<TableColumnHeader>
+						<Label>Path</Label>
+						<Width>35</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					
+					<TableColumnHeader>
+						<Label>Target</Label>
+						<Width>35</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					
+					<TableColumnHeader>
+						<Label>Condition</Label>
+						<Width>10</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					
+					<TableColumnHeader>
+						<Label>Exists</Label>
+						<Width>7</Width>
+						<Alignment>Right</Alignment>
+					</TableColumnHeader>
+					
+				</TableHeaders>
+				
+				<!-- The table rows. -->
+				<TableRowEntries>
+					
+					<!-- Legacy Formatting -->
+					<TableRowEntry>
+						<TableColumnItems>
+							
+							<!-- The symlink name. -->
+							<TableColumnItem>
+								<PropertyName>Name</PropertyName>
+							</TableColumnItem>
+							
+							<!-- The symlink location. -->
+							<TableColumnItem>
+								<ScriptBlock>
+									$_.ShortPath()
+								</ScriptBlock>
+							</TableColumnItem>
+							
+							<!-- The symlink target. -->
+							<TableColumnItem>
+								<ScriptBlock>
+									$_.ShortTarget()
+								</ScriptBlock>
+							</TableColumnItem>
+							
+							<TableColumnItem>
+								<ScriptBlock>
+									if ($_._Condition) {
+										return "Yes"
+									}else {
+										return "No"
+									}
+								</ScriptBlock>
+							</TableColumnItem>
+							
+							<!-- Whether the symlink exists or not. -->
+							<TableColumnItem>
+								<ScriptBlock>
+									switch ($_.State()) {
+										True {
+											return "$true"
+										}
+										False {
+											return "$false"
+										}
+										NeedsCreation {
+											return "$false!"
+										}
+										NeedsDeletion {
+											return "$true!"
+										}
+										Error {
+											return "ERROR!"
+										}
+									}
+								</ScriptBlock>
+							</TableColumnItem>
+							
+						</TableColumnItems>
+					</TableRowEntry>
+					
+					<!-- COLOUR Formatting -->
+					<TableRowEntry>
+						<EntrySelectedBy>
+							<SelectionCondition>
+								<SelectionSetName>Set.Symlink</SelectionSetName>
+								<ScriptBlock>
+									if ($env:WT_SESSION) {
+										return $true
+									}
+								</ScriptBlock>
+							</SelectionCondition>
+						</EntrySelectedBy>
+						
+						<TableColumnItems>
+							<!-- The symlink name. -->
+							<TableColumnItem>
+								<PropertyName>Name</PropertyName>
+								<Alignment>Left</Alignment>
+							</TableColumnItem>
+							
+							<!-- The symlink location. -->
+							<TableColumnItem>
+								<ScriptBlock>
+									$_.ShortPath()
+								</ScriptBlock>
+								<Alignment>Left</Alignment>
+							</TableColumnItem>
+							
+							<!-- The symlink target. -->
+							<TableColumnItem>
+								<ScriptBlock>
+									$_.ShortTarget()
+								</ScriptBlock>
+								<Alignment>Left</Alignment>
+							</TableColumnItem>
+							
+							<TableColumnItem>
+								<ScriptBlock>
+									if ($_._Condition) {
+										return "✅"
+									}else {
+										return "❌"
+									}
+								</ScriptBlock>
+							</TableColumnItem>
+							
+							<!-- Whether the symlink exists or not. -->
+							<TableColumnItem>
+								<ScriptBlock>
+									switch ($_.State()) {
+										True {
+											return "`e[32m$true`e[0m"
+										}
+										False {
+											return "`e[33m$false`e[0m"
+										}
+										NeedsCreation {
+											return "`e[31;4m$false`e[0m❗"
+										}
+										NeedsDeletion {
+											return "`e[33;4m$true`e[0m❗"
+										}
+										Error {
+											return "`e[31;4mError`e[0m❗"
+										}
+									}
+								</ScriptBlock>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+				
+			</TableControl>
+		</View>
+		
+		<!-- system.symlink WIDE -->
+		<View>
+			<Name>System.Symlink.Wide</Name>
+			<ViewSelectedBy>
+				<SelectionSetName>Set.Symlink</SelectionSetName>
+			</ViewSelectedBy>
+			
+			<WideControl>
+				<WideEntries>
+					<!-- Legacy Formatting -->
+					<WideEntry>
+						<!-- The symlink name. -->
+						<WideItem>
+							<ScriptBlock>
+								$name = $_.Name
+								switch ($_.State()) {
+									True {
+										return "$name"
+									}
+									False {
+										return "$name"
+									}
+									NeedsCreation {
+										return "$name!"
+									}
+									NeedsDeletion {
+										return "$name!"
+									}
+									Error {
+										return "Error!"
+									}
+								}
+							</ScriptBlock>
+						</WideItem>
+						
+					</WideEntry>
+					
+					<!-- COLOUR Formatting -->
+					<WideEntry>
+						<EntrySelectedBy>
+							<SelectionCondition>
+								<SelectionSetName>Set.Symlink</SelectionSetName>
+								<ScriptBlock>
+									if ($env:WT_SESSION) {
+										return $true
+									}
+								</ScriptBlock>
+							</SelectionCondition>
+						</EntrySelectedBy>
+						
+						<!-- The symlink name. -->
+						<WideItem>
+							<ScriptBlock>
+								$name = $_.Name
+								switch ($_.State()) {
+									True {
+										return "`e[32m$name`e[0m"
+									}
+									False {
+										return "`e[33m$name`e[0m"
+									}
+									NeedsCreation {
+										return "`e[31;4m$name`e[0m❗"
+									}
+									NeedsDeletion {
+										return "`e[33;4m$name`e[0m❗"
+									}
+									Error {
+										return "`e[31;4mError`e[0m❗"
+									}
+								}
+							</ScriptBlock>
+						</WideItem>
+						
+					</WideEntry>
+				</WideEntries>
+			</WideControl>
+		</View>
+		
 	</ViewDefinitions>
+	
 </Configuration>

@@ -12,13 +12,13 @@
 	Author = 'KubaP'
 	
 	# Company or vendor of this module
-	CompanyName = ' '
+	CompanyName = ''
 	
 	# Copyright statement for this module
 	Copyright = 'Copyright (c) 2020 KubaP'
 	
 	# Description of the functionality provided by this module
-	Description = 'Easy and central management of symbolic links on the filesystem, with many advanced features.'
+	Description = 'Easy and central management of symbolic links on the filesystem, in an improved user experience.'
 	
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = '6.0'
@@ -37,11 +37,15 @@
 	# TypesToProcess = @('xml\Symlink.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	# FormatsToProcess = @('xml\Symlink.Format.ps1xml')
+	FormatsToProcess = @('xml\Symlink.Format.ps1xml')
 	
 	# Functions to export from this module
 	FunctionsToExport = @(
-		
+		"New-Symlink",
+		"Get-Symlink",
+		"Set-Symlink",
+		"Remove-Symlink",
+		"Build-Symlink"
 	)
 	
 	# Cmdlets to export from this module
@@ -66,7 +70,9 @@
 		PSData = @{
 			
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @("Windows","Symlink","Symbolic_Link","PSEdition_Core","PSEdition_Desktop")
+			# TODO: Add Mac/Linux tags once module confirmed working on those platforms.
+			# TODO: Add PS_Desktop tag once module confirmed working on powershell 5.1.
+			Tags = @("Windows","Symlink","Symbolic_Link","PSEdition_Core")
 			
 			# A URL to the license for this module.
 			LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.en.html'

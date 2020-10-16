@@ -1,0 +1,32 @@
+
+trigger:
+- none
+
+pr:
+- master
+
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+- task: PowerShell@2
+  inputs:
+    filePath: 'build/vsts-prerequisites.ps1'
+    ignoreLASTEXITCODE: true
+    pwsh: true
+- task: PowerShell@2
+  inputs:
+    filePath: 'build/vsts-validate.ps1'
+    errorActionPreference: 'continue'
+    ignoreLASTEXITCODE: true
+    pwsh: true
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: '**/TEST-*.xml'
+    testRunTitle: 'Powershell Core Tests'
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'JaCoCo'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/CodeCov-*.xml'
+    pathToSources: '$(System.DefaultWorkingDirectory)/'
