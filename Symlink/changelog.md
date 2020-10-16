@@ -8,5 +8,5 @@
  - Added: about_pages: Includes all details regarding command invocations, general module information, and key data points.
  - Added: help_descriptions: Thorough descriptions of all commands along with multiple examples and important notes.
  - Added: tab_completion: Tab completion functionality for all commands for appropriate parameters.
- - Added: Symlink_object: Implementation of symlink logic as part of a custom class which appropriate public getters/setters.
+ - Added: Symlink_object: Implementation of symlink logic as part of a custom class with appropriate public getters/setters for properties and methods.
  - Added: Format.ps1xml: Custom formatting for the symlink object, supporting all 4 formatting views. Also included alternative formatting outputs if running in certain terminals, for enhanced readability.

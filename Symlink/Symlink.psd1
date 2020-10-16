@@ -18,7 +18,7 @@
 	Copyright = 'Copyright (c) 2020 KubaP'
 	
 	# Description of the functionality provided by this module
-	Description = 'Easy and central management of symbolic links on the filesystem, with many advanced features.'
+	Description = 'Easy and central management of symbolic links on the filesystem, in an improved user experience.'
 	
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = '6.0'
