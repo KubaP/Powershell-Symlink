@@ -21,9 +21,6 @@ if (-not (Test-Path -Path "$env:APPDATA\Powershell\Symlink" -ErrorAction Ignore)
 $doDotSource = $global:ModuleDebugDotSource
 $doDotSource = $true # Needed to make code coverage tests work
 
-# TODO: Rewrite this and build script so that the packaged module *only*
-# TODO: contains the compiled code, and it **can't** import individual files.
-
 function Resolve-Path_i {
 	<#
 	.SYNOPSIS
@@ -50,21 +47,21 @@ function Resolve-Path_i {
 	)
 	
 	# Run the command, silencing errors.
-	$resolvedPath = Resolve-Path $Path -ErrorAction Ignore
+	$resolvedPath = Resolve-Path -Path $Path -ErrorAction Ignore
 	
 	# If NULL, then just return an empty string.
 	if ($null -eq $resolvedPath) {
 		$resolvedPath = ""
 	}
 	
-	$resolvedPath
+	Write-Output $resolvedPath
 }
 function Import-ModuleFile {
 	<#
 	.SYNOPSIS
 		Loads files into the module on module import.
-		Only used in the development environment project; not used in the 
-		built module code.
+		Only used in the project development environment.
+		In built module, compiled code is within this module file.
 		
 	.DESCRIPTION
 		This helper function is used during module initialization.
@@ -88,10 +85,11 @@ function Import-ModuleFile {
 	
 	# Get the resolved path to avoid any cross-OS issues.
 	$resolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
+	
 	if ($doDotSource) {
 		# Load the file through dot-sourcing.
 		. $resolvedPath	
-		Write-Debug "Dot sourcing file: $resolvedPath"
+		Write-Debug "Dot-sourcing file: $resolvedPath"
 	}
 	else {
 		# Load the file through different method (unknown atm?).
@@ -124,6 +122,7 @@ function Import-ModuleFile {
 # *only* possibility is to load the compiled code below and there is no way
 # the individual files can be imported, as they don't exist.
 
+
 # If this module file contains the compiled code, import that, but if it
 # doesn't, then import the individual files instead.
 $importIndividualFiles = $false
@@ -136,7 +135,7 @@ Write-Debug "`e[4mIMPORT DECISION`e[0m"
 Write-Debug "Dot-sourcing: $doDotSource"
 Write-Debug "Importing individual files: $importIndividualFiles"
 
-# If importing code in individual files, perform the importing.
+# If importing code as individual files, perform the importing.
 # Otherwise, the compiled code below will be loaded.
 if ($importIndividualFiles) {
 	Write-Debug "!IMPORTING INDIVIDUAL FILES!"
