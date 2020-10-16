@@ -93,7 +93,7 @@ Get-Module -Verbose
 
 # Create the publish folder.
 WriteHeader -Message "Creating and populating publishing directory" -Colour Cyan
-Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse | Out-Null
+Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse -ErrorAction 'Continue' | Out-Null
 $publishDir = New-Item -Path $WorkingDirectory -Name "publish" -ItemType Directory -Force -Verbose
 
 # Copy the module files from the root git repository to the publish folder.
