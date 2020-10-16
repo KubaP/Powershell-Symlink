@@ -6,18 +6,10 @@ This module is aimed at anyone who manages many symlinks on their system, either
 <br>
 
 [![Build Status](https://dev.azure.com/KubaP999/Symlink/_apis/build/status/Development%20CI?branchName=development)](https://dev.azure.com/KubaP999/Symlink/_build/latest?definitionId=13&branchName=development)
-[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/Symlink/13?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/Symlink/_build?definitionId=13)
-[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ProgramManager?logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/Symlink)
-/\ Replace this one with a shields.io badge. Go to 'Version' -> 'Powershell Gallery (inc. pre-release)'
-    Fill out package name
-    logo = 'powershell'
-    logoColour = 'white'
-![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/ProgramManager?logo=windows)
-/\ Replace this one with a shields.io badge. Go to 'Platform Support' -> 'Powershell Gallery'
-    Fill out package name
-    logo = 'windows'
-    logoColour = 'white'
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/symlink?include_prereleases&logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/Symlink)
+![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/symlink?logo=windows&logoColor=white)
 [![License](https://img.shields.io/badge/license-GPLv3-blue)](./LICENSE)
+<!-- [![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/Symlink/13?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/Symlink/_build?definitionId=13) -->
 
 ### Table of Contents
 
