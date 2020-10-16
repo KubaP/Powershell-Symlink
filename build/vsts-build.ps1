@@ -88,9 +88,12 @@ Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse
 $publishDir = New-Item -Path $WorkingDirectory -Name "publish" -ItemType Directory -Force
 
 # Copy the module files from the root git repository to the publish folder.
+# Only copy the files which don't get "compiled", i.e. the module files
+# themselves, the help documentation, and the xml definitions.
+# The content of the actual code files will get compiled into the module file.
 New-Item -Path $publishDir.FullName -Name "Symlink" -ItemType Directory -Force | Out-Null
-Copy-Item -Path "$($WorkingDirectory)\Symlink\*" -Destination "$($publishDir.FullName)\Symlink\" `
-	-Recurse -Force -Exclude "*tests*"
+Copy-Item -Path "$WorkingDirectory\Symlink\*" -Destination "$($publishDir.FullName)\Symlink\" `
+	-Recurse -Force -Exclude "tests","internal","functions"
 
 # Gather text data from scripts to compile.
 $text = @()
@@ -101,7 +104,7 @@ foreach ($line in (Get-Content "$($PSScriptRoot)\filesBefore.txt" | Where-Object
 	if ([string]::IsNullOrWhiteSpace($line)) { continue }
 	
 	# Resolve the paths to be relative to the publish directory.
-	$basePath = Join-Path "$($publishDir.FullName)\Symlink" $line
+	$basePath = Join-Path "$WorkingDirectory\Symlink" $line
 	
 	# Get each file specified by the current line inside of filesBefore.txt
 	foreach ($entry in (Resolve-Path -Path $basePath)) {
@@ -118,10 +121,10 @@ foreach ($line in (Get-Content "$($PSScriptRoot)\filesBefore.txt" | Where-Object
 }
 
 # Gather commands of all public and internal functions.
-Get-ChildItem -Path "$($publishDir.FullName)\Symlink\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$WorkingDirectory\Symlink\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
 	$text += [System.IO.File]::ReadAllText($_.FullName)	
 }
-Get-ChildItem -Path "$($publishDir.FullName)\Symlink\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$WorkingDirectory\Symlink\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
 	$text += [System.IO.File]::ReadAllText($_.FullName)
 }
 
@@ -130,7 +133,7 @@ foreach ($line in (Get-Content "$($PSScriptRoot)\filesAfter.txt" | Where-Object 
 	if ([string]::IsNullOrWhiteSpace($line)) { continue }
 	
 	# Resolve the paths to be relative to the publish directory.
-	$basePath = Join-Path "$($publishDir.FullName)\Symlink" $line
+	$basePath = Join-Path "$WorkingDirectory\Symlink" $line
 		
 	# Get each file specified by the current line inside of filesAfter.txt
 	foreach ($entry in (Resolve-Path -Path $basePath)) {
@@ -151,7 +154,7 @@ foreach ($line in (Get-Content "$($PSScriptRoot)\filesAfter.txt" | Where-Object 
 # single .psm1 file.
 $fileData = Get-Content -Path "$($publishDir.FullName)\Symlink\Symlink.psm1" -Raw
 # Change the complied flag to true.
-$fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
+$fileData = $fileData.Replace('"<was not built>"', '"<was built>"')
 # Paste the text picked up from all files into the .psm1 main file, and save.
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
 [System.IO.File]::WriteAllText("$($publishDir.FullName)\Symlink\Symlink.psm1", $fileData, [System.Text.Encoding]::UTF8)
