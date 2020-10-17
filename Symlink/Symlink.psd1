@@ -72,7 +72,7 @@
 			# Tags applied to this module. These help with module discovery in online galleries.
 			# TODO: Add Mac/Linux tags once module confirmed working on those platforms.
 			# TODO: Add PS_Desktop tag once module confirmed working on powershell 5.1.
-			Tags = @("Windows","Symlink","Symbolic_Link","PSEdition_Core")
+			Tags = @("Windows","Symlink","Symbolic_Link","PSEdition_Core","Management","File","Folder")
 			
 			# A URL to the license for this module.
 			LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.en.html'

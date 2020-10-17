@@ -32,7 +32,7 @@
 	-Names supports tab-completion.
 	
 .EXAMPLE
-	PS C:\> Remove-Symlink -Names "data"
+	PS C:\> Remove-Symlink -Name "data"
 	
 	This command will remove a symlink definition, named "data", and delete the
 	symbolic-link item from the filesystem.
@@ -43,6 +43,12 @@
 	This command will remove the symlink definitions named "data" and "files",
 	and delete the symbolic-link items of both.
   ! You can pipe the names to this command instead.
+	
+.EXAMPLE
+	PS C:\> Remove-Symlink -Name "data" -DontDeleteItem
+	
+	This command will remove a symlink definition, named "data", but it will
+	keep the symbolic-link item on the filesystem.
 	
 #>
 function Remove-Symlink {
@@ -62,23 +68,22 @@ function Remove-Symlink {
 		
 	)
 	
-	# Process block since this function accepts pipeline input.
 	process {
+		# Read in the existing symlinks.
+		$linkList = Read-Symlinks
+		
 		foreach ($name in $Names) {
-			Write-Verbose "Processing the symlink: '$name'."
-			# Read in the existing symlinks.
-			$linkList = Read-Symlinks
-				
+			Write-Verbose "Removing the symlink: '$name'."
 			# If the link doesn't exist, warn the user.
 			$existingLink = $linkList | Where-Object { $_.Name -eq $name }
 			if ($null -eq $existingLink) {
 				Write-Error "There is no symlink called: '$name'."
-				return
+				continue
 			}
 			
 			# Delete the symlink from the filesystem.
 			if (-not $DontDeleteItem) {
-				Write-Verbose "Deleting the symlink item from the filesystem."
+				Write-Verbose "Deleting the symbolic-link item from the filesystem."
 				$existingLink.DeleteFile()
 			}
 			
@@ -89,7 +94,5 @@ function Remove-Symlink {
 		# Re-export the list.
 		Write-Verbose "Re-exporting the modified database."
 		Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
-			
 	}
-	
 }

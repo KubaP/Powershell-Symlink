@@ -49,6 +49,15 @@
 	symbolic-link located in the user's document folder under a folder also
 	named "data", pointing to a folder on the D:\ drive.
 	
+.EXAMPLE
+	PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
+				-CreationCondition $script -DontCreateItem
+	
+	This command will create a new symlink definition, named "data", but it
+	will not create the symbolic-link on the filesystem. A creation condition
+	is also defined, which will be evaluated when the 'Build-Symlink' command
+	is run in the future.
+	
 #>
 function New-Symlink {
 	
@@ -77,26 +86,27 @@ function New-Symlink {
 		
 	)
 	
-	# Validate that the name is valid.
-	if ([system.string]::IsNullOrWhiteSpace($Name)) {
+	Write-Verbose "Validating name."
+	# Validate that the name isn't empty.
+	if ([System.String]::IsNullOrWhiteSpace($Name)) {
 		Write-Error "The name cannot be blank or empty!"
 		return
 	}
 	
-	# Validate that the target exists.
-	if ((Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Target)) -ErrorAction SilentlyContinue)`
-		-eq $false) {
-		Write-Error "The target path: '$Target' points to an invalid location!"
+	# Validate that the target location exists.
+	if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Target)) `
+			-ErrorAction Ignore)) {
+		Write-Error "The target path: '$Target' points to an invalid/non-existent location!"
 		return
 	}
 	
-	# Read in the existing symlinks.
-	[System.Collections.Generic.List[Symlink]]$linkList = Read-Symlinks
-
+	# Read in the existing symlink collection.
+	$linkList = Read-Symlinks
+	
 	# Validate that the name isn't already taken.
 	$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
 	if ($null -ne $existingLink) {
-		Write-Error "The name: '$Name' is already taken."
+		Write-Error "The name: '$Name' is already taken!"
 		return
 	}
 	
@@ -104,7 +114,8 @@ function New-Symlink {
 	# Create the new symlink object.
 	if ($null -eq $CreationCondition) {
 		$newLink = [Symlink]::new($Name, $Path, $Target)
-	}else {
+	}
+	else {
 		$newLink = [Symlink]::new($Name, $Path, $Target, $CreationCondition)
 	}
 	# Add the new link to the list, and then re-export the list.
@@ -114,7 +125,9 @@ function New-Symlink {
 	
 	# Build the symlink item on the filesytem.
 	if (-not $DontCreateItem) {
-		Write-Verbose "Creating the symlink item on the filesytem."
+		Write-Verbose "Creating the symbolic-link item on the filesytem."
 		$newLink.CreateFile()
 	}
+	
+	# TODO: Output symlink object.
 }

@@ -42,12 +42,21 @@
 	This command will change the name of the symlink called "data", to the new
 	name of "WORK". From now on, there is no symlink named "data" anymore.
 	
+.EXAMPLE
+	PS C:\> Set-Symlink -Name "data" -Property "Path" -Value "~\Desktop\Files"
+	
+	This command will change the path of the symlink called "data", to the new
+	location on the desktop. The old symbolic-link item from the original
+	location will be deleted, and the a new symbolic-link item will be created
+	at this new location.
+	
 #>
 function Set-Symlink {
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (
 		
+		# Tab completion.
 		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName)]
 		[string]
 		$Name,
@@ -63,10 +72,10 @@ function Set-Symlink {
 	)
 	
 	process {
-		Write-Verbose "Processing the symlink: '$Name'."
 		# Read in the existing symlinks.
 		$linkList = Read-Symlinks
 		
+		Write-Verbose "Changing the symlink: '$Name'."
 		# If the link doesn't exist, warn the user.
 		$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
 		if ($null -eq $existingLink) {
@@ -79,20 +88,20 @@ function Set-Symlink {
 			Write-Verbose "Changing the name to: '$Value'."
 			
 			# Validate that the new name is valid.
-			if ([system.string]::IsNullOrWhiteSpace($Name)) {
+			if ([System.String]::IsNullOrWhiteSpace($Name)) {
 				Write-Error "The name cannot be blank or empty!"
 				return
 			}
 			# Validate that the new name isn't already taken.
 			$clashLink = $linkList | Where-Object { $_.Name -eq $Value }
 			if ($null -ne $clashLink) {
-				Write-Error "The name: '$Value' is already taken."
+				Write-Error "The name: '$Value' is already taken!"
 				return
 			}
 			
 			$existingLink.Name = $Value
-			
-		}elseif ($Property -eq "Path") {
+		}
+		elseif ($Property -eq "Path") {
 			Write-Verbose "Changing the path to: '$Path'."
 			# First delete the symlink at the original path.
 			$existingLink.DeleteFile()
@@ -101,12 +110,12 @@ function Set-Symlink {
 			# at the new location.
 			$existingLink._Path = $Value
 			$existingLink.CreateFile()
-			
-		}elseif ($Property -eq "Target") {
+		}
+		elseif ($Property -eq "Target") {
 			Write-Verbose "Changing the target to: '$Value'."
 			
 			# Validate that the target exists.
-			if ((Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value))) -eq $false) {
+			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)))) {
 				Write-Error "The target path: '$Value' points to an invalid location!"
 				return
 			}
@@ -114,11 +123,11 @@ function Set-Symlink {
 			# Change the target property, and edit the existing symlink (re-create).
 			$existingLink._Target = $Value
 			$existingLink.CreateFile()
-			
-		}elseif ($Property -eq "CreationCondition") {
+		}
+		elseif ($Property -eq "CreationCondition") {
 			Write-Verbose "Changing the creation condition."
-			$existingLink._Condition = $Value
 			
+			$existingLink._Condition = $Value
 			# TODO: Operate if condition result is different from previous state.
 		}
 		
@@ -126,5 +135,4 @@ function Set-Symlink {
 		Write-Verbose "Re-exporting the modified database."
 		Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
 	}
-	
 }

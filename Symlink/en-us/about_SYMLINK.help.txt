@@ -284,6 +284,8 @@ OTHER
     
 KEYWORDS
     Symlink
-    Symbolic Link
+    Symbolic_Link
     Management
+    File
+    Folder
     

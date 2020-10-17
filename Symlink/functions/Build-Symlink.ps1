@@ -58,41 +58,44 @@ function Build-Symlink {
 	
 	begin {
 		# Store lists to notify user which symlinks were created/modified/etc.
-		$newList = New-Object System.Collections.Generic.List[psobject] 
-		$modifiedList = New-Object System.Collections.Generic.List[psobject]
+		$newList = New-Object System.Collections.Generic.List[Symlink] 
+		$modifiedList = New-Object System.Collections.Generic.List[Symlink]
 	}
 	
 	process {
 		if ($All) {
-			Write-Verbose "Creating all symlink items on the filesystem."
-			
 			# Read in all of the existing symlinks.
 			$linkList = Read-Symlinks
 			
+			Write-Verbose "Creating all symbolic-link items on the filesystem."
 			foreach ($link in $linkList) {
-				Write-Verbose "Processing the symlink: '$($link.Name)'."
+				Write-Verbose "Creating the symlink: '$($link.Name)'."
 				
+				# Record the state for displaying at the end.
 				if ($link.Exists() -eq $false) {
 					$newList.Add($link)
-				}elseif ($link.NeedsModification()) {
+				}
+				elseif ($link.NeedsModification()) {
 					$modifiedList.Add($link)
 				}
 				
 				# Create the symlink item on the filesystem.
 				$link.CreateFile()
 			}
-		}else {
-			Write-Verbose "Creating specified symlink items: '$Names' on the filesystem"
-			
+		}
+		else {
 			# Read in the specified symlinks.
 			$linkList = Get-Symlink -Names $Names -Verbose:$false
 			
+			Write-Verbose "Creating specified symbolic-link items: '$Names' on the filesystem"
 			foreach ($link in $linkList) {
 				Write-Verbose "Processing the symlink: '$($link.Name)'."
 				
+				# Record the state for displaying at the end.
 				if ($link.Exists() -eq $false) {
 					$newList.Add($link)
-				}elseif ($link.NeedsModification()) {
+				}
+				elseif ($link.NeedsModification()) {
 					$modifiedList.Add($link)
 				}
 				
@@ -113,5 +116,4 @@ function Build-Symlink {
 			Write-Output $modifiedList
 		}
 	}
-
 }
