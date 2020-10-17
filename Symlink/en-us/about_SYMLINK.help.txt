@@ -88,6 +88,18 @@ CREATING A SYMLINK
     -DontCreateItem
         Skips the creation of the symbolic-link item on the filesystem.
     
+    -WhatIf
+        Prints what actions would have been done in a proper run, but doesn't
+        perform any of them.
+    
+    -Confirm
+        Prompts for user input for every "altering"/changing action.
+    
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
     
     
 RETRIEVING A SYMLINK
@@ -147,6 +159,21 @@ CHANGING A SYMLINK
     -Value
         The new value for the property to take.
     
+    OPTIONAL PARAMETERS
+    
+    -WhatIf
+        Prints what actions would have been done in a proper run, but doesn't
+        perform any of them.
+    
+    -Confirm
+        Prompts for user input for every "altering"/changing action.
+    
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
+    
     
  2. To change any other properties of a symlink, run:
     
@@ -188,6 +215,19 @@ REMOVING A SYMLINK
         Skips the deletion of the symbolic-link item on the filesystem. The
         link will remain afterwads.
     
+    -WhatIf
+        Prints what actions would have been done in a proper run, but doesn't
+        perform any of them.
+    
+    -Confirm
+        Prompts for user input for every "altering"/changing action.
+    
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
+    
     
  2. To remove multiple symlinks, run:
     
@@ -212,6 +252,21 @@ BUILDING/UPDATING SYMLINKS
     
     -All
         Specifies to create all symlinks.
+    
+    OPTIONAL PARAMETERS
+    
+    -WhatIf
+        Prints what actions would have been done in a proper run, but doesn't
+        perform any of them.
+    
+    -Confirm
+        Prompts for user input for every "altering"/changing action.
+    
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
     
     
  2. To create only certain symbolic-links on the filesystem, run:
@@ -284,6 +339,8 @@ OTHER
     
 KEYWORDS
     Symlink
-    Symbolic Link
+    Symbolic_Link
     Management
+    File
+    Folder
     

@@ -6,18 +6,10 @@ This module is aimed at anyone who manages many symlinks on their system, either
 <br>
 
 [![Build Status](https://dev.azure.com/KubaP999/Symlink/_apis/build/status/Development%20CI?branchName=development)](https://dev.azure.com/KubaP999/Symlink/_build/latest?definitionId=13&branchName=development)
-[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/Symlink/13?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/Symlink/_build?definitionId=13)
-[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ProgramManager?logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/Symlink)
-/\ Replace this one with a shields.io badge. Go to 'Version' -> 'Powershell Gallery (inc. pre-release)'
-    Fill out package name
-    logo = 'powershell'
-    logoColour = 'white'
-![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/ProgramManager?logo=windows)
-/\ Replace this one with a shields.io badge. Go to 'Platform Support' -> 'Powershell Gallery'
-    Fill out package name
-    logo = 'windows'
-    logoColour = 'white'
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/symlink?include_prereleases&logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/Symlink)
+![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/symlink?logo=windows&logoColor=white)
 [![License](https://img.shields.io/badge/license-GPLv3-blue)](./LICENSE)
+<!-- [![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/Symlink/13?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/Symlink/_build?definitionId=13) -->
 
 ### Table of Contents
 
@@ -97,11 +89,15 @@ When creating a new symlink, you can pass in a scriptblock which will evaluate w
 
 For details, see the `CREATION CONDITION SCRIPTBLOCK` section in `about_Symlink`.
 
-#### ~~-WhatIf and -Confirm support~~ [TODO]
-~~The following functions support `-WhatIf` and `-Confirm` parameters:~~
+#### -WhatIf and -Confirm support
+The following functions support `-WhatIf` and `-Confirm` parameters:
+- `New-Symlink`
+- `Remove-Symlink`
+- `Set-Symlink`
+- `Build-Symlink`
 
-~~Use `-WhatIf` to see and list what changes a command will do.~~
-~~Use `-Confirm` to ask for a prompt for every state-altering change.~~
+Use `-WhatIf` to see a list of what changes a command will do.
+Use `-Confirm` to ask for a prompt for every state-altering change.
 
 #### Formatting
 The `[Symlink]` object within this module has custom formatting rules for all views. Simply pipe the output of the `Get-Symlink` command to one of:

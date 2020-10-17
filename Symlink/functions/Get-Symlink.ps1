@@ -23,7 +23,7 @@
 	-Names supports tab-completion.
 	
 .EXAMPLE
-	PS C:\> Get-Symlink -Names "data"
+	PS C:\> Get-Symlink -Name "data"
 	
 	This command will retrieve the details of the symlink named "data", and
 	output the information to the screen.
@@ -60,19 +60,18 @@ function Get-Symlink {
 	)
 	
 	begin {
-		# Store the retrieved symlinks, to output together at the end.
+		# Store the retrieved symlinks, to output together in one go at the end.
 		$outputList = New-Object System.Collections.Generic.List[Symlink]
 	}
 	
 	process {
 		if (-not $All) {
-			Write-Verbose "Retrieving specified symlinks: $Names."
 			# Read in the existing symlinks.
 			$linkList = Read-Symlinks
 			
 			# Iterate through all the passed in names.
 			foreach ($name in $Names) {
-				Write-Verbose "Processing the symlink: '$name'."
+				Write-Verbose "Retrieving the symlink: '$name'."
 				# If the link doesn't exist, warn the user.
 				$existingLink = $linkList | Where-Object { $_.Name -eq $name }
 				if ($null -eq $existingLink) {
@@ -83,9 +82,10 @@ function Get-Symlink {
 				# Add the symlink object.
 				$outputList.Add($existingLink)
 			}
-		}else {
+		}
+		else {
 			Write-Verbose "Retrieving all symlinks."
-			# Read in the existing symlinks, and pipe them all out.
+			# Read in all of the symlinks.
 			$outputList = Read-Symlinks
 		}
 	}
@@ -94,5 +94,4 @@ function Get-Symlink {
 		# By default, outputs in List formatting.
 		$outputList | Sort-Object -Property Name
 	}
-	
 }
