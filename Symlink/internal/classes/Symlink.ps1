@@ -118,25 +118,24 @@ class Symlink {
 				
 				if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction Ignore)) {
 					# There is no existing item or symlink, so just create the new symlink.
-					Write-Verbose "Creating new symbolic-link item on the filesystem."
 				}
 				elseif ([System.String]::IsNullOrWhiteSpace($target)) {
 					# There is an existing item, so remove it.
-					Write-Verbose "Creating new symbolic-link item on the filesystem. Deleting existing folder/file first."
+					Write-Verbose "Deleting existing folder/file first."
 					try {
-						Remove-Item -Path $this.FullPath() -Force -Recurse
+						Remove-Item -Path $this.FullPath() -Force -Recurse -WhatIf:$false -Confirm:$false
 					}
 					catch {
 						Write-Warning "The existing item could not be deleted. It may be in use by another program."
 						Write-Warning "Please close any programs which are accessing files via this folder/file."
 						Read-Host -Prompt "Press any key to continue..."
-						Remove-Item -Path $this.FullPath() -Force -Recurse
+						Remove-Item -Path $this.FullPath() -Force -Recurse -WhatIf:$false -Confirm:$false
 					}
 				}
 				elseif ($target -ne $this.FullTarget()) {
 					# There is an existing symlink, so remove it.
 					# Must be done by calling the 'Delete()' method, rather than 'Remove-Item'.
-					Write-Verbose "Changing the symbolic-link item target (deleting and re-creating)."
+					Write-Verbose "Changing the existing symbolic-link item target (deleting and re-creating)."
 					try {
 						(Get-Item -Path $this.FullPath()).Delete()
 					}
@@ -149,7 +148,8 @@ class Symlink {
 				}
 				
 				# Create the new symlink.
-				New-Item -ItemType SymbolicLink -Force -Path $this.FullPath() -Value $this.FullTarget() | Out-Null
+				New-Item -ItemType SymbolicLink -Force -Path $this.FullPath() -Value $this.FullTarget() `
+					-WhatIf:$false -Confirm:$false | Out-Null
 			}
 		}
 	}
@@ -157,7 +157,6 @@ class Symlink {
 	[void] DeleteFile() {
 		# Check that the actual symlink item exists first.
 		if ($this.Exists()) {
-			Write-Verbose "Deleting the symbolic-link item from the filesystem."
 			# Loop until the symlink item can be successfuly deleted.
 			$state = $true
 			while ($state -eq $true) {

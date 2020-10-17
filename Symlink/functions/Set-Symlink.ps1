@@ -18,10 +18,11 @@
 	The new value for the property to take.
 	
 .PARAMETER WhatIf
-	wip
+	Prints what actions would have been done in a proper run, but doesn't
+	perform any of them.
 	
 .PARAMETER Confirm
-	wip
+	Prompts for user input for every "altering"/changing action.
 	
 .INPUTS
 	Symlink[]
@@ -104,12 +105,16 @@ function Set-Symlink {
 		elseif ($Property -eq "Path") {
 			Write-Verbose "Changing the path to: '$Value'."
 			# First delete the symlink at the original path.
-			$existingLink.DeleteFile()
+			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link")) {
+				$existingLink.DeleteFile()
+			}
 			
 			# Then change the path property, and re-create the symlink
 			# at the new location.
 			$existingLink._Path = $Value
-			$existingLink.CreateFile()
+			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Create Symbolic-Link")) {
+				$existingLink.CreateFile()
+			}
 		}
 		elseif ($Property -eq "Target") {
 			Write-Verbose "Changing the target to: '$Value'."
@@ -123,7 +128,9 @@ function Set-Symlink {
 			
 			# Change the target property, and edit the existing symlink (re-create).
 			$existingLink._Target = $Value
-			$existingLink.CreateFile()
+			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Update Symbolic-Link target")) {
+				$existingLink.CreateFile()
+			}
 		}
 		elseif ($Property -eq "CreationCondition") {
 			Write-Verbose "Changing the creation condition."
@@ -133,7 +140,8 @@ function Set-Symlink {
 		}
 		
 		# Re-export the list.
-		Write-Verbose "Re-exporting the modified database."
-		Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
+		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
+			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+		}
 	}
 }

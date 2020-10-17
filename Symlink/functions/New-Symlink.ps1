@@ -27,16 +27,17 @@
 	Skips the creation of the symbolic-link item on the filesystem.
 	
 .PARAMETER WhatIf
-	wip
+	Prints what actions would have been done in a proper run, but doesn't
+	perform any of them.
 	
 .PARAMETER Confirm
-	wip
+	Prompts for user input for every "altering"/changing action.
 	
 .INPUTS
 	None
 	
 .OUTPUTS
-	None
+	Symlink
 	
 .NOTES
 	For detailed help regarding the 'Creation Condition' scriptblock, see
@@ -120,11 +121,14 @@ function New-Symlink {
 	}
 	# Add the new link to the list, and then re-export the list.
 	$linkList.Add($newLink)
-	Write-Verbose "Re-exporting the modified database."
-	Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
+	if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
+		Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+	}
 	
 	# Build the symlink item on the filesytem.
-	if (-not $DontCreateItem) {
+	if (-not $DontCreateItem -and $PSCmdlet.ShouldProcess($newLink.FullPath(), "Create Symbolic-Link")) {
 		$newLink.CreateFile()
 	}
+	
+	Write-Output $newLink
 }

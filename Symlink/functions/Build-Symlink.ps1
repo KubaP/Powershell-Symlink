@@ -14,6 +14,13 @@
 .PARAMETER All
 	Specifies to create all symlinks.
 	
+.PARAMETER WhatIf
+	Prints what actions would have been done in a proper run, but doesn't
+	perform any of them.
+	
+.PARAMETER Confirm
+	Prompts for user input for every "altering"/changing action.
+	
 .INPUTS
 	Symlink[]
 	System.String[]
@@ -41,7 +48,7 @@
 #>
 function Build-Symlink {
 	
-	[CmdletBinding(DefaultParameterSetName = "All")]
+	[CmdletBinding(DefaultParameterSetName = "All", SupportsShouldProcess = $true)]
 	param (
 		
 		# Tab completion.
@@ -79,7 +86,9 @@ function Build-Symlink {
 				}
 				
 				# Create the symlink item on the filesystem.
-				$link.CreateFile()
+				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link")) {
+					$link.CreateFile()
+				}
 			}
 		}
 		else {
@@ -98,7 +107,9 @@ function Build-Symlink {
 				}
 				
 				# Create the symlink item on the filesystem.
-				$link.CreateFile()
+				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link")) {
+					$link.CreateFile()
+				}
 			}
 		}
 	}

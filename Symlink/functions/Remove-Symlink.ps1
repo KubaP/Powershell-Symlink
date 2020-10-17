@@ -16,10 +16,11 @@
 	link will remain afterwads.
 	
 .PARAMETER WhatIf
-	wip
+	Prints what actions would have been done in a proper run, but doesn't
+	perform any of them.
 	
 .PARAMETER Confirm
-	wip
+	Prompts for user input for every "altering"/changing action.
 	
 .INPUTS
 	Symlink[]
@@ -77,12 +78,12 @@ function Remove-Symlink {
 			# If the link doesn't exist, warn the user.
 			$existingLink = $linkList | Where-Object { $_.Name -eq $name }
 			if ($null -eq $existingLink) {
-				Write-Error "There is no symlink called: '$name'."
+				Write-Warning "There is no symlink called: '$name'."
 				continue
 			}
 			
 			# Delete the symlink from the filesystem.
-			if (-not $DontDeleteItem) {
+			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link")) {
 				$existingLink.DeleteFile()
 			}
 			
@@ -91,7 +92,8 @@ function Remove-Symlink {
 		}
 		
 		# Re-export the list.
-		Write-Verbose "Re-exporting the modified database."
-		Export-Clixml -Path $script:DataPath -InputObject $linkList | Out-Null
+		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
+			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+		}
 	}
 }
