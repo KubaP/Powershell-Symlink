@@ -125,9 +125,6 @@ function New-Symlink {
 	
 	# Build the symlink item on the filesytem.
 	if (-not $DontCreateItem) {
-		Write-Verbose "Creating the symbolic-link item on the filesytem."
 		$newLink.CreateFile()
 	}
-	
-	# TODO: Output symlink object.
 }

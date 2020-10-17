@@ -83,7 +83,6 @@ function Remove-Symlink {
 			
 			# Delete the symlink from the filesystem.
 			if (-not $DontDeleteItem) {
-				Write-Verbose "Deleting the symbolic-link item from the filesystem."
 				$existingLink.DeleteFile()
 			}
 			

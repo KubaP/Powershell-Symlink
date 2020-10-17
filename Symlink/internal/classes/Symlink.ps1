@@ -32,7 +32,8 @@ class Symlink {
 		# Return the path after replacing common variable string.
 		$path = $this._Path.Replace($env:APPDATA, "%APPDATA%")
 		$path = $path.Replace($env:LOCALAPPDATA, "%LOCALAPPDATA%")
-		return $path.Replace($env:USERPROFILE, "~")
+		$path = $path.Replace($env:USERPROFILE, "~")
+		return $path
 	}
 	
 	[string] FullPath() {
@@ -44,7 +45,8 @@ class Symlink {
 		# Return the path after replacing common variable string.
 		$path = $this._Target.Replace($env:APPDATA, "%APPDATA%")
 		$path = $path.Replace($env:LOCALAPPDATA, "%LOCALAPPDATA%")
-		return $path.Replace($env:USERPROFILE, "~")
+		$path = $path.Replace($env:USERPROFILE, "~")
+		return $path
 	}
 	
 	[string] FullTarget() {
@@ -54,25 +56,16 @@ class Symlink {
 	
 	[bool] Exists() {
 		# Check if the item even exists.
-		if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction SilentlyContinue)) {
+		if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction Ignore)) {
 			return $false
 		}
 		# Checks if the symlink item and has the correct target.
-		if ((Get-Item -Path $this.FullPath() -ErrorAction SilentlyContinue).Target -eq $this.FullTarget()) {
+		if ((Get-Item -Path $this.FullPath() -ErrorAction Ignore).Target -eq $this.FullTarget()) {
 			return $true
 		}else {
 			return $false
 		}
 	}
-	
-	<# [bool] NeedsModification() {
-		# Checks if the symlink is in the state it should be in.
-		if ($this.Exists() -ne $this.ShouldExist()) {
-			return $true
-		}else {
-			return $false
-		}
-	} #>
 	
 	[bool] ShouldExist() {
 		# If the condition is null, i.e. no condition,
@@ -105,58 +98,66 @@ class Symlink {
 		return [SymlinkState]::Error
 	}
 	
-	# TODO: Refactor this method to use the new class methods.
 	[void] CreateFile() {
-		# If the symlink condition isn't met, skip creating it.
-		if ($this.ShouldExist() -eq $false) {
-			Write-Verbose "Skipping the symlink: '$($this.Name)', as the creation condition is false."
-			return
-		}
-		
-		$target = (Get-Item -Path $this.FullPath() -ErrorAction SilentlyContinue).Target
-		if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction SilentlyContinue)) {
-			# There is no existing item or symlink, so just create the new symlink.
-			Write-Verbose "Creating new symlink item."
-		} else {
-			if ([System.String]::IsNullOrWhiteSpace($target)) {
-				# There is an existing item, so remove it.
-				Write-Verbose "Creating new symlink item. Deleting existing folder/file first."
-				try {
-					Remove-Item -Path $this.FullPath() -Force -Recurse
-				}
-				catch {
-					Write-Warning "The existing item could not be deleted. It may be in use by another program."
-					Write-Warning "Please close any programs which are accessing files via this folder/file."
-					Read-Host -Prompt "Press any key to continue..."
-					Remove-Item -Path $this.FullPath() -Force -Recurse
-				}
-			}elseif ($target -ne $this.FullTarget()) {
-				# There is an existing symlink, so remove it.
-				# Must be done by calling the 'Delete()' method, rather than 'Remove-Item'.
-				Write-Verbose "Changing the symlink item target (deleting and re-creating)."
-				try {
-					(Get-Item -Path $this.FullPath()).Delete()
-				}
-				catch {
-					Write-Warning "The symlink could not be deleted. It may be in use by another program."
-					Write-Warning "Please close any programs which are accessing files via this symlink."
-					Read-Host -Prompt "Press any key to continue..."
-					(Get-Item -Path $this.FullPath()).Delete()
-				}
-			}elseif ($target -eq $this.FullTarget()) {
+		switch ($this.State()) {
+			"True" {
 				# There is an existing symlink and it points to the correct target.
-				Write-Verbose "No change required."
+				Write-Verbose "Existing symbolic-link item is correct. No change required."
+				return
+			}
+			{ $_ -in "NeedsDeletion","False" } {
+				# If the symlink condition isn't met, skip creating it.
+				Write-Verbose "Skipping the creation of a symbolic-link item, as the creation condition is false."
+				return
+			}
+			"NeedsCreation" {
+				# Determine whether there is an item at the location, and if so,
+				# whether it's a normal item or a symlink, as they require
+				# slightly different logic, and different verbose logging.
+				$target = (Get-Item -Path $this.FullPath() -ErrorAction Ignore).Target
+				
+				if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction Ignore)) {
+					# There is no existing item or symlink, so just create the new symlink.
+					Write-Verbose "Creating new symbolic-link item on the filesystem."
+				}
+				elseif ([System.String]::IsNullOrWhiteSpace($target)) {
+					# There is an existing item, so remove it.
+					Write-Verbose "Creating new symbolic-link item on the filesystem. Deleting existing folder/file first."
+					try {
+						Remove-Item -Path $this.FullPath() -Force -Recurse
+					}
+					catch {
+						Write-Warning "The existing item could not be deleted. It may be in use by another program."
+						Write-Warning "Please close any programs which are accessing files via this folder/file."
+						Read-Host -Prompt "Press any key to continue..."
+						Remove-Item -Path $this.FullPath() -Force -Recurse
+					}
+				}
+				elseif ($target -ne $this.FullTarget()) {
+					# There is an existing symlink, so remove it.
+					# Must be done by calling the 'Delete()' method, rather than 'Remove-Item'.
+					Write-Verbose "Changing the symbolic-link item target (deleting and re-creating)."
+					try {
+						(Get-Item -Path $this.FullPath()).Delete()
+					}
+					catch {
+						Write-Warning "The symlink could not be deleted. It may be in use by another program."
+						Write-Warning "Please close any programs which are accessing files via this symlink."
+						Read-Host -Prompt "Press any key to continue..."
+						(Get-Item -Path $this.FullPath()).Delete()
+					}
+				}
+				
+				# Create the new symlink.
+				New-Item -ItemType SymbolicLink -Force -Path $this.FullPath() -Value $this.FullTarget() | Out-Null
 			}
 		}
-		
-		# Create the new symlink.
-		New-Item -ItemType SymbolicLink -Force -Path $this.FullPath() -Value $this.FullTarget() | Out-Null
 	}
 	
 	[void] DeleteFile() {
 		# Check that the actual symlink item exists first.
-		Write-Verbose "Deleting the symlink file: '$($this.Name)'."
 		if ($this.Exists()) {
+			Write-Verbose "Deleting the symbolic-link item from the filesystem."
 			# Loop until the symlink item can be successfuly deleted.
 			$state = $true
 			while ($state -eq $true) {
@@ -170,8 +171,6 @@ class Symlink {
 				}
 				$state = $this.Exists()
 			}
-		}else {
-			Write-Warning "Trying to delete symlink: '$($this.Name)' which doesn't exist on the filesystem."
 		}
 	}
 }

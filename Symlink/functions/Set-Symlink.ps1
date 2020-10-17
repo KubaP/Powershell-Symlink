@@ -102,7 +102,7 @@ function Set-Symlink {
 			$existingLink.Name = $Value
 		}
 		elseif ($Property -eq "Path") {
-			Write-Verbose "Changing the path to: '$Path'."
+			Write-Verbose "Changing the path to: '$Value'."
 			# First delete the symlink at the original path.
 			$existingLink.DeleteFile()
 			
@@ -115,7 +115,8 @@ function Set-Symlink {
 			Write-Verbose "Changing the target to: '$Value'."
 			
 			# Validate that the target exists.
-			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)))) {
+			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)) `
+					-ErrorAction Ignore)) {
 				Write-Error "The target path: '$Value' points to an invalid location!"
 				return
 			}

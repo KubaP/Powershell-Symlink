@@ -67,15 +67,14 @@ function Build-Symlink {
 			# Read in all of the existing symlinks.
 			$linkList = Read-Symlinks
 			
-			Write-Verbose "Creating all symbolic-link items on the filesystem."
 			foreach ($link in $linkList) {
-				Write-Verbose "Creating the symlink: '$($link.Name)'."
+				Write-Verbose "Creating the symbolic-link item for: '$($link.Name)'."
 				
 				# Record the state for displaying at the end.
 				if ($link.Exists() -eq $false) {
 					$newList.Add($link)
 				}
-				elseif ($link.NeedsModification()) {
+				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation") {
 					$modifiedList.Add($link)
 				}
 				
@@ -87,15 +86,14 @@ function Build-Symlink {
 			# Read in the specified symlinks.
 			$linkList = Get-Symlink -Names $Names -Verbose:$false
 			
-			Write-Verbose "Creating specified symbolic-link items: '$Names' on the filesystem"
 			foreach ($link in $linkList) {
-				Write-Verbose "Processing the symlink: '$($link.Name)'."
+				Write-Verbose "Creating the symbolic-link item for: '$($link.Name)'."
 				
 				# Record the state for displaying at the end.
 				if ($link.Exists() -eq $false) {
 					$newList.Add($link)
 				}
-				elseif ($link.NeedsModification()) {
+				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation") {
 					$modifiedList.Add($link)
 				}
 				
