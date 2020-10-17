@@ -89,11 +89,15 @@ When creating a new symlink, you can pass in a scriptblock which will evaluate w
 
 For details, see the `CREATION CONDITION SCRIPTBLOCK` section in `about_Symlink`.
 
-#### ~~-WhatIf and -Confirm support~~ [TODO]
-~~The following functions support `-WhatIf` and `-Confirm` parameters:~~
+#### -WhatIf and -Confirm support
+The following functions support `-WhatIf` and `-Confirm` parameters:
+- `New-Symlink`
+- `Remove-Symlink`
+- `Set-Symlink`
+- `Build-Symlink`
 
-~~Use `-WhatIf` to see and list what changes a command will do.~~
-~~Use `-Confirm` to ask for a prompt for every state-altering change.~~
+Use `-WhatIf` to see a list of what changes a command will do.
+Use `-Confirm` to ask for a prompt for every state-altering change.
 
 #### Formatting
 The `[Symlink]` object within this module has custom formatting rules for all views. Simply pipe the output of the `Get-Symlink` command to one of:
