@@ -97,16 +97,17 @@ The following functions support `-WhatIf` and `-Confirm` parameters:
 - `Build-Symlink`
 
 Use `-WhatIf` to see a list of what changes a command will do.
+
 Use `-Confirm` to ask for a prompt for every state-altering change.
 
 #### Formatting
 The `[Symlink]` object within this module has custom formatting rules for all views. Simply pipe the output of the `Get-Symlink` command to one of:
-| Command | Alias |
-|---------|-------|
-| Format-List | fl |
-| Format-Table | ft |
-| Format-Custom | fc |
-| Format-Wide | fw |
+| Command       | Alias |
+|---------------|-------|
+| Format-List   |  fl   |
+| Format-Table  |  ft   |
+| Format-Custom |  fc   |
+| Format-Wide   |  fw   |
 
 The `Format-Custom` & `Format-List` views contain the largest amount of information regarding the symlink.
 
