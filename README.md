@@ -111,7 +111,7 @@ The `[Symlink]` object within this module has custom formatting rules for all vi
 
 The `Format-Custom` & `Format-List` views contain the largest amount of information regarding the symlink.
 
-⚠This module supports `Fancy` formatting (using colours and emoijs) for enhanced readability. This *only* works within the **Windows Terminal** at the moment (support for other terminals which support ANSI-codes/emojis is WIP). The example below shows the enhanced formatting.
+⚠This module supports `Fancy` formatting (using extra ANSI codes and emoijs) for enhanced readability. This *only* works within the **Windows Terminal** at the moment (I've not tested this on other terminal emulators, but if you know that they support these extra features then let me know). The example below shows the enhanced formatting.
 
 ![Example](./example.png)
 
