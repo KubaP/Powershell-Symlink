@@ -20,57 +20,28 @@
 		
 	</SelectionSets>
 	
-	<!-- Reusable display elements. -->
-	<Controls>
-		<!-- An indented title. -->
-		<Control>
-			<Name>Control.Title</Name>
-			<CustomControl>
-				<CustomEntries>
-					<CustomEntry>
-						<CustomItem>
-						
-							<!-- The object name property. -->
-							<Frame>
-								<CustomItem>
-									<ExpressionBinding>
-										<ScriptBlock>
-											if ($env:WT_SESSION) {
-												return "`e[97;4m	Name : $($_.Name)`e[0m"
-											}else {
-												return "	Name : $($_.Name)"
-											}
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-						</CustomItem>
-					</CustomEntry>
-				</CustomEntries>
-			</CustomControl>
-		</Control>
-		
-	</Controls>
-	
 	<!-- View definitions. -->
 	<ViewDefinitions>
-		<!-- system.symlink LIST -->
+		<!-- symlink LIST -->
 		<View>
-			<Name>System.Symlink.List</Name>
+			<Name>Symlink.List</Name>
 			<ViewSelectedBy>
 				<SelectionSetName>Set.Symlink</SelectionSetName>
 			</ViewSelectedBy>
 			
 			<ListControl>
 				<ListEntries>
-					<!-- Legacy Formatting -->
+					
+					<!-- BASIC Formatting -->
 					<ListEntry>
 						<ListItems>
 							
 							<!-- The symlink name. -->
 							<ListItem>
-								<PropertyName>Name</PropertyName>
+								<Label>Name</Label>
+								<ScriptBlock>
+									"`e[1;4m$($_.Name)`e[0m"
+								</ScriptBlock>
 							</ListItem>
 							
 							<!-- The symlink location. -->
@@ -96,19 +67,19 @@
 								<ScriptBlock>
 									switch ($_.State()) {
 										True {
-											return "$true"
+											return "`e[32m$true`e[0m"
 										}
 										False {
-											return "$false"
+											return "`e[33m$false`e[0m"
 										}
 										NeedsCreation {
-											return "$false! (Needs Creation)"
+											return "`e[31;4m$false!`e[0m `e[4m(Needs Creation)`e[0m"
 										}
 										NeedsDeletion {
-											return "$true! (Needs Deletion)"
+											return "`e[33m$true!`e[0m `e[4m(Needs Deletion)`e[0m"
 										}
 										Error {
-											return "An error has occured!"
+											return "`e[31mAn error has occured!`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -129,20 +100,20 @@
 								</ItemSelectionCondition>
 								<ScriptBlock>
 									$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
-									"{" + $var + "}"
+									"{`n" + $var + "}"
 								</ScriptBlock>
 							</ListItem>
 							
 						</ListItems>
 					</ListEntry>
 					
-					<!-- COLOUR Formatting -->
+					<!-- FANCY Formatting -->
 					<ListEntry>
 						<EntrySelectedBy>
 							<SelectionCondition>
 								<SelectionSetName>Set.Symlink</SelectionSetName>
 								<ScriptBlock>
-									if ($env:WT_SESSION) {
+									if ($null -ne $env:WT_SESSION) {
 										return $true
 									}
 								</ScriptBlock>
@@ -155,7 +126,7 @@
 							<ListItem>
 								<Label>Name</Label>
 								<ScriptBlock>
-									"`e[97m$($_.Name)`e[0m"
+									"`e[97;4m$($_.Name)`e[0m"
 								</ScriptBlock>
 							</ListItem>
 							
@@ -183,16 +154,16 @@
 								<ScriptBlock>
 									switch ($_.State()) {
 										True {
-											return "`e[32m$true`e[0m"
+											return "`e[32m$true ✅`e[0m"
 										}
 										False {
-											return "`e[33m$false`e[0m"
+											return "`e[33m$false ✅`e[0m"
 										}
 										NeedsCreation {
-											return "`e[31;4m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
+											return "`e[31;21m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
 										}
 										NeedsDeletion {
-											return "`e[33;4m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
+											return "`e[33m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
 										}
 										Error {
 											return "`e[31;4mAn error has occured`e[0m❗"
@@ -216,361 +187,148 @@
 								</ItemSelectionCondition>
 								<ScriptBlock>
 									$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
-									"{" + $var + "}"
+									"{`n" + $var + "}"
 								</ScriptBlock>
 							</ListItem>
 							
 						</ListItems>
 					</ListEntry>
+					
 				</ListEntries>
 			</ListControl>
 		</View>
 		
-		<!-- system.symlink CUSTOM -->
+		<!-- symlink CUSTOM -->
 		<View>
-			<Name>System.Symlink.Custom</Name>
+			<Name>Symlink.Custom</Name>
 			<ViewSelectedBy>
 				<SelectionSetName>Set.Symlink</SelectionSetName>
 			</ViewSelectedBy>
 			
-			<GroupBy>
-				<PropertyName>Name</PropertyName>
-				<CustomControlName>Control.Title</CustomControlName>
-			</GroupBy>
-			
 			<CustomControl>
 				<CustomEntries>
 					
-					<!-- Legacy Formatting -->
-					<!-- The basic display if there's no custom creation condition. -->
+					<!-- BASIC Formatting -->
 					<CustomEntry>
 						<CustomItem>
-							
-							<!-- The symlink location. -->
 							<Frame>
 								<CustomItem>
-									<Text>Location Path: </Text>
+									<NewLine />
+									
 									<ExpressionBinding>
 										<ScriptBlock>
-											$_.FullPath()
+											"class Symlink"
 										</ScriptBlock>
 									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- The symlink target. -->
-							<Frame>
-								<CustomItem>
+									
 									<NewLine />
-									<Text>Target Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullTarget()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- Whether the symlink exists. -->
-							<Frame>
-								<CustomItem>
+									<Text>{</Text>
 									<NewLine />
-									<Text>Exists: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											switch ($_.State()) {
-												True {
-													return "$true"
-												}
-												False {
-													return "$false"
-												}
-												NeedsCreation {
-													return "$false! (Needs Creation)"
-												}
-												NeedsDeletion {
-													return "$true! (Needs Deletion)"
-												}
-												Error {
-													return "An error has occured!"
-												}
-											}
-										</ScriptBlock>
-									</ExpressionBinding>
+									
+									<Frame>
+										<LeftIndent>4</LeftIndent>
+										<CustomItem>
+											
+											<!-- The name of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"Name = $($_.Name)"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The path of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"Path = $($_._Path)"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The target of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"Target = $($_._Target)"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The condition of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													if ($null -eq $_._Condition) {
+														"Condition = NULL"
+													}
+													else {
+														"Condition = $($_._Condition)"
+													}
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The ShortPath() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"ShortPath() = $($_.ShortPath())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The FullPath() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"FullPath() = $($_.FullPath())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The ShortTarget() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"ShortTarget() = $($_.ShortTarget())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The FullTarget() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"FullTarget() = $($_.FullTarget())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The Exists() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"Exists() = $($_.Exists())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The ShouldExist() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"ShouldExist() = $($_.ShouldExist())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The State() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"State() = $($_.State())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+										</CustomItem>
+									</Frame>
+									
+									<Text>}</Text>
+									
 								</CustomItem>
 							</Frame>
-							
-						</CustomItem>
-					</CustomEntry>
-					
-					<!-- Legacy Formatting -->
-					<!-- The advanced display if there is a custom creation condition. -->
-					<CustomEntry>
-						<!-- The creation condition, only if there is one. -->
-						<!-- The default condition should not be shown. -->
-						<EntrySelectedBy>
-							<SelectionCondition>
-								<SelectionSetName>Set.Symlink</SelectionSetName>
-								<ScriptBlock>
-									if ($null -ne $_._Condition -and -not $env:WT_SESSION) {
-										return $true
-									}
-								</ScriptBlock>
-							</SelectionCondition>
-						</EntrySelectedBy>
-						
-						<CustomItem>
-							
-							<!-- The symlink location. -->
-							<Frame>
-								<CustomItem>
-									<Text>Location Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullPath()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- The symlink target. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Target Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullTarget()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- Whether the symlink exists. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Exists: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											switch ($_.State()) {
-												True {
-													return "$true"
-												}
-												False {
-													return "$false"
-												}
-												NeedsCreation {
-													return "$false! (Needs Creation)"
-												}
-												NeedsDeletion {
-													return "$true! (Needs Deletion)"
-												}
-												Error {
-													return "An error has occured!"
-												}
-											}
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- The symlink creation condition. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Creation Condition ScriptBlock: </Text>
-									<NewLine />
-								</CustomItem>
-							</Frame>
-							
-							
-							<!-- The actual ScriptBlock is indented. -->
-							<Frame>
-								<LeftIndent>4</LeftIndent>
-								<CustomItem>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
-											"{" + $var + "}"
-										</ScriptBlock>
-									</ExpressionBinding>
-									<NewLine />
-								</CustomItem>
-							</Frame>
-							
-						</CustomItem>
-					</CustomEntry>
-					
-					<!-- COLOUR Formatting -->
-					<!-- The basic display if there's no custom creation condition. -->
-					<CustomEntry>
-						<EntrySelectedBy>
-							<SelectionCondition>
-								<SelectionSetName>Set.Symlink</SelectionSetName>
-								<ScriptBlock>
-									if ($null -eq $_._Condition -and $env:WT_SESSION) {
-										return $true
-									}
-								</ScriptBlock>
-							</SelectionCondition>
-						</EntrySelectedBy>
-						<CustomItem>
-							
-							<!-- The symlink location. -->
-							<Frame>
-								<CustomItem>
-									<Text>Location Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullPath()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- The symlink target. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Target Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullTarget()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- Whether the symlink exists. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Exists: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											switch ($_.State()) {
-												True {
-													return "`e[32m$true`e[0m✅"
-												}
-												False {
-													return "`e[33m$false`e[0m✅"
-												}
-												NeedsCreation {
-													return "`e[31;4m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
-												}
-												NeedsDeletion {
-													return "`e[33;4m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
-												}
-												Error {
-													return "`e[31;4mAn error has occured`e[0m❗"
-												}
-											}
-										</ScriptBlock>
-									</ExpressionBinding>
-									<NewLine />
-								</CustomItem>
-							</Frame>
-							
-						</CustomItem>
-					</CustomEntry>
-					
-					<!-- COLOUR Formatting -->
-					<!-- The advanced display if there is a custom creation condition. -->
-					<CustomEntry>
-						<!-- The creation condition, only if there is one. -->
-						<!-- The default condition should not be shown. -->
-						<EntrySelectedBy>
-							<SelectionCondition>
-								<SelectionSetName>Set.Symlink</SelectionSetName>
-								<ScriptBlock>
-									if ($null -ne $_._Condition -and $env:WT_SESSION) {
-										return $true
-									}
-								</ScriptBlock>
-							</SelectionCondition>
-						</EntrySelectedBy>
-						
-						<CustomItem>
-							
-							<!-- The symlink location. -->
-							<Frame>
-								<CustomItem>
-									<Text>Location Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullPath()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- The symlink target. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Target Path: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$_.FullTarget()
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- Whether the symlink exists. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Exists: </Text>
-									<ExpressionBinding>
-										<ScriptBlock>
-											switch ($_.State()) {
-												True {
-													return "`e[32m$true`e[0m✅"
-												}
-												False {
-													return "`e[33m$false`e[0m✅"
-												}
-												NeedsCreation {
-													return "`e[31;4m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
-												}
-												NeedsDeletion {
-													return "`e[33;4m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
-												}
-												Error {
-													return "`e[31;4mAn error has occured`e[0m❗"
-												}
-											}
-										</ScriptBlock>
-									</ExpressionBinding>
-								</CustomItem>
-							</Frame>
-							
-							<!-- The symlink creation condition. -->
-							<Frame>
-								<CustomItem>
-									<NewLine />
-									<Text>Creation Condition ScriptBlock: </Text>
-									<NewLine />
-								</CustomItem>
-							</Frame>
-							
-							
-							<!-- The actual ScriptBlock is indented. -->
-							<Frame>
-								<LeftIndent>4</LeftIndent>
-								<CustomItem>
-									<ExpressionBinding>
-										<ScriptBlock>
-											$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
-											"{" + $var + "}"
-										</ScriptBlock>
-									</ExpressionBinding>
-									<NewLine />
-								</CustomItem>
-							</Frame>
-							
 						</CustomItem>
 					</CustomEntry>
 					
@@ -578,9 +336,9 @@
 			</CustomControl>
 		</View>
 		
-		<!-- system.symlink TABLE -->
+		<!-- symlink TABLE -->
 		<View>
-			<Name>System.Symlink.Table</Name>
+			<Name>Symlink.Table</Name>
 			<ViewSelectedBy>
 				<SelectionSetName>Set.Symlink</SelectionSetName>
 			</ViewSelectedBy>
@@ -624,7 +382,7 @@
 				<!-- The table rows. -->
 				<TableRowEntries>
 					
-					<!-- Legacy Formatting -->
+					<!-- BASIC Formatting -->
 					<TableRowEntry>
 						<TableColumnItems>
 							
@@ -647,12 +405,13 @@
 								</ScriptBlock>
 							</TableColumnItem>
 							
+							<!-- Whether the symlink has a condition. -->
 							<TableColumnItem>
 								<ScriptBlock>
 									if ($_._Condition) {
-										return "Yes"
+										return "`e[32mYes`e[0m"
 									}else {
-										return "No"
+										return "`e[33mNo`e[0m"
 									}
 								</ScriptBlock>
 							</TableColumnItem>
@@ -662,19 +421,19 @@
 								<ScriptBlock>
 									switch ($_.State()) {
 										True {
-											return "$true"
+											return "`e[32m$true`e[0m"
 										}
 										False {
-											return "$false"
+											return "`e[33m$false`e[0m"
 										}
 										NeedsCreation {
-											return "$false!"
+											return "`e[31;4m$false!`e[0m"
 										}
 										NeedsDeletion {
-											return "$true!"
+											return "`e[33m$true!`e[0m"
 										}
 										Error {
-											return "ERROR!"
+											return "`e[31mERROR!`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -683,7 +442,7 @@
 						</TableColumnItems>
 					</TableRowEntry>
 					
-					<!-- COLOUR Formatting -->
+					<!-- FANCY Formatting -->
 					<TableRowEntry>
 						<EntrySelectedBy>
 							<SelectionCondition>
@@ -719,6 +478,7 @@
 								<Alignment>Left</Alignment>
 							</TableColumnItem>
 							
+							<!-- Whether the symlink has a condition. -->
 							<TableColumnItem>
 								<ScriptBlock>
 									if ($_._Condition) {
@@ -740,34 +500,36 @@
 											return "`e[33m$false`e[0m"
 										}
 										NeedsCreation {
-											return "`e[31;4m$false`e[0m❗"
+											return "`e[31;21m$false`e[0m❗"
 										}
 										NeedsDeletion {
-											return "`e[33;4m$true`e[0m❗"
+											return "`e[33m$true`e[0m❗"
 										}
 										Error {
-											return "`e[31;4mError`e[0m❗"
+											return "`e[31mERROR`e[0m❗"
 										}
 									}
 								</ScriptBlock>
 							</TableColumnItem>
+							
 						</TableColumnItems>
 					</TableRowEntry>
+					
 				</TableRowEntries>
-				
 			</TableControl>
 		</View>
 		
-		<!-- system.symlink WIDE -->
+		<!-- symlink WIDE -->
 		<View>
-			<Name>System.Symlink.Wide</Name>
+			<Name>Symlink.Wide</Name>
 			<ViewSelectedBy>
 				<SelectionSetName>Set.Symlink</SelectionSetName>
 			</ViewSelectedBy>
 			
 			<WideControl>
 				<WideEntries>
-					<!-- Legacy Formatting -->
+					
+					<!-- BASIC Formatting -->
 					<WideEntry>
 						<!-- The symlink name. -->
 						<WideItem>
@@ -775,27 +537,26 @@
 								$name = $_.Name
 								switch ($_.State()) {
 									True {
-										return "$name"
+										return "`e[32m$name`e[0m"
 									}
 									False {
-										return "$name"
+										return "`e[33m$name`e[0m"
 									}
 									NeedsCreation {
-										return "$name!"
+										return "`e[31;4m$name!`e[0m"
 									}
 									NeedsDeletion {
-										return "$name!"
+										return "`e[33m$name!`e[0m"
 									}
 									Error {
-										return "Error!"
+										return "`e[31mError!`e[0m"
 									}
 								}
 							</ScriptBlock>
 						</WideItem>
-						
 					</WideEntry>
 					
-					<!-- COLOUR Formatting -->
+					<!-- FANCY Formatting -->
 					<WideEntry>
 						<EntrySelectedBy>
 							<SelectionCondition>
@@ -814,25 +575,25 @@
 								$name = $_.Name
 								switch ($_.State()) {
 									True {
-										return "`e[32m$name`e[0m"
+										return "`e[32m$name✅`e[0m"
 									}
 									False {
-										return "`e[33m$name`e[0m"
+										return "`e[33m$name✅`e[0m"
 									}
 									NeedsCreation {
-										return "`e[31;4m$name`e[0m❗"
+										return "`e[31;21m$name`e[0m❗"
 									}
 									NeedsDeletion {
-										return "`e[33;4m$name`e[0m❗"
+										return "`e[33m$name`e[0m❗"
 									}
 									Error {
-										return "`e[31;4mError`e[0m❗"
+										return "`e[31;4mERROR`e[0m❗"
 									}
 								}
 							</ScriptBlock>
 						</WideItem>
-						
 					</WideEntry>
+					
 				</WideEntries>
 			</WideControl>
 		</View>
