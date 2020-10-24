@@ -61,6 +61,7 @@
 	
 #>
 function New-Symlink {
+	[Alias("nsl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (

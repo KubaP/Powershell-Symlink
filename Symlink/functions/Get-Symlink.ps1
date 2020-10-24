@@ -43,6 +43,7 @@
 	
 #>
 function Get-Symlink {
+	[Alias("gsl")]
 	
 	[CmdletBinding(DefaultParameterSetName = "Specific")]
 	param (

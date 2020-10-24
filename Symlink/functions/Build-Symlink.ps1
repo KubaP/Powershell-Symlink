@@ -47,6 +47,7 @@
 	
 #>
 function Build-Symlink {
+	[Alias("bsl")]
 	
 	[CmdletBinding(DefaultParameterSetName = "All", SupportsShouldProcess = $true)]
 	param (

@@ -3,7 +3,7 @@
 	RootModule = 'Symlink.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '0.1.1'
+	ModuleVersion = '0.1.2'
 	
 	# ID used to uniquely identify this module
 	GUID = '7849ff1f-d264-4a49-8de2-9c01e79a22a9'
@@ -55,7 +55,13 @@
 	VariablesToExport = ''
 	
 	# Aliases to export from this module
-	AliasesToExport = ''
+	AliasesToExport = @(
+		"nsl",
+		"gsl",
+		"ssl",
+		"rsl",
+		"bsl"
+	)
 	
 	# List of all modules packaged with this module
 	ModuleList = @()

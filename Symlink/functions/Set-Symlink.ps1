@@ -53,6 +53,7 @@
 	
 #>
 function Set-Symlink {
+	[Alias("ssl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (

@@ -53,6 +53,7 @@
 	
 #>
 function Remove-Symlink {
+	[Alias("rsl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (
