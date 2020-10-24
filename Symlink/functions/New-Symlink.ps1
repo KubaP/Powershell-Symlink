@@ -42,6 +42,7 @@
 .NOTES
 	For detailed help regarding the 'Creation Condition' scriptblock, see
 	the help at: about_Symlink.
+	This command is aliased to 'nsl'.
 	
 .EXAMPLE
 	PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files

@@ -56,6 +56,17 @@ OVERVIEW
     and easier to read/scan through.
     
     
+ 6. The commands in this module have default aliases:
+        -------	        -----
+        Command	        Alias
+        -------         -----
+        New-Symlink     nsl
+        Get-Symlink     gsl
+        Set-Symlink     ssl
+        Remove-Symlink  rsl
+        Build-Symlink   bsl
+    
+    
     
 CREATING A SYMLINK
  1. To create a new symlink, run:
@@ -102,6 +113,7 @@ CREATING A SYMLINK
         about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
     
     
+    
 RETRIEVING A SYMLINK
  1. To retrieve the details of a symlink, run:
     
@@ -136,6 +148,13 @@ RETRIEVING A SYMLINK
     
     -All
         Specifies to retrieve details for all symlinks.
+    
+    
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, OutBuffer, PipelineVariable, and OutVariable.
+        For more information, see about_CommonParameters
+        (https://go.microsoft.com/fwlink/?LinkID=113216).
     
     
     

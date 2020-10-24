@@ -77,6 +77,16 @@ Get-Help <COMMAND NAME> -Full
 ```
 
 ### Extra features
+#### Aliases
+The commands in this module have default aliases:
+|Command	     |Alias|
+|----------------|-----|
+|New-Symlink     | nsl |
+|Get-Symlink     | gsl |
+|Set-Symlink     | ssl |
+|Remove-Symlink  | rsl |
+|Build-Symlink   | bsl |
+
 #### Tab completion
 The `-Name`/`-Names` parameter supports tab-completion of valid **existing** symlink names in the following commands:
 - `Get-Symlink`

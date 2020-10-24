@@ -30,6 +30,7 @@
 	
 .NOTES
 	-Names supports tab-completion.
+	This command is aliased to 'bsl'.
 	
 .EXAMPLE
 	PS C:\> Build-Symlink -All
