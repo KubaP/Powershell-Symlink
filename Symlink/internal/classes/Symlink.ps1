@@ -30,9 +30,9 @@ class Symlink {
 	
 	[string] ShortPath() {
 		# Return the path after replacing common variable string.
-		$path = $this._Path.Replace($env:APPDATA, "%APPDATA%")
-		$path = $path.Replace($env:LOCALAPPDATA, "%LOCALAPPDATA%")
-		$path = $path.Replace($env:USERPROFILE, "~")
+		$path = $this._Path.Replace("$env:APPDATA\", "%APPDATA%\")
+		$path = $path.Replace("$env:LOCALAPPDATA\", "%LOCALAPPDATA%\")
+		$path = $path.Replace("$env:USERPROFILE\", "~\")
 		return $path
 	}
 	
