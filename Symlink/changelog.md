@@ -1,4 +1,9 @@
 ﻿# Changelog
+## 0.1.2 (2020-12-08)
+ - Add: alias: Aliases 'nsl', 'gls', 'ssl', 'rsl', 'bsl' for all commands.
+ - Add: -MoveExistingItem for Build-Symlink: Switch to move existing item rather than deleting it. Saves time from manually having to move the contents beforehand.
+ - Update: Format.ps1xml: Improve formatting styles to present information more clearly and consistently. Modified custom format view to show the in-depth properties of the object.
+ - Fix: \[Symlink\]: ShortPath and ShortTarget methods incorrectly replacing strings when inserting environmental variables.
 ## 0.1.1 (2020-10-17)
  - Add: should_process: Support for most commands to use the -WhatIf and -Confirm switches.
  - Update: about_pages: Add information regarding common parameters.

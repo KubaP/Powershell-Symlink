@@ -35,9 +35,7 @@ Import-Module Symlink
 ### Requirements
 This module requires minimum `Powershell 6`.
 
-This module works on `Windows`, `MacOS`, and `Linux`. 
-
-⚠Whilst there are no platform-specific features in use, this module has not yet been tested on either `macOS` or `Linux` so there are no guarantees it will work 100% of the time.
+This module works on `Windows`.
 
 ## Basic Usage
 ### Creating a new Symlink
