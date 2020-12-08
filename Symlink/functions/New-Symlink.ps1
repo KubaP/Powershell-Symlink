@@ -26,6 +26,10 @@
 .PARAMETER DontCreateItem
 	Skips the creation of the symbolic-link item on the filesystem.
 	
+.PARAMETER MoveExistingItem
+	If there is already a folder or file at the path, this item will be moved
+	to the target location (and potentially renamed), rather than being deleted.
+	
 .PARAMETER WhatIf
 	Prints what actions would have been done in a proper run, but doesn't
 	perform any of them.
@@ -60,6 +64,14 @@
 	is also defined, which will be evaluated when the 'Build-Symlink' command
 	is run in the future.
 	
+.EXAMPLE
+	PS C:\> New-Symlink -Name "program" -Path ~\Documents\Program
+				-Target D:\Files\my_program -MoveExistingItem
+				
+	This command will first move the folder 'Program' from '~\Documents' to 
+	'D:\Files', and then rename it to 'my_program'. Then the symbolic-link will
+	be created.
+	
 #>
 function New-Symlink {
 	[Alias("nsl")]
@@ -85,6 +97,10 @@ function New-Symlink {
 		
 		[Parameter(Position = 4)]
 		[switch]
+		$MoveExistingItem,
+		
+		[Parameter(Position = 5)]
+		[switch]
 		$DontCreateItem
 		
 	)
@@ -98,7 +114,7 @@ function New-Symlink {
 	
 	# Validate that the target location exists.
 	if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Target)) `
-			-ErrorAction Ignore)) {
+			-ErrorAction Ignore) -and -not $MoveExistingItem) {
 		Write-Error "The target path: '$Target' points to an invalid/non-existent location!"
 		return
 	}
@@ -125,6 +141,27 @@ function New-Symlink {
 	$linkList.Add($newLink)
 	if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
 		Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+	}
+	
+	# Potentially move the existing item.
+	if ((Test-Path -Path $Path) -and $MoveExistingItem) {
+		if ($PSCmdlet.ShouldProcess("$Path", "Move existing item")) {
+			# If the item needs renaming, split the filepaths to construct the
+			# valid filepath.
+			$finalPath = [System.Environment]::ExpandEnvironmentVariables($Target)
+			$finalContainer = Split-Path -Path $finalPath -Parent
+			$finalName = Split-Path -Path $finalPath -Leaf
+			$existingPath = $Path
+			$existingContainer = Split-Path -Path $existingPath -Parent
+			$existingName = Split-Path -Path $existingPath -Leaf
+			
+			# Only rename the item if it needs to be called differently.
+			if ($existingName -ne $finalName) {
+				Rename-Item -Path $existingPath -NewName $finalName -WhatIf:$false -Confirm:$false
+				$existingPath = Join-Path -Path $existingContainer -ChildPath $finalName
+			}
+			Move-Item -Path $existingPath -Destination $finalContainer -WhatIf:$false -Confirm:$false
+		}
 	}
 	
 	# Build the symlink item on the filesytem.
