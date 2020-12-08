@@ -31,6 +31,7 @@
 	
 .NOTES
 	-Names supports tab-completion.
+	This command is aliased to 'rsl'.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Name "data"
@@ -53,6 +54,7 @@
 	
 #>
 function Remove-Symlink {
+	[Alias("rsl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (

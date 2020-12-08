@@ -1,14 +1,14 @@
 ﻿# Create module-wide variables.
 $script:ModuleRoot = $PSScriptRoot
-$script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\Symlink.psd1").ModuleVersion
+$script:ModuleVersion = (Import-PowerShellDataFile -Path "$ModuleRoot\Symlink.psd1").ModuleVersion
 $script:DataPath = "$env:APPDATA\Powershell\Symlink\database.xml"
 
 # For the debug output to be displayed, $DebugPreference must be set
 # to 'Continue' within the current session.
 Write-Debug "`e[4mMODULE-WIDE VARIABLES`e[0m"
-Write-Debug "Module root folder: $($script:ModuleRoot)"
-Write-Debug "Module version: $($script:ModuleVersion)"
-Write-Debug "Database file: $($script:DataPath)"
+Write-Debug "Module root folder: $ModuleRoot"
+Write-Debug "Module version: $ModuleVersion"
+Write-Debug "Database file: $DataPath"
 
 # Create the module data-storage folder if it doesn't exist.
 if (-not (Test-Path -Path "$env:APPDATA\Powershell\Symlink" -ErrorAction Ignore)) {
@@ -128,7 +128,7 @@ function Import-ModuleFile {
 $importIndividualFiles = $false
 if ("<was not built>" -eq '<was not built>') {
 	$importIndividualFiles = $true
-	Write-Debug "Module not compiled! Importing individual files."
+	Write-Debug "Module not built! Importing individual files."
 }
 
 Write-Debug "`e[4mIMPORT DECISION`e[0m"

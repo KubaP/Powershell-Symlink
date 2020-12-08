@@ -35,9 +35,7 @@ Import-Module Symlink
 ### Requirements
 This module requires minimum `Powershell 6`.
 
-This module works on `Windows`, `MacOS`, and `Linux`. 
-
-⚠Whilst there are no platform-specific features in use, this module has not yet been tested on either `macOS` or `Linux` so there are no guarantees it will work 100% of the time.
+This module works on `Windows`.
 
 ## Basic Usage
 ### Creating a new Symlink
@@ -77,6 +75,16 @@ Get-Help <COMMAND NAME> -Full
 ```
 
 ### Extra features
+#### Aliases
+The commands in this module have default aliases:
+|Command	     |Alias|
+|----------------|-----|
+|New-Symlink     | nsl |
+|Get-Symlink     | gsl |
+|Set-Symlink     | ssl |
+|Remove-Symlink  | rsl |
+|Build-Symlink   | bsl |
+
 #### Tab completion
 The `-Name`/`-Names` parameter supports tab-completion of valid **existing** symlink names in the following commands:
 - `Get-Symlink`
@@ -97,20 +105,21 @@ The following functions support `-WhatIf` and `-Confirm` parameters:
 - `Build-Symlink`
 
 Use `-WhatIf` to see a list of what changes a command will do.
+
 Use `-Confirm` to ask for a prompt for every state-altering change.
 
 #### Formatting
 The `[Symlink]` object within this module has custom formatting rules for all views. Simply pipe the output of the `Get-Symlink` command to one of:
-| Command | Alias |
-|---------|-------|
-| Format-List | fl |
-| Format-Table | ft |
-| Format-Custom | fc |
-| Format-Wide | fw |
+| Command       | Alias |
+|---------------|-------|
+| Format-List   |  fl   |
+| Format-Table  |  ft   |
+| Format-Custom |  fc   |
+| Format-Wide   |  fw   |
 
 The `Format-Custom` & `Format-List` views contain the largest amount of information regarding the symlink.
 
-⚠This module supports `Fancy` formatting (using colours and emoijs) for enhanced readability. This *only* works within the **Windows Terminal** at the moment (support for other terminals which support ANSI-codes/emojis is WIP). The example below shows the enhanced formatting.
+⚠This module supports `Fancy` formatting (using extra ANSI codes and emoijs) for enhanced readability. This *only* works within the **Windows Terminal** at the moment (I've not tested this on other terminal emulators, but if you know that they support these extra features then let me know). The example below shows the enhanced formatting.
 
 ![Example](./example.png)
 

@@ -33,9 +33,9 @@
 	
 .NOTES
 	-Names supports tab-completion.
-	
 	For detailed help regarding the 'Creation Condition' scriptblock, see
 	the help at: about_Symlink.
+	This command is aliased to 'ssl'.
 	
 .EXAMPLE
 	PS C:\> Set-Symlink -Name "data" -Property "Name" -Value "WORK"
@@ -53,6 +53,7 @@
 	
 #>
 function Set-Symlink {
+	[Alias("ssl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (

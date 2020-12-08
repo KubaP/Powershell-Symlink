@@ -21,6 +21,7 @@
 	
 .NOTES
 	-Names supports tab-completion.
+	This command is aliased to 'gsl'.
 	
 .EXAMPLE
 	PS C:\> Get-Symlink -Name "data"
@@ -43,6 +44,7 @@
 	
 #>
 function Get-Symlink {
+	[Alias("gsl")]
 	
 	[CmdletBinding(DefaultParameterSetName = "Specific")]
 	param (
