@@ -75,7 +75,7 @@
 #>
 function New-Symlink {
 	[Alias("nsl")]
-	
+	# TODO: Add -Force switch to ignore the creation condition
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param (
 		

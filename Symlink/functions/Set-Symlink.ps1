@@ -69,6 +69,7 @@ function Set-Symlink {
 		$Property,
 		
 		[Parameter(Position = 2, Mandatory = $true)]
+		[AllowNull()]
 		$Value
 		
 	)
@@ -112,6 +113,7 @@ function Set-Symlink {
 			
 			# Then change the path property, and re-create the symlink
 			# at the new location.
+			# TODO: Check the path isnt null.
 			$existingLink._Path = $Value
 			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Create Symbolic-Link")) {
 				$existingLink.CreateFile()

@@ -49,7 +49,7 @@
 #>
 function Build-Symlink {
 	[Alias("bsl")]
-	
+	# TODO: Add -Force switch to ignore the creation condition
 	[CmdletBinding(DefaultParameterSetName = "All", SupportsShouldProcess = $true)]
 	param (
 		
