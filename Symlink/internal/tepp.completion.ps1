@@ -1,12 +1,14 @@
 ﻿# Tab expansion assignements for commands.
 
-$argCompleter_SymlinkName = {
+$argCompleter_SymlinkName =
+{
 	param ($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 	
 	# Import all objects from the database file.
 	$linkList = Read-Symlinks
 	
-	if ($linkList.Count -eq 0) {
+	if ($linkList.Count -eq 0)
+	{
 		Write-Output ""
 	}
 	

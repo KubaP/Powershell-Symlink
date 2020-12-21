@@ -47,11 +47,13 @@
   ! You can pipe the names to this command instead.
 	
 #>
-function Build-Symlink {
+function Build-Symlink
+{
 	[Alias("bsl")]
 	# TODO: Add -Force switch to ignore the creation condition
 	[CmdletBinding(DefaultParameterSetName = "All", SupportsShouldProcess = $true)]
-	param (
+	param
+	(
 		
 		# Tab completion.
 		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName, ParameterSetName = "Specific")]
@@ -65,64 +67,79 @@ function Build-Symlink {
 		
 	)
 	
-	begin {
+	begin
+	{
 		# Store lists to notify user which symlinks were created/modified/etc.
 		$newList = New-Object System.Collections.Generic.List[Symlink] 
 		$modifiedList = New-Object System.Collections.Generic.List[Symlink]
 	}
 	
-	process {
-		if ($All) {
+	process
+	{
+		if ($All)
+		{
 			# Read in all of the existing symlinks.
 			$linkList = Read-Symlinks
 			
-			foreach ($link in $linkList) {
+			foreach ($link in $linkList)
+			{
 				Write-Verbose "Creating the symbolic-link item for: '$($link.Name)'."
 				
 				# Record the state for displaying at the end.
-				if ($link.Exists() -eq $false) {
+				if ($link.Exists() -eq $false)
+				{
 					$newList.Add($link)
 				}
-				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation") {
+				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation")
+				{
 					$modifiedList.Add($link)
 				}
 				
 				# Create the symlink item on the filesystem.
-				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link")) {
+				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link"))
+				{
 					$link.CreateFile()
 				}
 			}
 		}
-		else {
+		else
+		{
 			# Read in the specified symlinks.
 			$linkList = Get-Symlink -Names $Names -Verbose:$false
 			
-			foreach ($link in $linkList) {
+			foreach ($link in $linkList)
+			{
 				Write-Verbose "Creating the symbolic-link item for: '$($link.Name)'."
 				
 				# Record the state for displaying at the end.
-				if ($link.Exists() -eq $false) {
+				if ($link.Exists() -eq $false)
+				{
 					$newList.Add($link)
 				}
-				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation") {
+				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation")
+				{
 					$modifiedList.Add($link)
 				}
 				
 				# Create the symlink item on the filesystem.
-				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link")) {
+				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link"))
+				{
 					$link.CreateFile()
 				}
 			}
 		}
 	}
 	
-	end {
+	end
+	{
 		# By default, outputs in List formatting.
-		if ($newList.Count -gt 0) {
+		if ($newList.Count -gt 0)
+		{
 			Write-Host "Created the following new symlinks:"
 			Write-Output $newList
 		}
-		if ($modifiedList.Count -gt 0) {
+		if ($modifiedList.Count -gt 0)
+		{
 			Write-Host "Modified the following existing symlinks:"
 			Write-Output $modifiedList
 		}

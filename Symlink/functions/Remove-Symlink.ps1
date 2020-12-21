@@ -53,11 +53,13 @@
 	keep the symbolic-link item on the filesystem.
 	
 #>
-function Remove-Symlink {
+function Remove-Symlink
+{
 	[Alias("rsl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
-	param (
+	param
+	(
 		
 		# Tab completion.
 		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName)]
@@ -71,21 +73,25 @@ function Remove-Symlink {
 		
 	)
 	
-	process {
+	process
+	{
 		# Read in the existing symlinks.
 		$linkList = Read-Symlinks
 		
-		foreach ($name in $Names) {
+		foreach ($name in $Names)
+		{
 			Write-Verbose "Removing the symlink: '$name'."
 			# If the link doesn't exist, warn the user.
 			$existingLink = $linkList | Where-Object { $_.Name -eq $name }
-			if ($null -eq $existingLink) {
+			if ($null -eq $existingLink)
+			{
 				Write-Warning "There is no symlink called: '$name'."
 				continue
 			}
 			
 			# Delete the symlink from the filesystem.
-			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link")) {
+			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link"))
+			{
 				$existingLink.DeleteFile()
 			}
 			
@@ -94,7 +100,8 @@ function Remove-Symlink {
 		}
 		
 		# Re-export the list.
-		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
+		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one"))
+		{
 			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
 		}
 	}

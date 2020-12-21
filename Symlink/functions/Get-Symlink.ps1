@@ -43,11 +43,13 @@
 	information to the screen.
 	
 #>
-function Get-Symlink {
+function Get-Symlink
+{
 	[Alias("gsl")]
 	
 	[CmdletBinding(DefaultParameterSetName = "Specific")]
-	param (
+	param
+	(
 		
 		# Tab completion.
 		[Parameter(Position = 0, Mandatory = $true, ValueFromPipeline, ParameterSetName = "Specific")]
@@ -61,22 +63,27 @@ function Get-Symlink {
 		
 	)
 	
-	begin {
+	begin
+	{
 		# Store the retrieved symlinks, to output together in one go at the end.
 		$outputList = New-Object System.Collections.Generic.List[Symlink]
 	}
 	
-	process {
-		if (-not $All) {
+	process
+	{
+		if (-not $All)
+		{
 			# Read in the existing symlinks.
 			$linkList = Read-Symlinks
 			
 			# Iterate through all the passed in names.
-			foreach ($name in $Names) {
+			foreach ($name in $Names)
+			{
 				Write-Verbose "Retrieving the symlink: '$name'."
 				# If the link doesn't exist, warn the user.
 				$existingLink = $linkList | Where-Object { $_.Name -eq $name }
-				if ($null -eq $existingLink) {
+				if ($null -eq $existingLink)
+				{
 					Write-Warning "There is no symlink called: '$name'."
 					continue
 				}
@@ -85,14 +92,16 @@ function Get-Symlink {
 				$outputList.Add($existingLink)
 			}
 		}
-		else {
+		else
+		{
 			Write-Verbose "Retrieving all symlinks."
 			# Read in all of the symlinks.
 			$outputList = Read-Symlinks
 		}
 	}
 	
-	end {
+	end
+	{
 		# By default, outputs in List formatting.
 		$outputList | Sort-Object -Property Name
 	}

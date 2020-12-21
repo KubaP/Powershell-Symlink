@@ -52,11 +52,13 @@
 	at this new location.
 	
 #>
-function Set-Symlink {
+function Set-Symlink
+{
 	[Alias("ssl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
-	param (
+	param
+	(
 		
 		# Tab completion.
 		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName)]
@@ -74,40 +76,47 @@ function Set-Symlink {
 		
 	)
 	
-	process {
+	process
+	{
 		# Read in the existing symlinks.
 		$linkList = Read-Symlinks
 		
 		Write-Verbose "Changing the symlink: '$Name'."
 		# If the link doesn't exist, warn the user.
 		$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
-		if ($null -eq $existingLink) {
+		if ($null -eq $existingLink)
+		{
 			Write-Error "There is no symlink called: '$Name'."
 			return
 		}
 		
 		# Modify the property values.
-		if ($Property -eq "Name") {
+		if ($Property -eq "Name")
+		{
 			Write-Verbose "Changing the name to: '$Value'."
 			
 			# Validate that the new name is valid.
-			if ([System.String]::IsNullOrWhiteSpace($Name)) {
+			if ([System.String]::IsNullOrWhiteSpace($Name))
+			{
 				Write-Error "The name cannot be blank or empty!"
 				return
 			}
 			# Validate that the new name isn't already taken.
 			$clashLink = $linkList | Where-Object { $_.Name -eq $Value }
-			if ($null -ne $clashLink) {
+			if ($null -ne $clashLink)
+			{
 				Write-Error "The name: '$Value' is already taken!"
 				return
 			}
 			
 			$existingLink.Name = $Value
 		}
-		elseif ($Property -eq "Path") {
+		elseif ($Property -eq "Path")
+		{
 			Write-Verbose "Changing the path to: '$Value'."
 			# First delete the symlink at the original path.
-			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link")) {
+			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link"))
+			{
 				$existingLink.DeleteFile()
 			}
 			
@@ -115,27 +124,32 @@ function Set-Symlink {
 			# at the new location.
 			# TODO: Check the path isnt null.
 			$existingLink._Path = $Value
-			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Create Symbolic-Link")) {
+			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Create Symbolic-Link"))
+			{
 				$existingLink.CreateFile()
 			}
 		}
-		elseif ($Property -eq "Target") {
+		elseif ($Property -eq "Target")
+		{
 			Write-Verbose "Changing the target to: '$Value'."
 			
 			# Validate that the target exists.
 			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)) `
-					-ErrorAction Ignore)) {
+					-ErrorAction Ignore))
+			{
 				Write-Error "The target path: '$Value' points to an invalid location!"
 				return
 			}
 			
 			# Change the target property, and edit the existing symlink (re-create).
 			$existingLink._Target = $Value
-			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Update Symbolic-Link target")) {
+			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Update Symbolic-Link target"))
+			{
 				$existingLink.CreateFile()
 			}
 		}
-		elseif ($Property -eq "CreationCondition") {
+		elseif ($Property -eq "CreationCondition")
+		{
 			Write-Verbose "Changing the creation condition."
 			
 			$existingLink._Condition = $Value
@@ -143,7 +157,8 @@ function Set-Symlink {
 		}
 		
 		# Re-export the list.
-		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
+		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one"))
+		{
 			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
 		}
 	}
