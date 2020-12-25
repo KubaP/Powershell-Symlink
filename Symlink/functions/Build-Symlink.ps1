@@ -1,36 +1,43 @@
 ﻿<#
 .SYNOPSIS
-	Builds all of the symbolic-links.
+	Creates the symbolic-link items.
 	
 .DESCRIPTION
-	Creates the symbolic-link items on the filesystem. Non-existent items will
-	be created, whilst existing items will be updated (if necessary).
+	The `Build-Symlink` cmdlet creates the symbolic-link items on the
+	filesystem. Non-existent items will be created anew, whilst existing items
+	will be updated (if necessary). This cmdlet does not create any new
+	symlink definitions.	
 	
 .PARAMETER Names
-	The name(s)/identifier(s) of the symlinks to create. Multiple values
-	are accepted to build multiple links at once.
-  ! This parameter tab-completes valid symlink names.
+	Specifies the name(s) of the symlinks to create.
+	
+ [!]This parameter will autocomplete to valid symlink names.
 	
 .PARAMETER All
 	Specifies to create all symlinks.
 	
 .PARAMETER WhatIf
-	Prints what actions would have been done in a proper run, but doesn't
-	perform any of them.
+	Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
 .PARAMETER Confirm
-	Prompts for user input for every "altering"/changing action.
+	Prompts you for confirmation before running any state-altering actions
+	in this cmdlet.
+	
+.PARAMETER Force
+	Forces this cmdlet to create a symbolic-link item on the filesystem even
+	if the creation condition is false. Even using this parameter, if the
+	filesystem denies access to the necessary files, this cmdlet can fail.
 	
 .INPUTS
-	Symlink[]
 	System.String[]
+		You can pipe one or more strings containing the names of the
+		symlinks to create.
 	
 .OUTPUTS
-	None
+	Symlink[]
 	
 .NOTES
-	-Names supports tab-completion.
-	This command is aliased to 'bsl'.
+	This command is aliased by default to 'bsl'.
 	
 .EXAMPLE
 	PS C:\> Build-Symlink -All
@@ -45,6 +52,13 @@
 	This command will only go through the symlinks given in, and create the
 	items on the filesystem.
   ! You can pipe the names to this command instead.
+	
+.LINK
+	New-Symlink
+	Get-Symlink
+	Set-Symlink
+	Remove-Symlink
+	about_Symlink
 	
 #>
 function Build-Symlink

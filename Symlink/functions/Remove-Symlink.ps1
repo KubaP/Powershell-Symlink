@@ -1,37 +1,37 @@
 ﻿<#
 .SYNOPSIS
-	Removes an symlink.
+	Deletes a specified symlink item.
 	
 .DESCRIPTION
-	Deletes symlink definition(s) from the database, and also deletes the 
-	symbolic-link item from the filesystem.
+	The `Remove-YoutubeDlItem` cmdlet deletes one or more symlinks, specified
+	by their name(s).
 	
 .PARAMETER Names
-	The name(s)/identifier(s) of the symlinks to remove. Multiple values
-	are accepted to retrieve the data of multiple links.
-  ! This parameter tab-completes valid symlink names.
+	Specifies the name(s) of the items to delete.
+	
+ [!]This parameter will autocomplete to valid symlink names.
 	
 .PARAMETER DontDeleteItem
-	Skips the deletion of the symbolic-link item on the filesystem. The
-	link will remain afterwads.
+	Prevents the deletion of the symbolic-link item from the filesystem.
+	(The symlink definition will still be deleted).
 	
 .PARAMETER WhatIf
-	Prints what actions would have been done in a proper run, but doesn't
-	perform any of them.
+	Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
 .PARAMETER Confirm
-	Prompts for user input for every "altering"/changing action.
+	Prompts you for confirmation before running any state-altering actions
+	in this cmdlet.
 	
 .INPUTS
-	Symlink[]
 	System.String[]
+		You can pipe one or more strings containing the names of the symlinks
+		to delete.
 	
 .OUTPUTS
 	None
 	
 .NOTES
-	-Names supports tab-completion.
-	This command is aliased to 'rsl'.
+	This command is aliased by default to 'rsl'.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Name "data"
@@ -51,6 +51,12 @@
 	
 	This command will remove a symlink definition, named "data", but it will
 	keep the symbolic-link item on the filesystem.
+	
+.LINK
+	New-Symlink
+	Get-Symlink
+	Set-Symlink
+	about_Symlink
 	
 #>
 function Remove-Symlink

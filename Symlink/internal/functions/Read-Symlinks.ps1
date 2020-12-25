@@ -1,14 +1,14 @@
 ﻿<#
 .SYNOPSIS
-	Read the symlink objects in.
+	Reads all of the defined symlink objects.
 	
 .DESCRIPTION
-	Deserialise the symlink objects from the database file.
+	Reads all of the defined symlink objects.
 	
 .EXAMPLE
-	PS C:\> $list = $Read-Symlinks
+	PS C:\> $list = Read-Symlinks
 	
-	Reads all of the symlink objects into a variable, for maniuplation.
+	Reads all of the symlink objects into a variable, for later manipulation.
 	
 .INPUTS
 	None
@@ -21,7 +21,7 @@
 #>
 function Read-Symlinks
 {
-	# Create an empty symlink list.
+	# Create an empty list.
 	$linkList = New-Object -TypeName System.Collections.Generic.List[Symlink]
 	
 	# If the file doesn't exist, skip any importing.
@@ -33,11 +33,11 @@ function Read-Symlinks
 		# Iterate through all the objects.
 		foreach ($item in $xmlData)
 		{
-			# Rather than extracting the deserialised objects, which would create a mess
-			# of serialised and non-serialised objects, create new identical copies from scratch.
+			# Rather than extracting the deserialised objects, which would
+			# create a mess of serialised and non-serialised objects, create
+			# new identical copies from scratch.
 			if ($item.pstypenames[0] -eq "Deserialized.Symlink")
 			{
-				
 				# Create using the appropiate constructor.
 				$link = if ($null -eq $item._Condition)
 				{
@@ -52,6 +52,7 @@ function Read-Symlinks
 		}
 	}
 	
-	# Return the list as a <List> object, rather than as an array (ps converts by default).
+	# Return the list as a <List> object, rather than as an array,
+	# (ps converts by default).
 	Write-Output $linkList -NoEnumerate
 }

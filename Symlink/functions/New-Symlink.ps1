@@ -3,39 +3,46 @@
 	Creates a new symlink.
 	
 .DESCRIPTION
-	Creates a new symlink definition in the database, and then creates the
-	symbolic-link item on the filesystem.
+	The `New-Symlink` cmdlet creates a new symlink definition, and optionally
+	also creates the symbolic-link item on the filesystem.
 	
 .PARAMETER Name
-	The name/identifier of this symlink (must be unique).
+	Specifies the name of the symlink to be created; must be unique.
 	
 .PARAMETER Path
-	The location of the symbolic-link item on the filesystem. If any parent
-	folders defined in this path don't exist, they will be created.
+	Specifies the path of the location of the symbolic-link item. If any parent
+	folders in this path don't exist, they will be created.
 	
 .PARAMETER Target
-	The location which the symbolic-link will point to. This defines whether
-	the link points to a folder or file.
+	Specifies the path of the target which the symbolic-link item points to.
+	This also defines whether the symbolic-link points to a directory or a file.
 	
 .PARAMETER CreationCondition
-	A scriptblock which decides whether the symbolic-link is actually 
-	created or not. This does not affect the creation of the symlink
-	definition within the database. For more details about this, see the
-	help at: about_Symlink.
+	Specifies a scriptblock to be used for this symlink. This scriptblock
+	decides whether the symbolic-link item should be created on the filesystem.
+	For detailed help, see the "CREATION CONDITION SCRIPTBLOCK" section in 
+	the help at: 'about_Symlink'.
 	
 .PARAMETER DontCreateItem
-	Skips the creation of the symbolic-link item on the filesystem.
+	Prevents the creation of the symbolic-link item on the filesystem.
+	(The symlink definition will still be created).
 	
 .PARAMETER MoveExistingItem
-	If there is already a folder or file at the path, this item will be moved
-	to the target location (and potentially renamed), rather than being deleted.
+	Specifies to move an already existing directory/file at the specifies path.
+	This item will be moved to the specified target path rather than being
+	deleted.
 	
 .PARAMETER WhatIf
-	Prints what actions would have been done in a proper run, but doesn't
-	perform any of them.
+	Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
 .PARAMETER Confirm
-	Prompts for user input for every "altering"/changing action.
+	Prompts you for confirmation before running any state-altering actions
+	in this cmdlet.
+	
+.PARAMETER Force
+	Forces this cmdlet to create an symlink that writes over an existing one.
+	Even using this parameter, if the filesystem denies access to the
+	necessary files, this cmdlet can fail.
 	
 .INPUTS
 	None
@@ -44,9 +51,10 @@
 	Symlink
 	
 .NOTES
-	For detailed help regarding the 'Creation Condition' scriptblock, see
-	the help at: about_Symlink.
-	This command is aliased to 'nsl'.
+	For detailed help regarding the creation condition scriptblock, see
+	the "CREATION CONDITION SCRIPTBLOCK" section in help at: 'about_Symlink'.
+	
+	This command is aliased by default to 'nsl'.
 	
 .EXAMPLE
 	PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
@@ -71,6 +79,12 @@
 	This command will first move the folder 'Program' from '~\Documents' to 
 	'D:\Files', and then rename it to 'my_program'. Then the symbolic-link will
 	be created.
+	
+.LINK
+	Get-Symlink
+	Set-Symlink
+	Remove-Symlink
+	about_Symlink
 	
 #>
 function New-Symlink

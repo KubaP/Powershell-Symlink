@@ -1,27 +1,29 @@
 ﻿<#
 .SYNOPSIS
-	Gets the details of a symlink.
+	Gets the specified symlink item.
 	
 .DESCRIPTION
-	Retrieves the details of symlink definition(s).
+	The `Get-Symlink` cmdlet gets one or more symlinks, specified by their
+	name(s).
 	
 .PARAMETER Names
-	The name(s)/identifier(s) of the symlinks to retrieve. Multiple values
-	are accepted to retrieve the data of multiple links.
-  ! This parameter tab-completes valid symlink names.
+	Specifies the name(s) of the items to get.
+	
+ [!]This parameter will autocomplete to valid symlink names.
 	
 .PARAMETER All
-	Specifies to retrieve details for all symlinks.
+	Specifies to get all symlinks.
 	
 .INPUTS
 	System.String[]
+		You can pipe one or more strings containing the names of the
+		symlinks to get.
 	
 .OUTPUTS
-	Symlink[]
+	Symlink
 	
 .NOTES
-	-Names supports tab-completion.
-	This command is aliased to 'gsl'.
+	This command is aliased by default to 'gsl'.
 	
 .EXAMPLE
 	PS C:\> Get-Symlink -Name "data"
@@ -41,6 +43,13 @@
 		
 	This command will retrieve the details of all symlinks, and output the
 	information to the screen.
+	
+.LINK
+	New-Symlink
+	Set-Symlink
+	Remove-Symlink
+	Build-Symlink
+	about_Symlink
 	
 #>
 function Get-Symlink

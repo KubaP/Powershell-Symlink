@@ -1,41 +1,43 @@
 ﻿<#
 .SYNOPSIS
-	Sets a property of a symlink.
+	Changes a value of a symlink item.
 	
 .DESCRIPTION
-	Changes the property of a symlink to a new value.
+	The `Set-Symlink` cmdlet changes the value of a symlink.
 	
 .PARAMETER Name
-	The name/identifier of the symlink to edit.
-  ! This parameter tab-completes valid symlink names.
+	Specifies the name of the symlink to be changed.
+	
+ [!]This parameter will autocompleted to valid names for a symlink.
 
 .PARAMETER Property
-	The property to edit on this symlink. Valid values include:
-	"Name", "Path", "Target", and "CreationCondition".
-  ! This parameter tab-completes valid options.
+	Specifies the name of the property to change.
+	
+ [!]This parameter will autocompleted to the following: "Name", "Path",
+	"Target", "CreationCondition".
 	
 .PARAMETER Value
-	The new value for the property to take.
+	Specifies the new value of the property being changed.
 	
 .PARAMETER WhatIf
-	Prints what actions would have been done in a proper run, but doesn't
-	perform any of them.
+	Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
 .PARAMETER Confirm
-	Prompts for user input for every "altering"/changing action.
+	Prompts you for confirmation before running any state-altering actions
+	in this cmdlet.
 	
 .INPUTS
-	Symlink[]
-	System.String[]
+	System.String
+		You can pipe the name of the symlink to change.
 	
 .OUTPUTS
 	None
 	
 .NOTES
-	-Names supports tab-completion.
-	For detailed help regarding the 'Creation Condition' scriptblock, see
-	the help at: about_Symlink.
-	This command is aliased to 'ssl'.
+	For detailed help regarding the creation condition scriptblock, see
+	the "CREATION CONDITION SCRIPTBLOCK" section in help at: 'about_Symlink'.
+	
+	This command is aliased by default to 'ssl'.
 	
 .EXAMPLE
 	PS C:\> Set-Symlink -Name "data" -Property "Name" -Value "WORK"
@@ -50,6 +52,12 @@
 	location on the desktop. The old symbolic-link item from the original
 	location will be deleted, and the a new symbolic-link item will be created
 	at this new location.
+	
+.LINK
+	Get-Symlink
+	Set-Symlink
+	Remove-Symlink
+	about_Symlink
 	
 #>
 function Set-Symlink
