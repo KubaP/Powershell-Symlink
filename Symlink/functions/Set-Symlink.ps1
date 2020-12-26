@@ -42,16 +42,34 @@
 .EXAMPLE
 	PS C:\> Set-Symlink -Name "data" -Property "Name" -Value "WORK"
 	
-	This command will change the name of the symlink called "data", to the new
-	name of "WORK". From now on, there is no symlink named "data" anymore.
+	Changes the name of a symlink definition named "data", to the new name
+	of "WORK". From now on, there is not symlink named "data" anymore, and that
+	name is free for future use.
 	
 .EXAMPLE
 	PS C:\> Set-Symlink -Name "data" -Property "Path" -Value "~\Desktop\Files"
 	
-	This command will change the path of the symlink called "data", to the new
-	location on the desktop. The old symbolic-link item from the original
-	location will be deleted, and the a new symbolic-link item will be created
-	at this new location.
+	Changes the path of the symlink definition named "data", to a new value
+	located in the user's desktop folder. The old symbolic-link item at the
+	previous location will be deleted from the filesystem, and a new item will
+	be created at the new location.
+
+.EXAMPLE
+	PS C:\> Set-Symlink -Name "data" -Property "Target" -Value "D:\new\target"
+	
+	Changes the target of the symlink definition named "data", to a new value
+	on the "D:\" drive. The existing symbolic-link item on the filesystem will
+	have its target updated to this new value, (technically involves deleting
+	and re-creating the item since the target cannot be modified).
+	
+.EXAMPLE
+	PS C:\> Set-Symlink -Name "data" -Property "CreationCondition" 
+			 -Value { return $false }
+			 
+	Changes the creation condition of the symlink definition named "data", to
+	a new scriptblock which always returns $FALSE. This will not delete the
+	existing symbolic-link item on the filesystem, even though if the condition
+	was evaluated now, it would return false.
 	
 .LINK
 	Get-Symlink

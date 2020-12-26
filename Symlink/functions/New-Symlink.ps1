@@ -59,26 +59,27 @@
 .EXAMPLE
 	PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
 	
-	This command will create a new symlink definition, named "data", and a
-	symbolic-link located in the user's document folder under a folder also
-	named "data", pointing to a folder on the D:\ drive.
+	Creates a new symlink definition named "data", and also creates the 
+	symbolic-link item in the user's document folder under "Data", pointing to a
+	location on the "D:\" drive.
 	
 .EXAMPLE
 	PS C:\> New-Symlink -Name "data" -Path ~\Documents\Data -Target D:\Files
-				-CreationCondition $script -DontCreateItem
+			 -CreationCondition $script -DontCreateItem
 	
-	This command will create a new symlink definition, named "data", but it
-	will not create the symbolic-link on the filesystem. A creation condition
-	is also defined, which will be evaluated when the 'Build-Symlink' command
-	is run in the future.
+	Creates a new symlink definition named "data", giving it a creation
+	condition to be evaluated. However, this will not create the symbolic-link
+	item on the filesystem due to the use of the '-DontCreateItem' switch.
 	
 .EXAMPLE
 	PS C:\> New-Symlink -Name "program" -Path ~\Documents\Program
-				-Target D:\Files\my_program -MoveExistingItem
+			 -Target D:\Files\my_program -MoveExistingItem
 				
-	This command will first move the folder 'Program' from '~\Documents' to 
-	'D:\Files', and then rename it to 'my_program'. Then the symbolic-link will
-	be created.
+	Creates a new symlink definition named "program", and also creates the 
+	symbolic-link item in the user's document folder under the name "Program",
+	pointing to a location on the "D:\" drive. By using the '-MoveExistingItem'
+	switch, the "~\Documents\Program" folder will be moved into the "D:\Files" 
+	folder and renamed to "my_program".
 	
 .LINK
 	Get-Symlink

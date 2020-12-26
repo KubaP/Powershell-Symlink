@@ -36,21 +36,20 @@
 .EXAMPLE
 	PS C:\> Remove-Symlink -Name "data"
 	
-	This command will remove a symlink definition, named "data", and delete the
-	symbolic-link item from the filesystem.
+	Deletes the symlink definition named "data", and deletes the symbolic-link
+	item from the filesystem.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Names "data","files"
 	
-	This command will remove the symlink definitions named "data" and "files",
-	and delete the symbolic-link items of both.
-  ! You can pipe the names to this command instead.
+	Deletes the symlink definitions named "data" and "files", and their 
+	symbolic-link items from the filesystem.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Name "data" -DontDeleteItem
 	
-	This command will remove a symlink definition, named "data", but it will
-	keep the symbolic-link item on the filesystem.
+	Deletes the symlink definition named "data", but does not delete the
+	symbolic-link item from the filesystem; that remains unchanged.
 	
 .LINK
 	New-Symlink

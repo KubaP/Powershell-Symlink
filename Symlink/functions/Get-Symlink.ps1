@@ -26,23 +26,22 @@
 	This command is aliased by default to 'gsl'.
 	
 .EXAMPLE
-	PS C:\> Get-Symlink -Name "data"
-	
-	This command will retrieve the details of the symlink named "data", and
-	output the information to the screen.
-	
-.EXAMPLE
 	PS C:\> Get-Symlink -Names "data","files"
 	
-	This command will retrieve the details of the symlinks named "data" and 
-	"files", and output both to the screen, one after another.
-  ! You can pipe the names to this command instead.
+	Gets the symlink definitions named "data" and "video", and pipes them out
+	to the screen, by default formatted in a list.
 	
 .EXAMPLE
 	PS C:\> Get-Symlink -All
-		
-	This command will retrieve the details of all symlinks, and output the
-	information to the screen.
+	
+	Gets all symlink definitions, and pipes them out to the screen, by default
+	formatted in a list.
+	
+.EXAMPLE
+	PS C:\> Get-Symlink "data" | Build-Symlink
+	
+	Gets the symlink definition named "data", and then pipes it to the
+	`Build-Symlink` cmdlet to create the symbolic-link item on the filesystem.
 	
 .LINK
 	New-Symlink

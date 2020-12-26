@@ -34,7 +34,7 @@
 		symlinks to create.
 	
 .OUTPUTS
-	Symlink[]
+	Symlink
 	
 .NOTES
 	This command is aliased by default to 'bsl'.
@@ -42,16 +42,15 @@
 .EXAMPLE
 	PS C:\> Build-Symlink -All
 	
-	This command will go through all of the symlink definitions, and create 
-	the symbolic-link items on the filesystem, assuming the creation condition
-	for them is met.
+	Creates all of the symbolic-link items on the filesystem for all symlink
+	definitions, assuming the creation condition is met.
 	
 .EXAMPLE
 	PS C:\> Build-Symlink -Names "data","files"
 	
-	This command will only go through the symlinks given in, and create the
-	items on the filesystem.
-  ! You can pipe the names to this command instead.
+	Creates the symbolic-link items on the filesystem for the symlink
+	definitions named "data" and "files", assuming any creation conditions for
+	each evaluate to true.
 	
 .LINK
 	New-Symlink
