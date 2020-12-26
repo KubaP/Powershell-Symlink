@@ -1,5 +1,4 @@
 ﻿# Tab expansion assignements for commands.
-
 $argCompleter_SymlinkName =
 {
 	param ($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)

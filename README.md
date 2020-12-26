@@ -5,21 +5,18 @@ This module is aimed at anyone who manages many symlinks on their system, either
 
 <br>
 
-[![Build Status](https://dev.azure.com/KubaP999/Symlink/_apis/build/status/Development%20CI?branchName=development)](https://dev.azure.com/KubaP999/Symlink/_build/latest?definitionId=13&branchName=development)
+[![Azure DevOps builds](https://img.shields.io/azure-devops/build/kubap999/5cdef75c-a7db-45a8-883a-be12879edc97/13?label=latest&logo=azure-pipelines)](https://dev.azure.com/KubaP999/Symlink/_build?definitionId=13)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/symlink?include_prereleases&logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/Symlink)
 ![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/symlink?logo=windows&logoColor=white)
 [![License](https://img.shields.io/badge/license-GPLv3-blue)](./LICENSE)
-<!-- [![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/Symlink/13?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/Symlink/_build?definitionId=13) -->
 
 ### Table of Contents
-
 1. [Getting Started](#getting-started)
-2. [Basic Usage](#basic-usage)
-3. [Information & Features](#information--features)
-4. [Build Instructions](#build-instructions)
-5. [Support](#support)
-6. [Contributing](#contributing)
-7. [License](#license)
+2. [Information & Features](#information--features)
+3. [Build Instructions](#build-instructions)
+4. [Support](#support)
+5. [Contributing](#contributing)
+6. [License](#license)
 
 ## Getting Started
 ### Installation
@@ -35,24 +32,23 @@ Import-Module Symlink
 ### Requirements
 This module requires minimum `Powershell 6`.
 
-This module works on `Windows`.
+This module works on **Windows** only.
 
-## Basic Usage
 ### Creating a new Symlink
 To create a new symlink, run:
 ```powershell
 PS C:\> New-Symlink -Name "data" -Path "~\Documents\Data" -Target "D:\Files"
 ```
-This command will create a new symlink definition, named "data", and a
+This command will create a new symlink definition, named `data`, and a
 symbolic-link located in the user's document folder under a folder also
-named "data", pointing to a folder on the D:\ drive.
+named `Data`, pointing to a folder on the `D:\` drive.
 
 ### Retrieving the details of a Symlink
 To retrieve the details of a symlink, run:
 ```powershell
 PS C:\> Get-Symlink -Name "data"
 ```
-This command will retrieve the details of the symlink named "data", and
+This command will retrieve the details of the symlink named `data`, and
 output the information to the screen.
 
 ### Removing a Symlink
@@ -60,7 +56,7 @@ To remove a symlink, run:
 ```powershell
 PS C:\> Remove-Symlink -Name "data"
 ```
-This command will remove a symlink definition, named "data", and delete the
+This command will remove a symlink definition, named `data`, and delete the
 symbolic-link item from the filesystem.
 
 ## Information & Features
@@ -76,8 +72,8 @@ Get-Help <COMMAND NAME> -Full
 
 ### Extra features
 #### Aliases
-The commands in this module have default aliases:
-|Command	     |Alias|
+The cmdlets in this module have default aliases:
+|Cmdlet 	     |Alias|
 |----------------|-----|
 |New-Symlink     | nsl |
 |Get-Symlink     | gsl |
@@ -86,7 +82,7 @@ The commands in this module have default aliases:
 |Build-Symlink   | bsl |
 
 #### Tab completion
-The `-Name`/`-Names` parameter supports tab-completion of valid **existing** symlink names in the following commands:
+The `-Name`/`-Names` parameter supports tab-completion of valid **existing** symlink names in the following cmdlets:
 - `Get-Symlink`
 - `Set-Symlink`
 - `Remove-Symlink`
@@ -95,10 +91,10 @@ The `-Name`/`-Names` parameter supports tab-completion of valid **existing** sym
 #### Custom scriptblock evaluation
 When creating a new symlink, you can pass in a scriptblock which will evaluate whether the symbolic-link item should get created on the filesystem.
 
-For details, see the `CREATION CONDITION SCRIPTBLOCK` section in `about_Symlink`.
+For details, see the `CREATION CONDITION SCRIPTBLOCK` section in the help at: `about_Symlink`.
 
 #### -WhatIf and -Confirm support
-The following functions support `-WhatIf` and `-Confirm` parameters:
+The following cmdlets support `-WhatIf` and `-Confirm` parameters:
 - `New-Symlink`
 - `Remove-Symlink`
 - `Set-Symlink`
@@ -109,8 +105,8 @@ Use `-WhatIf` to see a list of what changes a command will do.
 Use `-Confirm` to ask for a prompt for every state-altering change.
 
 #### Formatting
-The `[Symlink]` object within this module has custom formatting rules for all views. Simply pipe the output of the `Get-Symlink` command to one of:
-| Command       | Alias |
+The `[Symlink]` object within this module has custom formatting rules for all views. Simply pipe the output of the `Get-Symlink` cmdlet to one of:
+| Cmdlet        | Alias |
 |---------------|-------|
 | Format-List   |  fl   |
 | Format-Table  |  ft   |
@@ -119,7 +115,7 @@ The `[Symlink]` object within this module has custom formatting rules for all vi
 
 The `Format-Custom` & `Format-List` views contain the largest amount of information regarding the symlink.
 
-⚠This module supports `Fancy` formatting (using extra ANSI codes and emoijs) for enhanced readability. This *only* works within the **Windows Terminal** at the moment (I've not tested this on other terminal emulators, but if you know that they support these extra features then let me know). The example below shows the enhanced formatting.
+⚠This module supports "Fancy" formatting (using extra ANSI codes and emoijs) for enhanced readability. This *only* works within the **Windows Terminal** at the moment (I've not tested this on other terminal emulators, but if you know that they support these extra formatting features then let me know). The example below shows the enhanced formatting.
 
 ![Example](./example.png)
 
@@ -127,7 +123,7 @@ The `Format-Custom` & `Format-List` views contain the largest amount of informat
 #### Prerequisites
 Install the following:
 - Powershell Core 7.0.0+
-- Pester 4.10.1
+- Pester **4.10.1**
 - PSScriptAnalyzer 1.18.0+
 
 #### Clone the git repo
@@ -136,7 +132,6 @@ git clone https://github.com/KubaP/Powershell-Symlink.git
 ```
 
 #### Run the build scripts
-
 Navigate to the root repository folder and run the following commands:
 ```powershell
 & .\build\vsts-prerequisites.ps1
@@ -152,7 +147,7 @@ The built module will be located in the `.\publish` folder.
 If there is a bug/issue, please file it on the github issue tracker.
 
 ## Contributing
-If you have a suggestion, create a new `Github Issue` detailing the idea.
+If you have a suggestion, create a new **Github Issue** detailing the idea.
 
 Feel free to make pull requests if you have an improvement. Only submit a single feature at a time, and make sure that the code is cleanly formatted, readable, and well commented.
 
