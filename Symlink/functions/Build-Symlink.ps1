@@ -63,7 +63,7 @@
 function Build-Symlink
 {
 	[Alias("bsl")]
-	# TODO: Add -Force switch to ignore the creation condition
+	
 	[CmdletBinding(DefaultParameterSetName = "All", SupportsShouldProcess = $true)]
 	param
 	(
@@ -76,69 +76,107 @@ function Build-Symlink
 		
 		[Parameter(Position = 0, Mandatory = $true, ParameterSetName = "All")]
 		[switch]
-		$All
+		$All,
+		
+		[Parameter()]
+		[switch]
+		$Force
 		
 	)
-	
+
 	begin
 	{
+		# Validate that '-WhatIf'/'-Confirm' isn't used together with '-Force'.
+		# This is ambiguous, so warn the user instead.
+		Write-Debug "`$WhatIfPreference: $WhatIfPreference"
+		Write-Debug "`$ConfirmPreference: $ConfirmPreference"
+		if ($WhatIfPreference -and $Force)
+		{
+			Write-Error "You cannot specify both '-WhatIf' and '-Force' in the invocation for this cmdlet!"
+			return
+		}
+		if (($ConfirmPreference -eq "Low") -and $Force)
+		{
+			Write-Error "You cannot specify both '-Confirm' and '-Force' in the invocation for this cmdlet!"
+			return
+		}
+	
 		# Store lists to notify user which symlinks were created/modified/etc.
 		$newList = New-Object System.Collections.Generic.List[Symlink] 
 		$modifiedList = New-Object System.Collections.Generic.List[Symlink]
+		
+		if ($All)
+		{
+			$linkList = Read-Symlinks
+		}
+		else
+		{
+			$linkList = Get-Symlinks -Names $Names -Verbose:$false
+		}
 	}
 	
 	process
 	{
-		if ($All)
+		foreach ($link in $linkList)
 		{
-			# Read in all of the existing symlinks.
-			$linkList = Read-Symlinks
-			
-			foreach ($link in $linkList)
+			# Record the state to display the changes at the end.
+			if (-not $link.Exists())
 			{
-				Write-Verbose "Creating the symbolic-link item for: '$($link.Name)'."
-				
-				# Record the state for displaying at the end.
-				if ($link.Exists() -eq $false)
-				{
-					$newList.Add($link)
-				}
-				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation")
-				{
-					$modifiedList.Add($link)
-				}
-				
-				# Create the symlink item on the filesystem.
-				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link"))
-				{
-					$link.CreateFile()
-				}
+				$newList.Add($link)
 			}
-		}
-		else
-		{
-			# Read in the specified symlinks.
-			$linkList = Get-Symlink -Names $Names -Verbose:$false
-			
-			foreach ($link in $linkList)
+			elseif ($link.GetState() -eq "NeedsDeletion" -or $link.GetState() -eq "NeedsCreation")
 			{
-				Write-Verbose "Creating the symbolic-link item for: '$($link.Name)'."
+				$modifiedList.Add($link)
+			}
+			
+			# Build the symbolic-link item on the filesytem.
+			$path = $link.FullPath()
+			if ($PSCmdlet.ShouldProcess("Creating symbolic-link item at '$path'.", "Are you sure you want to create the symbolic-link item at '$path'?", "Create Symbolic-Link Prompt") -and ($newLink.ShouldExist() -or $Force))
+			{
+				# Appropriately delete any existing items before creating the
+				# symbolic-link.
+				$item = Get-Item -Path $path -ErrorAction Ignore
+				if ($null -eq $item.LinkType)
+				{
+					# Delete existing folder/file.
+					# Loop until the item can be deleted, as it may be in use by another
+					# process.
+					while (Test-Path -Path $path)
+					{
+						try
+						{
+							Remove-Item -Path $path -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+						}
+						catch
+						{
+							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Press any key to continue..."
+						}
+					}
+				}
+				elseif ($item.Target -ne $link.FullTarget())
+				{
+					# Delete existing symbolic-link which has a different target.
+					# Loop until the item can be deleted, as it may be in use by another
+					# process.
+					while (Test-Path -Path $path)
+					{
+						try
+						{
+							# Call this method to prevent deleting a symlink from
+							# deleting the original contents it points to.
+							$item.Delete()
+						}
+						catch
+						{
+							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Press any key to continue..."
+						}
+					}
+				}
 				
-				# Record the state for displaying at the end.
-				if ($link.Exists() -eq $false)
-				{
-					$newList.Add($link)
-				}
-				elseif ($link.State() -eq "NeedsDeletion" -or $link.State() -eq "NeedsCreation")
-				{
-					$modifiedList.Add($link)
-				}
-				
-				# Create the symlink item on the filesystem.
-				if ($PSCmdlet.ShouldProcess($link.FullPath(), "Create Symbolic-Link"))
-				{
-					$link.CreateFile()
-				}
+				New-Item -ItemType SymbolicLink -Path $link.FullPath() -Value $link.FullTarget() -Force `
+					-WhatIf:$false -Confirm:$false | Out-Null
 			}
 		}
 	}

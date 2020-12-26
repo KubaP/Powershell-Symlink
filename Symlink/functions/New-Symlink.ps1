@@ -91,7 +91,7 @@
 function New-Symlink
 {
 	[Alias("nsl")]
-	# TODO: Add -Force switch to ignore the creation condition
+	
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	param
 	(
@@ -118,39 +118,90 @@ function New-Symlink
 		
 		[Parameter(Position = 5)]
 		[switch]
-		$DontCreateItem
+		$DontCreateItem,
+		
+		[Parameter()]
+		[switch]
+		$Force
 		
 	)
 	
-	Write-Verbose "Validating name."
+	# Validate that '-WhatIf'/'-Confirm' isn't used together with '-Force'.
+	# This is ambiguous, so warn the user instead.
+	Write-Debug "`$WhatIfPreference: $WhatIfPreference"
+	Write-Debug "`$ConfirmPreference: $ConfirmPreference"
+	if ($WhatIfPreference -and $Force)
+	{
+		Write-Error "You cannot specify both '-WhatIf' and '-Force' in the invocation for this cmdlet!"
+		return
+	}
+	if (($ConfirmPreference -eq "Low") -and $Force)
+	{
+		Write-Error "You cannot specify both '-Confirm' and '-Force' in the invocation for this cmdlet!"
+		return
+	}
+	
 	# Validate that the name isn't empty.
-	if ([System.String]::IsNullOrWhiteSpace($Name))
+	Write-Verbose "Validating parameters."
+	if ([system.string]::IsNullOrWhiteSpace($Name))
 	{
 		Write-Error "The name cannot be blank or empty!"
 		return
 	}
 	
-	# Validate that the target location exists.
-	if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Target)) `
-			-ErrorAction Ignore) -and -not $MoveExistingItem)
+	$expandedPath = [System.Environment]::ExpandEnvironmentVariables($Path)
+	$expandedTarget = [System.Environment]::ExpandEnvironmentVariables($Target)
+	
+	# Validate that the target location exists, assuming the item isn't
+	# being moved there as part of the command.
+	if (-not (Test-Path -Path $expandedTarget -ErrorAction Ignore) -and -not $MoveExistingItem)
 	{
 		Write-Error "The target path: '$Target' points to an invalid/non-existent location!"
 		return
 	}
-	
-	# Read in the existing symlink collection.
-	$linkList = Read-Symlinks
-	
-	# Validate that the name isn't already taken.
-	$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
-	if ($null -ne $existingLink)
+	if (-not (Test-Path -Path (Split-Path -Path $expandedTarget -Parent) -ErrorAction Ignore) `
+		-and $MoveExistingItem)
 	{
-		Write-Error "The name: '$Name' is already taken!"
+		Write-Error "Part of the target path: '$(Split-Path -Path $expandedTarget -Parent)' is invalid!"
 		return
 	}
 	
+	# Validate that the name isn't already taken.
+	$linkList = Read-Symlinks
+	$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
+	if ($null -ne $existingLink)
+	{
+		if ($Force)
+		{
+			Write-Verbose "Existing symlink named: '$Name' exists, but since the '-Force' switch is present, the existing symlink will be deleted."
+			$existingLink | Remove-Symlink
+		}
+		else
+		{
+			Write-Error "The name: '$Name' is already taken."
+			return
+		}
+	}
+	
+	if ((Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem -and $PSCmdlet.ShouldProcess("Moving and renaming existing item from '$expandedPath' to '$expandedTarget'.", "Are you sure you want to move and rename the existing item from '$expandedPath' to '$expandedTarget'?", "Move File Prompt")) 
+	{
+		# Move the item over to the target parent folder, and rename it
+		# to the specified name name given in the target path.
+		$fileName = Split-Path -Path $expandedPath -Leaf
+		$newFileName = Split-Path -Path $expandedTarget -Leaf
+		$targetFolder = Split-Path -Path $expandedTarget -Parent
+		Move-Item -Path $expandedPath -Destination $targetFolder -Force -WhatIf:$false -Confirm:$false | Out-Null
+		Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -WhatIf:$false `
+			-Confirm:$false | Out-Null
+	}
+	elseif (-not (Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem)
+	{
+		Write-Error "Cannot move the existing item from '$expandedPath' because the location is invalid!"
+		return
+	}
+	
+	# Create the object and save it to the database.
 	Write-Verbose "Creating new symlink object."
-	# Create the new symlink object.
 	if ($null -eq $CreationCondition)
 	{
 		$newLink = [Symlink]::new($Name, $Path, $Target)
@@ -159,41 +210,60 @@ function New-Symlink
 	{
 		$newLink = [Symlink]::new($Name, $Path, $Target, $CreationCondition)
 	}
-	# Add the new link to the list, and then re-export the list.
 	$linkList.Add($newLink)
-	if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one"))
+	if ($PSCmdlet.ShouldProcess("Saving newly-created symlink to database at '$script:DataPath'.", "Are you sure you want to save the newly-created symlink to the database at '$script:DataPath'?", "Save File Prompt"))
 	{
-		Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+		Export-Clixml -Path $script:DataPath -InputObject $linkList -Force -WhatIf:$false -Confirm:$false `
+			| Out-Null
 	}
 	
-	# Potentially move the existing item.
-	if ((Test-Path -Path $Path) -and $MoveExistingItem)
+	# Build the symbolic-link item on the filesytem.
+	if (-not $DontCreateItem -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt") -and $newLink.ShouldExist())
 	{
-		if ($PSCmdlet.ShouldProcess("$Path", "Move existing item"))
+		# Appropriately delete any existing items before creating the
+		# symbolic-link.
+		$item = Get-Item -Path $expandedPath -ErrorAction Ignore
+		if ($null -eq $item.LinkType)
 		{
-			# If the item needs renaming, split the filepaths to construct the
-			# valid filepath.
-			$finalPath = [System.Environment]::ExpandEnvironmentVariables($Target)
-			$finalContainer = Split-Path -Path $finalPath -Parent
-			$finalName = Split-Path -Path $finalPath -Leaf
-			$existingPath = $Path
-			$existingContainer = Split-Path -Path $existingPath -Parent
-			$existingName = Split-Path -Path $existingPath -Leaf
-			
-			# Only rename the item if it needs to be called differently.
-			if ($existingName -ne $finalName)
+			# Delete existing folder/file.
+			# Loop until the item can be deleted, as it may be in use by another
+			# process.
+			while (Test-Path -Path $expandedPath)
 			{
-				Rename-Item -Path $existingPath -NewName $finalName -WhatIf:$false -Confirm:$false
-				$existingPath = Join-Path -Path $existingContainer -ChildPath $finalName
+				try
+				{
+					Remove-Item -Path $expandedPath -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+				}
+				catch
+				{
+					Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+					Read-Host -Prompt "Press any key to continue..."
+				}
 			}
-			Move-Item -Path $existingPath -Destination $finalContainer -WhatIf:$false -Confirm:$false
 		}
-	}
-	
-	# Build the symlink item on the filesytem.
-	if (-not $DontCreateItem -and $PSCmdlet.ShouldProcess($newLink.FullPath(), "Create Symbolic-Link"))
-	{
-		$newLink.CreateFile()
+		elseif ($item.Target -ne $expandedTarget)
+		{
+			# Delete existing symbolic-link which has a different target.
+			# Loop until the item can be deleted, as it may be in use by another
+			# process.
+			while (Test-Path -Path $expandedPath)
+			{
+				try
+				{
+					# Call this method to prevent deleting a symlink from
+					# deleting the original contents it points to.
+					$item.Delete()
+				}
+				catch
+				{
+					Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+					Read-Host -Prompt "Press any key to continue..."
+				}
+			}
+		}
+		
+		New-Item -ItemType SymbolicLink -Path $expandedPath -Value $expandedTarget -Force -WhatIf:$false `
+			-Confirm:$false | Out-Null
 	}
 	
 	Write-Output $newLink

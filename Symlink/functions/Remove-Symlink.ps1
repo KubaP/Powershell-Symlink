@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-	Deletes a specified symlink item.
+	Deletes a specified symlink item(s).
 	
 .DESCRIPTION
 	The `Remove-YoutubeDlItem` cmdlet deletes one or more symlinks, specified
@@ -67,7 +67,7 @@ function Remove-Symlink
 	(
 		
 		# Tab completion.
-		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName)]
+		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
 		[Alias("Name")]
 		[string[]]
 		$Names,
@@ -85,29 +85,47 @@ function Remove-Symlink
 		
 		foreach ($name in $Names)
 		{
-			Write-Verbose "Removing the symlink: '$name'."
 			# If the link doesn't exist, warn the user.
 			$existingLink = $linkList | Where-Object { $_.Name -eq $name }
 			if ($null -eq $existingLink)
 			{
-				Write-Warning "There is no symlink called: '$name'."
+				Write-Error "There is no symlink named: '$name'."
 				continue
 			}
 			
 			# Delete the symlink from the filesystem.
-			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link"))
+			$path = $existingLink.FullPath()
+			$item = Get-Item -Path $path
+			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$path'.", "Are you sure you want to delete the symbolic-link at '$path'?", "Delete Symbolic-Link Prompt") -and $existingLink.Exists())
 			{
-				$existingLink.DeleteFile()
+				# Loop until the item can be deleted, as it may be in use by
+				# another process.
+				while (Test-Path -Path $path)
+				{
+					try
+					{
+						# Call this method to prevent deleting a symlink from
+						# deleting the original contents it points to.
+						$item.Delete()
+					}
+					catch
+					{
+						Write-Error "The symbolic-link located at '$path' could not be deleted.`nClose any programs which may be using this path and try again."
+						Read-Host -Prompt "Press any key to continue..."
+					}
+				}
 			}
 			
 			# Remove the link from the list.
+			Write-Verbose "Deleting the symlink object."
 			$linkList.Remove($existingLink) | Out-Null
 		}
 		
-		# Re-export the list.
-		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one"))
+		# Save the modified database.
+		if ($PSCmdlet.ShouldProcess("Updating database at '$script:DataPath' with the changes (deletions).", "Are you sure you want to update the database at '$script:DataPath' with the changes (deletions)?", "Save File Prompt"))
 		{
-			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+			Export-Clixml -Path $script:DataPath -InputObject $linkList -Force -WhatIf:$false `
+				-Confirm:$false | Out-Null
 		}
 	}
 }

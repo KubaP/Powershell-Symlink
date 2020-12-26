@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-	Gets the specified symlink item.
+	Gets the specified symlink item(s).
 	
 .DESCRIPTION
 	The `Get-Symlink` cmdlet gets one or more symlinks, specified by their
@@ -60,7 +60,7 @@ function Get-Symlink
 	(
 		
 		# Tab completion.
-		[Parameter(Position = 0, Mandatory = $true, ValueFromPipeline, ParameterSetName = "Specific")]
+		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "Specific")]
 		[Alias("Name")]
 		[string[]]
 		$Names,
@@ -74,7 +74,7 @@ function Get-Symlink
 	begin
 	{
 		# Store the retrieved symlinks, to output together in one go at the end.
-		$outputList = New-Object System.Collections.Generic.List[Symlink]
+		$outputList = New-Object -TypeName System.Collections.Generic.List[Symlink]
 	}
 	
 	process
@@ -87,12 +87,11 @@ function Get-Symlink
 			# Iterate through all the passed in names.
 			foreach ($name in $Names)
 			{
-				Write-Verbose "Retrieving the symlink: '$name'."
 				# If the link doesn't exist, warn the user.
 				$existingLink = $linkList | Where-Object { $_.Name -eq $name }
 				if ($null -eq $existingLink)
 				{
-					Write-Warning "There is no symlink called: '$name'."
+					Write-Warning "There is no symlink named: '$name'."
 					continue
 				}
 				
@@ -102,7 +101,6 @@ function Get-Symlink
 		}
 		else
 		{
-			Write-Verbose "Retrieving all symlinks."
 			# Read in all of the symlinks.
 			$outputList = Read-Symlinks
 		}
@@ -110,7 +108,7 @@ function Get-Symlink
 	
 	end
 	{
-		# By default, outputs in List formatting.
+		# By default, this outputs in List formatting.
 		$outputList | Sort-Object -Property Name
 	}
 }

@@ -104,27 +104,23 @@ function Set-Symlink
 	
 	process
 	{
-		# Read in the existing symlinks.
-		$linkList = Read-Symlinks
-		
-		Write-Verbose "Changing the symlink: '$Name'."
 		# If the link doesn't exist, warn the user.
+		$linkList = Read-Symlinks
 		$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
 		if ($null -eq $existingLink)
 		{
-			Write-Error "There is no symlink called: '$Name'."
+			Write-Error "There is no symlink named: '$Name'."
 			return
 		}
 		
 		# Modify the property values.
+		Write-Verbose "Validating parameters."
 		if ($Property -eq "Name")
 		{
-			Write-Verbose "Changing the name to: '$Value'."
-			
 			# Validate that the new name is valid.
-			if ([System.String]::IsNullOrWhiteSpace($Name))
+			if ([system.string]::IsNullOrWhiteSpace($Name))
 			{
-				Write-Error "The name cannot be blank or empty!"
+				Write-Error "The new name cannot be blank or empty!"
 				return
 			}
 			# Validate that the new name isn't already taken.
@@ -139,53 +135,184 @@ function Set-Symlink
 		}
 		elseif ($Property -eq "Path")
 		{
-			Write-Verbose "Changing the path to: '$Value'."
-			# First delete the symlink at the original path.
-			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link"))
+			# Validate the new path isn't empty.
+			if ([System.String]::IsNullOrWhiteSpace($Value))
 			{
-				$existingLink.DeleteFile()
+				Write-Error "The new path cannot be blank or empty!"
+				return
 			}
 			
-			# Then change the path property, and re-create the symlink
-			# at the new location.
-			# TODO: Check the path isnt null.
-			$existingLink._Path = $Value
-			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Create Symbolic-Link"))
+			# Firstly, delete the symlink at the original path.
+			$path = $existingLink.FullPath()
+			$item = Get-Item -Path $path
+			if ($existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$path'.", "Are you sure you want to delete the symbolic-link at '$path'?", "Delete Symbolic-Link Prompt"))
 			{
-				$existingLink.CreateFile()
+				# Loop until the item can be deleted, as it may be in use by
+				# another process.
+				while (Test-Path -Path $path)
+				{
+					try
+					{
+						# Call this method to prevent deleting a symlink from
+						# deleting the original contents it points to.
+						$item.Delete()
+					}
+					catch
+					{
+						Write-Error "The symbolic-link located at '$path' could not be deleted.`nClose any programs which may be using this path and try again."
+						Read-Host -Prompt "Press any key to continue..."
+					}
+				}
+			}
+			
+			# Then change the path property, and re-create the symlink at the
+			# new location, taking into account that there may be existing
+			# items at the new path.
+			$existingLink._Path = $Value
+			$path = $existingLink.FullPath()
+			if ($PSCmdlet.ShouldProcess("Creating symbolic-link item at '$path'.", "Are you sure you want to create the symbolic-link item at '$path'?", "Create Symbolic-Link Prompt"))
+			{
+				# Appropriately delete any existing items before creating the
+				# symbolic-link.
+				$item = Get-Item -Path $path -ErrorAction Ignore
+				if ($null -eq $item.LinkType)
+				{
+					# Delete existing folder/file.
+					# Loop until the item can be deleted, as it may be in use by another
+					# process.
+					while (Test-Path -Path $path)
+					{
+						try
+						{
+							Remove-Item -Path $path -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+						}
+						catch
+						{
+							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Press any key to continue..."
+						}
+					}
+				}
+				elseif ($item.Target -ne $existingLink.FullTarget())
+				{
+					# Delete existing symbolic-link which has a different target.
+					# Loop until the item can be deleted, as it may be in use by another
+					# process.
+					while (Test-Path -Path $path)
+					{
+						try
+						{
+							# Call this method to prevent deleting a symlink from
+							# deleting the original contents it points to.
+							$item.Delete()
+						}
+						catch
+						{
+							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Press any key to continue..."
+						}
+					}
+				}
+				
+				New-Item -ItemType SymbolicLink -Path $path -Value $existingLink.FullTarget() -Force `
+					-WhatIf:$false -Confirm:$false | Out-Null
 			}
 		}
 		elseif ($Property -eq "Target")
 		{
-			Write-Verbose "Changing the target to: '$Value'."
-			
 			# Validate that the target exists.
 			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)) `
 					-ErrorAction Ignore))
 			{
-				Write-Error "The target path: '$Value' points to an invalid location!"
+				Write-Error "The new target path: '$Value' points to an invalid location!"
 				return
 			}
 			
-			# Change the target property, and edit the existing symlink (re-create).
-			$existingLink._Target = $Value
-			if ($PSCmdlet.ShouldProcess($existingLink.FullPath(), "Update Symbolic-Link target"))
+			# Firstly, delete the symlink with the old target.
+			$path = $existingLink.FullPath()
+			$item = Get-Item -Path $path
+			if ($existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$path'.", "Are you sure you want to delete the symbolic-link at '$path'?", "Delete Symbolic-Link Prompt"))
 			{
-				$existingLink.CreateFile()
+				# Loop until the item can be deleted, as it may be in use by
+				# another process.
+				while (Test-Path -Path $path)
+				{
+					try
+					{
+						# Call this method to prevent deleting a symlink from
+						# deleting the original contents it points to.
+						$item.Delete()
+					}
+					catch
+					{
+						Write-Error "The symbolic-link located at '$path' could not be deleted.`nClose any programs which may be using this path and try again."
+						Read-Host -Prompt "Press any key to continue..."
+					}
+				}
+			}
+			
+			# Then change the target property, and re-create the symlink at the
+			# with the new target, taking into account that there may be
+			# existing items at the new path.
+			$existingLink._Target = $Value
+			$path = $existingLink.FullPath()
+			if ($PSCmdlet.ShouldProcess("Creating symbolic-link item at '$path'.", "Are you sure you want to create the symbolic-link item at '$path'?", "Create Symbolic-Link Prompt"))
+			{
+				# Appropriately delete any existing items before creating the
+				# symbolic-link.
+				$item = Get-Item -Path $path -ErrorAction Ignore
+				if ($null -eq $item.LinkType)
+				{
+					# Delete existing folder/file.
+					# Loop until the item can be deleted, as it may be in use by another
+					# process.
+					while (Test-Path -Path $path)
+					{
+						try
+						{
+							Remove-Item -Path $path -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+						}
+						catch
+						{
+							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Press any key to continue..."
+						}
+					}
+				}
+				elseif ($item.Target -ne $existingLink.FullTarget())
+				{
+					# Delete existing symbolic-link which has a different target.
+					# Loop until the item can be deleted, as it may be in use by another
+					# process.
+					while (Test-Path -Path $path)
+					{
+						try
+						{
+							# Call this method to prevent deleting a symlink from
+							# deleting the original contents it points to.
+							$item.Delete()
+						}
+						catch
+						{
+							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Press any key to continue..."
+						}
+					}
+				}
+				
+				New-Item -ItemType SymbolicLink -Path $existingLink.FullPath() -Value $existingLink.FullTarget() `
+					-Force -WhatIf:$false -Confirm:$false | Out-Null
 			}
 		}
 		elseif ($Property -eq "CreationCondition")
 		{
-			Write-Verbose "Changing the creation condition."
-			
 			$existingLink._Condition = $Value
-			# TODO: Operate if condition result is different from previous state.
 		}
 		
-		# Re-export the list.
-		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one"))
+		if ($PSCmdlet.ShouldProcess("Updating database at '$script:DataPath' with the changes.", "Are you sure you want to update the database at '$script:DataPath' with the changes?", "Save File Prompt"))
 		{
-			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+			Export-Clixml -Path $script:DataPath -InputObject $jobList -WhatIf:$false -Confirm:$false `
+				| Out-Null
 		}
 	}
 }
