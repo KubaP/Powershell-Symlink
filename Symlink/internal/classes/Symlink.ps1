@@ -1,7 +1,7 @@
 ﻿enum SymlinkState
 {
-	True
-	False
+	Exists
+	NotExists
 	NeedsCreation
 	NeedsDeletion
 	Error
@@ -69,11 +69,12 @@ class Symlink
 		{
 			return $false
 		}
-		# Checks if the symlink item and has the correct target.
+		# Checks if the symlink item exists and has the correct target.
 		if ((Get-Item -Path $this.FullPath() -ErrorAction Ignore).Target -eq $this.FullTarget())
 		{
 			return $true
-		}else
+		}
+		else
 		{
 			return $false
 		}
@@ -97,13 +98,13 @@ class Symlink
 		return $false
 	}
 	
-	[SymlinkState] State()
+	[SymlinkState] GetState()
 	{
 		# Return the appropiate state depending on whether the symlink
 		# exists and whether it should exist.
 		if ($this.Exists() -and $this.ShouldExist())
 		{
-			return [SymlinkState]::True
+			return [SymlinkState]::Exists
 		}
 		elseif ($this.Exists() -and -not $this.ShouldExist()) 
 		{
@@ -115,105 +116,8 @@ class Symlink
 		}
 		elseif (-not $this.Exists() -and -not $this.ShouldExist())
 		{
-			return [SymlinkState]::False
+			return [SymlinkState]::NotExists
 		}
 		return [SymlinkState]::Error
-	}
-	
-	[void] CreateFile()
-	{
-		switch ($this.State())
-		{
-			"True"
-			{
-				# There is an existing symlink and it points to the correct target.
-				Write-Verbose "Existing symbolic-link item is correct. No change required."
-				return
-			}
-			{ $_ -in "NeedsDeletion","False" }
-			{
-				# If the symlink condition isn't met, skip creating it.
-				Write-Verbose "Skipping the creation of a symbolic-link item, as the creation condition is false."
-				return
-			}
-			"NeedsCreation"
-			{
-				# Determine whether there is an item at the location, and if so,
-				# whether it's a normal item or a symlink, as they require
-				# slightly different logic, and different verbose logging.
-				$target = (Get-Item -Path $this.FullPath() -ErrorAction Ignore).Target
-				
-				if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction Ignore))
-				{
-					# There is no existing item or symlink, so just create the new symlink.
-				}
-				elseif ([System.String]::IsNullOrWhiteSpace($target))
-				{
-					# There is an existing item, so remove it.
-					Write-Verbose "Deleting existing folder/file first."
-					try
-					{
-						Remove-Item -Path $this.FullPath() -Force -Recurse -WhatIf:$false -Confirm:$false
-					}
-					catch
-					{
-						Write-Warning "The existing item could not be deleted. It may be in use by another program."
-						Write-Warning "Please close any programs which are accessing files via this folder/file."
-						Read-Host -Prompt "Press any key to continue..."
-						Remove-Item -Path $this.FullPath() -Force -Recurse -WhatIf:$false -Confirm:$false
-					}
-				}
-				elseif ($target -ne $this.FullTarget())
-				{
-					# There is an existing symlink, so remove it.
-					# Must be done by calling the 'Delete()' method, rather than 'Remove-Item'.
-					Write-Verbose "Changing the existing symbolic-link item target (deleting and re-creating)."
-					try
-					{
-						(Get-Item -Path $this.FullPath()).Delete()
-					}
-					catch
-					{
-						Write-Warning "The symlink could not be deleted. It may be in use by another program."
-						Write-Warning "Please close any programs which are accessing files via this symlink."
-						Read-Host -Prompt "Press any key to continue..."
-						(Get-Item -Path $this.FullPath()).Delete()
-					}
-				}
-				
-				# Create the new symlink.
-				New-Item -ItemType SymbolicLink -Force -Path $this.FullPath() -Value $this.FullTarget() `
-					-WhatIf:$false -Confirm:$false | Out-Null
-			}
-		}
-	}
-	
-	[void] ForceCreateFile()
-	{
-		Write-Verbose
-	}
-	
-	[void] DeleteFile()
-	{
-		# Check that the actual symlink item exists first.
-		if ($this.Exists())
-		{
-			# Loop until the symlink item can be successfuly deleted.
-			$state = $true
-			while ($state -eq $true)
-			{
-				try
-				{
-					(Get-Item -Path $this.FullPath()).Delete()
-				}
-				catch
-				{
-					Write-Warning "The symlink: '$($this.Name)' could not be deleted. It may be in use by another program."
-					Write-Warning "Please close any programs which are accessing files via this symlink."
-					Read-Host -Prompt "Press any key to continue..."
-				}
-				$state = $this.Exists()
-			}
-		}
 	}
 }
