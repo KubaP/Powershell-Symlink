@@ -62,6 +62,29 @@ class Symlink
 		return [System.Environment]::ExpandEnvironmentVariables($this._Target)
 	}
 	
+	[string] TargetState()
+	{
+		# Check if the target is a valid path.
+		if (Test-Path -Path $this.FullTarget() -ErrorAction Ignore)
+		{
+			return "Valid"
+		}
+		else
+		{
+			# Check if the target has unexpanded environment variables,
+			# i.e. variable not present on system, hence path cannot
+			# be verified.
+			if ($this.FullTarget().Contains("%"))
+			{
+				return "MissingVariable"
+			}
+			else
+			{
+				return "Invalid"
+			}
+		}
+	}
+	
 	[bool] Exists()
 	{
 		# Check if the item even exists.
