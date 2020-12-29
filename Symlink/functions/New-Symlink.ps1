@@ -190,9 +190,10 @@ function New-Symlink
 		$fileName = Split-Path -Path $expandedPath -Leaf
 		$newFileName = Split-Path -Path $expandedTarget -Leaf
 		$targetFolder = Split-Path -Path $expandedTarget -Parent
-		Move-Item -Path $expandedPath -Destination $targetFolder -Force -WhatIf:$false -Confirm:$false | Out-Null
-		Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -WhatIf:$false `
+		Move-Item -Path $expandedPath -Destination $targetFolder -Force -ErrorAction Stop -WhatIf:$false `
 			-Confirm:$false | Out-Null
+		Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -ErrorAction Stop `
+			-WhatIf:$false -Confirm:$false | Out-Null
 	}
 	elseif (-not (Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem)
 	{
@@ -218,7 +219,7 @@ function New-Symlink
 	}
 	
 	# Build the symbolic-link item on the filesytem.
-	if (-not $DontCreateItem -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt") -and $newLink.ShouldExist())
+	if (-not $DontCreateItem -and ($newLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 	{
 		# Appropriately delete any existing items before creating the
 		# symbolic-link.
@@ -232,12 +233,13 @@ function New-Symlink
 			{
 				try
 				{
-					Remove-Item -Path $expandedPath -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+					Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `
+						-Confirm:$false | Out-Null
 				}
 				catch
 				{
 					Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
-					Read-Host -Prompt "Press any key to continue..."
+					Read-Host -Prompt "Enter any key to continue"
 				}
 			}
 		}
@@ -250,14 +252,14 @@ function New-Symlink
 			{
 				try
 				{
-					# Call this method to prevent deleting a symlink from
-					# deleting the original contents it points to.
+					# Call this method to prevent the action of deleting a
+					# symlink from deleting the original contents it points to.
 					$item.Delete()
 				}
 				catch
 				{
 					Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
-					Read-Host -Prompt "Press any key to continue..."
+					Read-Host -Prompt "Enter any key to continue"
 				}
 			}
 		}

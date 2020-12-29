@@ -184,7 +184,8 @@ function Set-Symlink
 					{
 						try
 						{
-							Remove-Item -Path $path -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+							Remove-Item -Path $path -Force -Recurse -ErrorAction Stop -WhatIf:$false `
+								-Confirm:$false | Out-Null
 						}
 						catch
 						{
@@ -270,7 +271,8 @@ function Set-Symlink
 					{
 						try
 						{
-							Remove-Item -Path $path -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+							Remove-Item -Path $path -Force -Recurse -ErrorAction Stop -WhatIf:$false `
+								-Confirm:$false | Out-Null
 						}
 						catch
 						{
@@ -311,7 +313,7 @@ function Set-Symlink
 		
 		if ($PSCmdlet.ShouldProcess("Updating database at '$script:DataPath' with the changes.", "Are you sure you want to update the database at '$script:DataPath' with the changes?", "Save File Prompt"))
 		{
-			Export-Clixml -Path $script:DataPath -InputObject $jobList -WhatIf:$false -Confirm:$false `
+			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false `
 				| Out-Null
 		}
 	}

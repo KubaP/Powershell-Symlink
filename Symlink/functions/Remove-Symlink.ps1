@@ -95,8 +95,8 @@ function Remove-Symlink
 			
 			# Delete the symlink from the filesystem.
 			$path = $existingLink.FullPath()
-			$item = Get-Item -Path $path
-			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$path'.", "Are you sure you want to delete the symbolic-link at '$path'?", "Delete Symbolic-Link Prompt") -and $existingLink.Exists())
+			$item = Get-Item -Path $path -ErrorAction Ignore
+			if (-not $DontDeleteItem -and $existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$path'.", "Are you sure you want to delete the symbolic-link at '$path'?", "Delete Symbolic-Link Prompt"))
 			{
 				# Loop until the item can be deleted, as it may be in use by
 				# another process.

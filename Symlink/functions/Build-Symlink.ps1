@@ -111,7 +111,7 @@ function Build-Symlink
 		}
 		else
 		{
-			$linkList = Get-Symlinks -Names $Names -Verbose:$false
+			$linkList = Get-Symlink -Names $Names -Verbose:$false
 		}
 	}
 	
@@ -130,47 +130,49 @@ function Build-Symlink
 			}
 			
 			# Build the symbolic-link item on the filesytem.
-			$path = $link.FullPath()
-			if ($PSCmdlet.ShouldProcess("Creating symbolic-link item at '$path'.", "Are you sure you want to create the symbolic-link item at '$path'?", "Create Symbolic-Link Prompt") -and ($newLink.ShouldExist() -or $Force))
+			$expandedPath = $link.FullPath()
+			# Build the symbolic-link item on the filesytem.
+			if (($link.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 			{
 				# Appropriately delete any existing items before creating the
 				# symbolic-link.
-				$item = Get-Item -Path $path -ErrorAction Ignore
+				$item = Get-Item -Path $expandedPath -ErrorAction Ignore
 				if ($null -eq $item.LinkType)
 				{
 					# Delete existing folder/file.
 					# Loop until the item can be deleted, as it may be in use by another
 					# process.
-					while (Test-Path -Path $path)
+					while (Test-Path -Path $expandedPath)
 					{
 						try
 						{
-							Remove-Item -Path $path -Force -Recurse -WhatIf:$false -Confirm:$false | Out-Null
+							Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `
+								-Confirm:$false | Out-Null
 						}
 						catch
 						{
-							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
-							Read-Host -Prompt "Press any key to continue..."
+							Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Enter any key to continue"
 						}
 					}
 				}
-				elseif ($item.Target -ne $link.FullTarget())
+				elseif ($item.Target -ne $expandedTarget)
 				{
 					# Delete existing symbolic-link which has a different target.
 					# Loop until the item can be deleted, as it may be in use by another
 					# process.
-					while (Test-Path -Path $path)
+					while (Test-Path -Path $expandedPath)
 					{
 						try
 						{
-							# Call this method to prevent deleting a symlink from
-							# deleting the original contents it points to.
+							# Call this method to prevent the action of deleting a
+							# symlink from deleting the original contents it points to.
 							$item.Delete()
 						}
 						catch
 						{
-							Write-Error "The item located at '$path' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
-							Read-Host -Prompt "Press any key to continue..."
+							Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link.`nClose any programs which may be using this path and try again."
+							Read-Host -Prompt "Enter any key to continue"
 						}
 					}
 				}
