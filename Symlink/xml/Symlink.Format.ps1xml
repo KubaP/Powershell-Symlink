@@ -52,55 +52,88 @@
 								</ScriptBlock>
 							</ListItem>
 							
+							<!-- The symlink location's state. -->
+							<ListItem>
+								<Label>Path State</Label>
+								<ScriptBlock>
+									$obj = $_
+									switch ($obj.GetState())
+									{
+										"Exists"
+										{
+											return "`e[32mExists`e[0m"
+										}
+										"NotExists"
+										{
+											return "`e[90mDoesn't exist`e[0m"
+										}
+										"NeedsCreation"
+										{
+											return "`e[31;4mNeeds creation`e[0m`e[31m!`e[0m"
+										}
+										"NeedsDeletion"
+										{
+											return "`e[33mNeeds Deletion`e[0m`e[31m!`e[0m"
+										}
+										"Error"
+										{
+											return "`e[31;4mError`e[0m`e[31m!`e[0m"
+										}
+									}
+								</ScriptBlock>
+							</ListItem>
+							
 							<!-- The symlink target. -->
 							<!-- Present the true and expanded path. -->
 							<ListItem>
 								<Label>Target</Label>
 								<ScriptBlock>
-									return $_.FullTarget()
+									$_.FullTarget()
 								</ScriptBlock>
 							</ListItem>
 							
-							<!-- Whether the symlink exists or not. -->
+							<!-- The symlink targets's state. -->
 							<ListItem>
-								<Label>Exists on Filesystem</Label>
+								<Label>Target State</Label>
 								<ScriptBlock>
-									switch ($_.State()) {
-										True {
-											return "`e[32m$true`e[0m"
+									$obj = $_
+									switch ($obj.TargetState())
+									{
+										"Valid"
+										{
+											return "`e[32mExists`e[0m"
 										}
-										False {
-											return "`e[33m$false`e[0m"
+										"Invalid"
+										{
+											return "`e[31;4mInvalid`e[0m`e[31m!`e[0m"
 										}
-										NeedsCreation {
-											return "`e[31;4m$false!`e[0m `e[4m(Needs Creation)`e[0m"
-										}
-										NeedsDeletion {
-											return "`e[33m$true!`e[0m `e[4m(Needs Deletion)`e[0m"
-										}
-										Error {
-											return "`e[31mAn error has occured!`e[0m"
+										"MissingVariable"
+										{	
+											return "`e[33;4mMissing environement variable`e[0m`e[31m!`e[0m"
 										}
 									}
 								</ScriptBlock>
 							</ListItem>
 							
 							<!-- The creation condition, only if there is one. -->
-							<!-- The default condition should not be shown. -->
+							<!-- A non-existent condition should not be shown. -->
 							<ListItem>
-								<Label>Creation Condition</Label>
+								<Label>Condition</Label>
 								<ItemSelectionCondition>
 									<ScriptBlock>
-										if ($null -ne $_._Condition) {
+										if ($null -ne $_._Condition)
+										{
 											return $true
-										} else {
+										}
+										else
+										{
 											return $false
 										}
 									</ScriptBlock>
 								</ItemSelectionCondition>
 								<ScriptBlock>
-									$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
-									"{`n" + $var + "}"
+									$str = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
+									"{`n" + $str + "}"
 								</ScriptBlock>
 							</ListItem>
 							
@@ -113,7 +146,8 @@
 							<SelectionCondition>
 								<SelectionSetName>Set.Symlink</SelectionSetName>
 								<ScriptBlock>
-									if ($null -ne $env:WT_SESSION) {
+									if ($null -ne $env:WT_SESSION)
+									{
 										return $true
 									}
 								</ScriptBlock>
@@ -138,6 +172,37 @@
 								</ScriptBlock>
 							</ListItem>
 							
+							<!-- The symlink location's state. -->
+							<ListItem>
+								<Label>Path State</Label>
+								<ScriptBlock>
+									$obj = $_
+									switch ($obj.GetState())
+									{
+										"Exists"
+										{
+											return "`e[32mExists`e[0m"
+										}
+										"NotExists"
+										{
+											return "`e[90mDoesn't exist`e[0m"
+										}
+										"NeedsCreation"
+										{
+											return "`e[31;21mNeeds creation`e[0m❗"
+										}
+										"NeedsDeletion"
+										{
+											return "`e[33mNeeds Deletion`e[0m❗"
+										}
+										"Error"
+										{
+											return "`e[31;21mError`e[0m❗"
+										}
+									}
+								</ScriptBlock>
+							</ListItem>
+							
 							<!-- The symlink target. -->
 							<!-- Present the true and expanded path. -->
 							<ListItem>
@@ -147,26 +212,24 @@
 								</ScriptBlock>
 							</ListItem>
 							
-							<!-- Whether the symlink exists or not. -->
-							<!-- Also shows if it needs to be created or deleted. -->
+							<!-- The symlink targets's state. -->
 							<ListItem>
-								<Label>Exists on Filesystem</Label>
+								<Label>Target State</Label>
 								<ScriptBlock>
-									switch ($_.State()) {
-										True {
-											return "`e[32m$true ✅`e[0m"
+									$obj = $_
+									switch ($obj.TargetState())
+									{
+										"Valid"
+										{
+											return "`e[32mExists`e[0m"
 										}
-										False {
-											return "`e[33m$false ✅`e[0m"
+										"Invalid"
+										{
+											return "`e[31;21mInvalid`e[0m❗"
 										}
-										NeedsCreation {
-											return "`e[31;21m$false`e[0m❗ `e[97m(Needs Creation)`e[0m"
-										}
-										NeedsDeletion {
-											return "`e[33m$true`e[0m❗ `e[97m(Needs Deletion)`e[0m"
-										}
-										Error {
-											return "`e[31;4mAn error has occured`e[0m❗"
+										"MissingVariable"
+										{	
+											return "`e[33;21mMissing environement variable`e[0m❗"
 										}
 									}
 								</ScriptBlock>
@@ -175,19 +238,22 @@
 							<!-- The creation condition, only if there is one. -->
 							<!-- A non-existent condition should not be shown. -->
 							<ListItem>
-								<Label>Creation Condition</Label>
+								<Label>Condition</Label>
 								<ItemSelectionCondition>
 									<ScriptBlock>
-										if ($null -ne $_._Condition) {
+										if ($null -ne $_._Condition)
+										{
 											return $true
-										} else {
+										}
+										else
+										{
 											return $false
 										}
 									</ScriptBlock>
 								</ItemSelectionCondition>
 								<ScriptBlock>
-									$var = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
-									"{`n" + $var + "}"
+									$str = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
+									"{`n" + $str + "}"
 								</ScriptBlock>
 							</ListItem>
 							
@@ -298,6 +364,14 @@
 											</ExpressionBinding>
 											<NewLine />
 											
+											<!-- The TargetState() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"TargetState() = $($_.TargetState())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
 											<!-- The Exists() of the symlink. -->
 											<ExpressionBinding>
 												<ScriptBlock>
@@ -317,7 +391,7 @@
 											<!-- The State() of the symlink. -->
 											<ExpressionBinding>
 												<ScriptBlock>
-													"State() = $($_.State())"
+													"State() = $($_.GetState())"
 												</ScriptBlock>
 											</ExpressionBinding>
 											<NewLine />
@@ -374,7 +448,7 @@
 					<TableColumnHeader>
 						<Label>Exists</Label>
 						<Width>7</Width>
-						<Alignment>Right</Alignment>
+						<Alignment>Left</Alignment>
 					</TableColumnHeader>
 					
 				</TableHeaders>
@@ -389,29 +463,80 @@
 							<!-- The symlink name. -->
 							<TableColumnItem>
 								<PropertyName>Name</PropertyName>
+								<Alignment>Left</Alignment>
 							</TableColumnItem>
 							
 							<!-- The symlink location. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									$_.ShortPath()
+									$obj = $_
+									switch ($obj.GetState())
+									{
+										"Exists"
+										{
+											return $obj.ShortPath()
+										}
+										"NeedsCreation"
+										{
+											return "`e[33m$($obj.ShortPath())`e[0m"
+										}
+										"NeedsDeletion"
+										{
+											return "`e[31m$($obj.ShortPath())`e[0m`e[31m!`e[0m"
+										}
+										"NotExists"
+										{
+											return "`e[90m$($obj.ShortPath())`e[0m"
+										}
+										"Error"
+										{
+											return "`e[31m;4mError`e[0m`e[31m!`e[0m"
+										}
+									}
 								</ScriptBlock>
+								<Alignment>Left</Alignment>
 							</TableColumnItem>
 							
 							<!-- The symlink target. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									$_.ShortTarget()
+									$obj = $_
+									switch ($obj.TargetState())
+									{
+										"Valid"
+										{
+											return "$($obj.ShortTarget())"
+										}
+										"Invalid"
+										{
+											return "`e[31;4mInvalid Target`e[0m`e[31m!`e[0m"
+										}
+										"MissingVariable"
+										{
+											return "`e[32m$($obj.ShortTarget())`e[0m"
+										}
+									}
 								</ScriptBlock>
+								<Alignment>Left</Alignment>
 							</TableColumnItem>
 							
 							<!-- Whether the symlink has a condition. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									if ($_._Condition) {
-										return "`e[32mYes`e[0m"
-									}else {
-										return "`e[33mNo`e[0m"
+									if ($_._Condition)
+									{
+										if (Invoke-Command -Scriptblock $_._Condition)
+										{
+											return "`e[32mMet`e[0m"
+										}
+										else
+										{
+											return "`e[31mUnmet`e[0m"
+										}
+									}
+									else
+									{
+										return "`e[33mNone`e[0m"
 									}
 								</ScriptBlock>
 							</TableColumnItem>
@@ -419,21 +544,28 @@
 							<!-- Whether the symlink exists or not. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									switch ($_.State()) {
-										True {
+									$obj = $_
+									switch ($obj.GetState())
+									{
+										"Exists"
+										{
 											return "`e[32m$true`e[0m"
 										}
-										False {
+										"NotExists"
+										{
 											return "`e[33m$false`e[0m"
 										}
-										NeedsCreation {
-											return "`e[31;4m$false!`e[0m"
+										"NeedsCreation"
+										{
+											return "`e[31;4m$false`e[0m`e[31m!`e[0m"
 										}
-										NeedsDeletion {
-											return "`e[33m$true!`e[0m"
+										"NeedsDeletion"
+										{
+											return "`e[33;4m$true`e[0m`e[31m!`e[0m"
 										}
-										Error {
-											return "`e[31mERROR!`e[0m"
+										"Error"
+										{
+											return "`e[31;4mERROR`e[0m`e[31m!`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -448,7 +580,8 @@
 							<SelectionCondition>
 								<SelectionSetName>Set.Symlink</SelectionSetName>
 								<ScriptBlock>
-									if ($env:WT_SESSION) {
+									if ($env:WT_SESSION)
+									{
 										return $true
 									}
 								</ScriptBlock>
@@ -465,7 +598,30 @@
 							<!-- The symlink location. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									$_.ShortPath()
+									$obj = $_
+									switch ($obj.GetState())
+									{
+										"Exists"
+										{
+											return $obj.ShortPath()
+										}
+										"NeedsCreation"
+										{
+											return "`e[33m$($obj.ShortPath())`e[0m"
+										}
+										"NeedsDeletion"
+										{
+											return "`e[31m$($obj.ShortPath())`e[0m`e[31m!`e[0m"
+										}
+										"NotExists"
+										{
+											return "`e[90m$($obj.ShortPath())`e[0m"
+										}
+										"Error"
+										{
+											return "`e[31m;21mError`e[0m`e[31m!`e[0m"
+										}
+									}
 								</ScriptBlock>
 								<Alignment>Left</Alignment>
 							</TableColumnItem>
@@ -473,7 +629,22 @@
 							<!-- The symlink target. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									$_.ShortTarget()
+									$obj = $_
+									switch ($obj.TargetState())
+									{
+										"Valid"
+										{
+											return "$($obj.ShortTarget())"
+										}
+										"Invalid"
+										{
+											return "`e[31;21mInvalid Target`e[0m`e[31m!`e[0m"
+										}
+										"MissingVariable"
+										{
+											return "`e[32m$($obj.ShortTarget())`e[0m"
+										}
+									}
 								</ScriptBlock>
 								<Alignment>Left</Alignment>
 							</TableColumnItem>
@@ -481,9 +652,19 @@
 							<!-- Whether the symlink has a condition. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									if ($_._Condition) {
-										return "✅"
-									}else {
+									if ($_._Condition)
+									{
+										if (Invoke-Command -Scriptblock $_._Condition)
+										{
+											return "✅`e[32m(Met)`e[0m"
+										}
+										else
+										{
+											return "✅`e[33m(Unmet)`e[0m"
+										}
+									}
+									else
+									{
 										return "❌"
 									}
 								</ScriptBlock>
@@ -492,21 +673,28 @@
 							<!-- Whether the symlink exists or not. -->
 							<TableColumnItem>
 								<ScriptBlock>
-									switch ($_.State()) {
-										True {
-											return "`e[32m$true`e[0m"
+									$obj = $_
+									switch ($obj.GetState())
+									{
+										"Exists"
+										{
+											return "`e[32m$true`e[0m✅"
 										}
-										False {
-											return "`e[33m$false`e[0m"
+										"NotExists"
+										{
+											return "`e[33m$false`e[0m✅"
 										}
-										NeedsCreation {
+										"NeedsCreation"
+										{
 											return "`e[31;21m$false`e[0m❗"
 										}
-										NeedsDeletion {
-											return "`e[33m$true`e[0m❗"
+										"NeedsDeletion"
+										{
+											return "`e[33;4m$true`e[0m❗"
 										}
-										Error {
-											return "`e[31mERROR`e[0m❗"
+										"Error"
+										{
+											return "`e[31;21mERROR`e[0m❗"
 										}
 									}
 								</ScriptBlock>
@@ -535,21 +723,43 @@
 						<WideItem>
 							<ScriptBlock>
 								$name = $_.Name
-								switch ($_.State()) {
-									True {
-										return "`e[32m$name`e[0m"
+								$obj = $_
+								switch ($obj.GetState())
+								{
+									"Exists"
+									{
+										switch ($obj.TargetState())
+										{
+											"Valid"
+											{
+												return "`e[32m$name`e[0m"
+											}
+											"Invalid"
+											{
+												return "`e[33;4m$name`e[0m`e[31m!`e[0m"
+											}
+											"MissingVariable"
+											{
+												return "`e[33;4m$name`e[0m`e[31m!`e[0m"
+											}
+										}
+										
 									}
-									False {
+									"NotExists"
+									{
 										return "`e[33m$name`e[0m"
 									}
-									NeedsCreation {
-										return "`e[31;4m$name!`e[0m"
+									"NeedsCreation"
+									{
+										return "`e[31;4m$name`e[0m`e[31m!`e[0m"
 									}
-									NeedsDeletion {
-										return "`e[33m$name!`e[0m"
+									"NeedsDeletion"
+									{
+										return "`e[33;4m$name`e[0m`e[31m!`e[0m"
 									}
-									Error {
-										return "`e[31mError!`e[0m"
+									"Error"
+									{
+										return "`e[31;4mERROR`e[0m`e[31m!`e[0m"
 									}
 								}
 							</ScriptBlock>
@@ -573,21 +783,43 @@
 						<WideItem>
 							<ScriptBlock>
 								$name = $_.Name
-								switch ($_.State()) {
-									True {
-										return "`e[32m$name✅`e[0m"
+								$obj = $_
+								switch ($obj.GetState())
+								{
+									"Exists"
+									{
+										switch ($obj.TargetState())
+										{
+											"Valid"
+											{
+												return "`e[32m$name✅`e[0m"
+											}
+											"Invalid"
+											{
+												return "`e[33;4m$name`e[0m❗"
+											}
+											"MissingVariable"
+											{
+												return "`e[33;4m$name`e[0m❗"
+											}
+										}
+										
 									}
-									False {
+									"NotExists"
+									{
 										return "`e[33m$name✅`e[0m"
 									}
-									NeedsCreation {
+									"NeedsCreation"
+									{
 										return "`e[31;21m$name`e[0m❗"
 									}
-									NeedsDeletion {
-										return "`e[33m$name`e[0m❗"
+									"NeedsDeletion"
+									{
+										return "`e[33;21m$name`e[0m❗"
 									}
-									Error {
-										return "`e[31;4mERROR`e[0m❗"
+									"Error"
+									{
+										return "`e[31;21mERROR`e[0m❗"
 									}
 								}
 							</ScriptBlock>
