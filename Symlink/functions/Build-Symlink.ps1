@@ -25,8 +25,10 @@
 	
 .PARAMETER Force
 	Forces this cmdlet to create a symbolic-link item on the filesystem even
-	if the creation condition is false. Even using this parameter, if the
-	filesystem denies access to the necessary files, this cmdlet can fail.
+	if the creation condition evaluates to false.
+	
+	Even using this parameter, if the filesystem denies access to the necessary
+	files, this cmdlet can fail.
 	
 .INPUTS
 	System.String[]
@@ -101,9 +103,8 @@ function Build-Symlink
 			return
 		}
 	
-		# Store lists to notify user which symlinks were created/modified/etc.
-		$newList = New-Object System.Collections.Generic.List[Symlink] 
-		$modifiedList = New-Object System.Collections.Generic.List[Symlink]
+		# Store lists to notify user which symlinks were created.
+		$createdList = New-Object System.Collections.Generic.List[Symlink] 
 		
 		if ($All)
 		{
@@ -119,19 +120,17 @@ function Build-Symlink
 	{
 		foreach ($link in $linkList)
 		{
-			# Record the state to display the changes at the end.
-			if (-not $link.Exists())
+			# Check if the symlink should be created, but it has an invalid
+			# target, as in such a case it must be skipped.
+			if (($link.ShouldExist() -or $Force) -and ($link.TargetState() -ne "Valid"))
 			{
-				$newList.Add($link)
-			}
-			elseif ($link.GetState() -eq "NeedsDeletion" -or $link.GetState() -eq "NeedsCreation")
-			{
-				$modifiedList.Add($link)
+				Write-Error "The symlink named '$($link.Name)' has a target which is invalid/non-existent!`nAborting creation of this symlink."
+				continue
 			}
 			
 			# Build the symbolic-link item on the filesytem.
 			$expandedPath = $link.FullPath()
-			if (($link.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+			if (($link.ShouldExist() -or $Force) -and ($link.TargetState() -eq "Valid") -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 			{
 				# Appropriately delete any existing items before creating the
 				# symbolic-link.
@@ -167,6 +166,8 @@ function Build-Symlink
 				
 				New-Item -ItemType SymbolicLink -Path $link.FullPath() -Value $link.FullTarget() -Force `
 					-WhatIf:$false -Confirm:$false | Out-Null
+				
+				$createdList.Add($link)
 			}
 		}
 	}
@@ -174,15 +175,10 @@ function Build-Symlink
 	end
 	{
 		# By default, outputs in List formatting.
-		if ($newList.Count -gt 0)
+		if ($createdList.Count -gt 0)
 		{
 			Write-Host "Created the following new symlinks:"
-			Write-Output $newList
-		}
-		if ($modifiedList.Count -gt 0)
-		{
-			Write-Host "Modified the following existing symlinks:"
-			Write-Output $modifiedList
+			Write-Output $createdList
 		}
 	}
 }

@@ -40,9 +40,12 @@
 	in this cmdlet.
 	
 .PARAMETER Force
-	Forces this cmdlet to create an symlink that writes over an existing one.
-	Even using this parameter, if the filesystem denies access to the
-	necessary files, this cmdlet can fail.
+	Forces this cmdlet to create an symlink that writes over an existing one,
+	and forces this cmdlet to create a symbolic-link item on the filesystem
+	even if the creation condition evaluates to false.
+	
+	Even using this parameter, if the filesystem denies access to the necessary
+	files, this cmdlet can fail.
 	
 .INPUTS
 	None
@@ -152,8 +155,9 @@ function New-Symlink
 	$expandedPath = [System.Environment]::ExpandEnvironmentVariables($Path)
 	$expandedTarget = [System.Environment]::ExpandEnvironmentVariables($Target)
 	
-	# Validate that the target location exists, assuming the item isn't
-	# being moved there as part of the command.
+	# Validate that the target location exists. If the item isn't being moved
+	# there, check the full path, otherwise check that the parent folder
+	# is valid.
 	if (-not (Test-Path -Path $expandedTarget -ErrorAction Ignore) -and -not $MoveExistingItem)
 	{
 		Write-Error "The target path: '$Target' points to an invalid/non-existent location!"
@@ -219,7 +223,7 @@ function New-Symlink
 	}
 	elseif (-not (Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem)
 	{
-		Write-Error "Cannot move the existing item from '$expandedPath' because the location is invalid."
+		Write-Error "Cannot move the existing item from: '$expandedPath' because the location is invalid."
 		return
 	}
 	
@@ -241,7 +245,7 @@ function New-Symlink
 	}
 	
 	# Build the symbolic-link item on the filesytem.
-	if (-not $DontCreateItem -and ($newLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+	if (-not $DontCreateItem -and ($newLink.TargetState() -eq "Valid") -and ($newLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 	{
 		# Appropriately delete any existing items before creating the
 		# symbolic-link.
@@ -270,7 +274,7 @@ function New-Symlink
 			}
 			catch
 			{
-				Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link."
+				Write-Error "The item located at: '$expandedPath' could not be deleted to make room for the symbolic-link."
 				Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
 			}
 		}

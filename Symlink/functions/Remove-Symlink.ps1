@@ -111,7 +111,7 @@ function Remove-Symlink
 					}
 					catch
 					{
-						Write-Error "The symbolic-link located at '$expandedPath' could not be deleted."
+						Write-Error "The symbolic-link located at: '$expandedPath' could not be deleted."
 						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
 					}
 				}
