@@ -94,24 +94,25 @@ function Remove-Symlink
 			}
 			
 			# Delete the symlink from the filesystem.
-			$path = $existingLink.FullPath()
-			$item = Get-Item -Path $path -ErrorAction Ignore
-			if (-not $DontDeleteItem -and $existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$path'.", "Are you sure you want to delete the symbolic-link at '$path'?", "Delete Symbolic-Link Prompt"))
+			$expandedPath = $existingLink.FullPath()
+			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
+			if (-not $DontDeleteItem -and $existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$expandedPath'.", "Are you sure you want to delete the symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
 			{
-				# Loop until the item can be deleted, as it may be in use by
-				# another process.
-				while (Test-Path -Path $path)
+				# Existing item may be in use and unable to be deleted, so retry until
+				# the user has closed any programs using the item.
+				while (Test-Path -Path $expandedPath)
 				{
 					try
 					{
-						# Call this method to prevent deleting a symlink from
-						# deleting the original contents it points to.
+						# Calling `Remove-Item` on a symbolic-link will delete
+						# the original items the link points to; calling
+						# Delete() will only destroy the symbolic-link iteself.
 						$item.Delete()
 					}
 					catch
 					{
-						Write-Error "The symbolic-link located at '$path' could not be deleted.`nClose any programs which may be using this path and try again."
-						Read-Host -Prompt "Press any key to continue..."
+						Write-Error "The symbolic-link located at '$expandedPath' could not be deleted."
+						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
 					}
 				}
 			}
