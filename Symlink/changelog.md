@@ -1,14 +1,16 @@
 ﻿# Changelog
-## 0.1.3 (2020-12-29)
- - Add: *'-Force'* for `New-Symlink`: Forces the creation of the symbolic-link even if the creation condition evaluates to false, and overwrites any existing symlink if the names match.
+## 0.1.3 (2020-12-30)
+ - Add: *'-Force'* for `New-Symlink`: Forces the creation of the symbolic-link even if the creation condition evaluates to false, and overwrites any existing symlink if the names collide.
  - Add: *'-Force'* for `Build-Symlink`: Forces the creation of the symbolic-link even if the creation condition evaluates to false.
+ - Add: *'-Force'* for `Set-Symlink`: Forces the creation of the symbolic-link even if the creation condition evaluates to false, or overwrites any existing symlink if the names collide.
  - Add: `[Symlink]`: TargetState() method to get the status of the target field.
- - Update: format.ps1xml: Improve formatting styles to present information more clearly and utilise colours better.
+ - Update: Format.ps1xml: Improve formatting styles to present information more clearly and utilise colours better.
  - Update: stream_output: Improve verbose logging, remove a few unnecessary logs and add ones which were missing.
  - Update: should_process: Improve the messages and text, and add previously missing checks/logs.
- - Update: help_descriptions: Rewritten to be clearer and more consistent with the official powershell help, and to have a wider range of clearer examples.
+ - Update: help_descriptions: Rewritten to be clearer and more consistent with the official powershell help, and to have a wider range of clearer examples, and added descriptors for the newly introduced switches.
  - Update: about_Symlink: Reformat the document layout, update descriptors to match new help_descriptions, and cleared up a few potentially unclear things.
  - Fix: *'-Value'* for `Set-Symlink`: Doesn't allow a $NULL value when setting the "Creation Condition" property.
+ - Fix: `cmdlets`: Lack of many validations/checks in all cmdlets which could have led to cmdlets not working correctly 100% of the time.
  - Remove: `[Symlink]`: The CreateFile() and DeleteFile() methods. Now you must use the cmdlets for these purposes.
 ## 0.1.2 (2020-12-08)
  - New: alias: Added the 'nsl', 'gls', 'ssl', 'rsl', 'bsl' aliases for each respective exported cmdlet.

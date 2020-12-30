@@ -111,8 +111,11 @@ CREATING A SYMLINK
     
     -Force
 		Forces this cmdlet to create an symlink that writes over an existing
-        one. Even using this parameter, if the filesystem denies access to the
-	    necessary files, this cmdlet can fail.
+        one, and forces this cmdlet to create a symbolic-link item on the
+        filesystem even if the creation condition evaluates to false.
+        
+        Even using this parameter, if the filesystem denies access to the
+        necessary files, this cmdlet can fail.
 	
 	-WhatIf
 		Shows what would happen if the cmdlet runs. The cmdlet does not run.
@@ -200,6 +203,14 @@ CHANGING THE PROPERTIES OF A SYMLINK
         Prompts you for confirmation before running any state-altering actions
         in this cmdlet.
     
+    -Force
+        Forces this cmdlet to change the name of a symlink even if it overwrites
+        an existing one, or forces this cmdlet to create a symbolic-link item
+        on the filesystem even if the creation condition evaluates to false.
+        
+        Even using this parameter, if the filesystem denies access to the
+        necessary files, this cmdlet can fail.
+    
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
@@ -275,11 +286,6 @@ BUILDING/UPDATING SYMLINKS
     
     OPTIONAL PARAMETERS
     
-    -Force
-	    Forces this cmdlet to create a symbolic-link item on the filesystem even
-	    if the creation condition is false. Even using this parameter, if the
-	    filesystem denies access to the necessary files, this cmdlet can fail.
-	
     -WhatIf
 	    Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
@@ -287,6 +293,13 @@ BUILDING/UPDATING SYMLINKS
         Prompts you for confirmation before running any state-altering actions
         in this cmdlet.
     
+    -Force
+	    Forces this cmdlet to create a symbolic-link item on the filesystem even
+        if the creation condition evaluates to false.
+        
+        Even using this parameter, if the filesystem denies access to the
+        necessary files, this cmdlet can fail.
+	
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
@@ -307,11 +320,6 @@ BUILDING/UPDATING SYMLINKS
     
     OPTIONAL PARAMETERS
     
-    -Force
-	    Forces this cmdlet to create a symbolic-link item on the filesystem even
-	    if the creation condition is false. Even using this parameter, if the
-	    filesystem denies access to the necessary files, this cmdlet can fail.
-	
     -WhatIf
 	    Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
@@ -319,6 +327,13 @@ BUILDING/UPDATING SYMLINKS
         Prompts you for confirmation before running any state-altering actions
         in this cmdlet.
     
+    -Force
+	    Forces this cmdlet to create a symbolic-link item on the filesystem even
+        if the creation condition evaluates to false.
+        
+        Even using this parameter, if the filesystem denies access to the
+        necessary files, this cmdlet can fail.
+        
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
