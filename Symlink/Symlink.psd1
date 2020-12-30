@@ -3,7 +3,7 @@
 	RootModule = 'Symlink.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '0.1.2'
+	ModuleVersion = '0.1.3'
 	
 	# ID used to uniquely identify this module
 	GUID = '7849ff1f-d264-4a49-8de2-9c01e79a22a9'
@@ -78,7 +78,7 @@
 			# Tags applied to this module. These help with module discovery in online galleries.
 			# TODO: Add Mac/Linux tags once module confirmed working on those platforms.
 			# TODO: Add PS_Desktop tag once module confirmed working on powershell 5.1.
-			Tags = @("Windows","Symlink","Symbolic_Link","PSEdition_Core","Management","File","Folder")
+			Tags = @("Windows", "Symlink", "Symbolic_Link", "Management", "File", "Folder", "PSEdition_Core")
 			
 			# A URL to the license for this module.
 			LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.en.html'

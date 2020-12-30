@@ -1,66 +1,73 @@
 ﻿<#
 .SYNOPSIS
-	Removes an symlink.
+	Deletes a specified symlink item(s).
 	
 .DESCRIPTION
-	Deletes symlink definition(s) from the database, and also deletes the 
-	symbolic-link item from the filesystem.
+	The `Remove-YoutubeDlItem` cmdlet deletes one or more symlinks, specified
+	by their name(s).
 	
 .PARAMETER Names
-	The name(s)/identifier(s) of the symlinks to remove. Multiple values
-	are accepted to retrieve the data of multiple links.
-  ! This parameter tab-completes valid symlink names.
+	Specifies the name(s) of the items to delete.
+	
+ [!]This parameter will autocomplete to valid symlink names.
 	
 .PARAMETER DontDeleteItem
-	Skips the deletion of the symbolic-link item on the filesystem. The
-	link will remain afterwads.
+	Prevents the deletion of the symbolic-link item from the filesystem.
+	(The symlink definition will still be deleted).
 	
 .PARAMETER WhatIf
-	Prints what actions would have been done in a proper run, but doesn't
-	perform any of them.
+	Shows what would happen if the cmdlet runs. The cmdlet does not run.
 	
 .PARAMETER Confirm
-	Prompts for user input for every "altering"/changing action.
+	Prompts you for confirmation before running any state-altering actions
+	in this cmdlet.
 	
 .INPUTS
-	Symlink[]
 	System.String[]
+		You can pipe one or more strings containing the names of the symlinks
+		to delete.
 	
 .OUTPUTS
 	None
 	
 .NOTES
-	-Names supports tab-completion.
-	This command is aliased to 'rsl'.
+	This command is aliased by default to 'rsl'.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Name "data"
 	
-	This command will remove a symlink definition, named "data", and delete the
-	symbolic-link item from the filesystem.
+	Deletes the symlink definition named "data", and deletes the symbolic-link
+	item from the filesystem.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Names "data","files"
 	
-	This command will remove the symlink definitions named "data" and "files",
-	and delete the symbolic-link items of both.
-  ! You can pipe the names to this command instead.
+	Deletes the symlink definitions named "data" and "files", and their 
+	symbolic-link items from the filesystem.
 	
 .EXAMPLE
 	PS C:\> Remove-Symlink -Name "data" -DontDeleteItem
 	
-	This command will remove a symlink definition, named "data", but it will
-	keep the symbolic-link item on the filesystem.
+	Deletes the symlink definition named "data", but does not delete the
+	symbolic-link item from the filesystem; that remains unchanged.
+	
+.LINK
+	New-Symlink
+	Get-Symlink
+	Set-Symlink
+	about_Symlink
 	
 #>
-function Remove-Symlink {
+function Remove-Symlink
+{
 	[Alias("rsl")]
 	
 	[CmdletBinding(SupportsShouldProcess = $true)]
-	param (
+	param
+	(
 		
 		# Tab completion.
-		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName)]
+		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
 		[Alias("Name")]
 		[string[]]
 		$Names,
@@ -71,31 +78,55 @@ function Remove-Symlink {
 		
 	)
 	
-	process {
+	process
+	{
 		# Read in the existing symlinks.
 		$linkList = Read-Symlinks
 		
-		foreach ($name in $Names) {
-			Write-Verbose "Removing the symlink: '$name'."
+		foreach ($name in $Names)
+		{
 			# If the link doesn't exist, warn the user.
 			$existingLink = $linkList | Where-Object { $_.Name -eq $name }
-			if ($null -eq $existingLink) {
-				Write-Warning "There is no symlink called: '$name'."
+			if ($null -eq $existingLink)
+			{
+				Write-Error "There is no symlink named: '$name'."
 				continue
 			}
 			
 			# Delete the symlink from the filesystem.
-			if (-not $DontDeleteItem -and $PSCmdlet.ShouldProcess($existingLink.FullPath(), "Delete Symbolic-Link")) {
-				$existingLink.DeleteFile()
+			$expandedPath = $existingLink.FullPath()
+			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
+			if (-not $DontDeleteItem -and $existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$expandedPath'.", "Are you sure you want to delete the symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
+			{
+				# Existing item may be in use and unable to be deleted, so retry until
+				# the user has closed any programs using the item.
+				while (Test-Path -Path $expandedPath)
+				{
+					try
+					{
+						# Calling `Remove-Item` on a symbolic-link will delete
+						# the original items the link points to; calling
+						# Delete() will only destroy the symbolic-link iteself.
+						$item.Delete()
+					}
+					catch
+					{
+						Write-Error "The symbolic-link located at: '$expandedPath' could not be deleted."
+						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
+					}
+				}
 			}
 			
 			# Remove the link from the list.
+			Write-Verbose "Deleting the symlink object."
 			$linkList.Remove($existingLink) | Out-Null
 		}
 		
-		# Re-export the list.
-		if ($PSCmdlet.ShouldProcess("$script:DataPath", "Overwrite database with modified one")) {
-			Export-Clixml -Path $script:DataPath -InputObject $linkList -WhatIf:$false -Confirm:$false | Out-Null
+		# Save the modified database.
+		if ($PSCmdlet.ShouldProcess("Updating database at '$script:DataPath' with the changes (deletions).", "Are you sure you want to update the database at '$script:DataPath' with the changes (deletions)?", "Save File Prompt"))
+		{
+			Export-Clixml -Path $script:DataPath -InputObject $linkList -Force -WhatIf:$false `
+				-Confirm:$false | Out-Null
 		}
 	}
 }

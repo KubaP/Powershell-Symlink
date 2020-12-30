@@ -1,14 +1,14 @@
 ﻿<#
 .SYNOPSIS
-	Read the symlink objects in.
+	Reads all of the defined symlink objects.
 	
 .DESCRIPTION
-	Deserialise the symlink objects from the database file.
+	Reads all of the defined symlink objects.
 	
 .EXAMPLE
-	PS C:\> $list = $Read-Symlinks
+	PS C:\> $list = Read-Symlinks
 	
-	Reads all of the symlink objects into a variable, for maniuplation.
+	Reads all of the symlink objects into a variable, for later manipulation.
 	
 .INPUTS
 	None
@@ -19,25 +19,31 @@
 .NOTES
 	
 #>
-function Read-Symlinks {
-	# Create an empty symlink list.
+function Read-Symlinks
+{
+	# Create an empty list.
 	$linkList = New-Object -TypeName System.Collections.Generic.List[Symlink]
 	
 	# If the file doesn't exist, skip any importing.
-	if (Test-Path -Path $script:DataPath -ErrorAction SilentlyContinue) {
+	if (Test-Path -Path $script:DataPath -ErrorAction SilentlyContinue)
+	{
 		# Read the xml data in.
 		$xmlData = Import-Clixml -Path $script:DataPath
 		
 		# Iterate through all the objects.
-		foreach ($item in $xmlData) {
-			# Rather than extracting the deserialised objects, which would create a mess
-			# of serialised and non-serialised objects, create new identical copies from scratch.
-			if ($item.pstypenames[0] -eq "Deserialized.Symlink") {
-				
+		foreach ($item in $xmlData)
+		{
+			# Rather than extracting the deserialised objects, which would
+			# create a mess of serialised and non-serialised objects, create
+			# new identical copies from scratch.
+			if ($item.pstypenames[0] -eq "Deserialized.Symlink")
+			{
 				# Create using the appropiate constructor.
-				$link = if ($null -eq $item._Condition) {
+				$link = if ($null -eq $item._Condition)
+				{
 					[Symlink]::new($item.Name, $item._Path, $item._Target)
-				}else {
+				}else
+				{
 					[Symlink]::new($item.Name, $item._Path, $item._Target, [scriptblock]::Create($item._Condition))
 				}
 				
@@ -46,6 +52,7 @@ function Read-Symlinks {
 		}
 	}
 	
-	# Return the list as a <List> object, rather than as an array (ps converts by default).
+	# Return the list as a <List> object, rather than as an array,
+	# (ps converts by default).
 	Write-Output $linkList -NoEnumerate
 }

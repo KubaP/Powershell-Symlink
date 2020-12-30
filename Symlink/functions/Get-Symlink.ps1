@@ -1,56 +1,66 @@
 ﻿<#
 .SYNOPSIS
-	Gets the details of a symlink.
+	Gets the specified symlink item(s).
 	
 .DESCRIPTION
-	Retrieves the details of symlink definition(s).
+	The `Get-Symlink` cmdlet gets one or more symlinks, specified by their
+	name(s).
 	
 .PARAMETER Names
-	The name(s)/identifier(s) of the symlinks to retrieve. Multiple values
-	are accepted to retrieve the data of multiple links.
-  ! This parameter tab-completes valid symlink names.
+	Specifies the name(s) of the items to get.
+	
+ [!]This parameter will autocomplete to valid symlink names.
 	
 .PARAMETER All
-	Specifies to retrieve details for all symlinks.
+	Specifies to get all symlinks.
 	
 .INPUTS
 	System.String[]
+		You can pipe one or more strings containing the names of the
+		symlinks to get.
 	
 .OUTPUTS
-	Symlink[]
+	Symlink
 	
 .NOTES
-	-Names supports tab-completion.
-	This command is aliased to 'gsl'.
-	
-.EXAMPLE
-	PS C:\> Get-Symlink -Name "data"
-	
-	This command will retrieve the details of the symlink named "data", and
-	output the information to the screen.
+	This command is aliased by default to 'gsl'.
 	
 .EXAMPLE
 	PS C:\> Get-Symlink -Names "data","files"
 	
-	This command will retrieve the details of the symlinks named "data" and 
-	"files", and output both to the screen, one after another.
-  ! You can pipe the names to this command instead.
+	Gets the symlink definitions named "data" and "video", and pipes them out
+	to the screen, by default formatted in a list.
 	
 .EXAMPLE
 	PS C:\> Get-Symlink -All
-		
-	This command will retrieve the details of all symlinks, and output the
-	information to the screen.
+	
+	Gets all symlink definitions, and pipes them out to the screen, by default
+	formatted in a list.
+	
+.EXAMPLE
+	PS C:\> Get-Symlink "data" | Build-Symlink
+	
+	Gets the symlink definition named "data", and then pipes it to the
+	`Build-Symlink` cmdlet to create the symbolic-link item on the filesystem.
+	
+.LINK
+	New-Symlink
+	Set-Symlink
+	Remove-Symlink
+	Build-Symlink
+	about_Symlink
 	
 #>
-function Get-Symlink {
+function Get-Symlink
+{
 	[Alias("gsl")]
 	
 	[CmdletBinding(DefaultParameterSetName = "Specific")]
-	param (
+	param
+	(
 		
 		# Tab completion.
-		[Parameter(Position = 0, Mandatory = $true, ValueFromPipeline, ParameterSetName = "Specific")]
+		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "Specific")]
 		[Alias("Name")]
 		[string[]]
 		$Names,
@@ -61,23 +71,27 @@ function Get-Symlink {
 		
 	)
 	
-	begin {
+	begin
+	{
 		# Store the retrieved symlinks, to output together in one go at the end.
-		$outputList = New-Object System.Collections.Generic.List[Symlink]
+		$outputList = New-Object -TypeName System.Collections.Generic.List[Symlink]
 	}
 	
-	process {
-		if (-not $All) {
+	process
+	{
+		if (-not $All)
+		{
 			# Read in the existing symlinks.
 			$linkList = Read-Symlinks
 			
 			# Iterate through all the passed in names.
-			foreach ($name in $Names) {
-				Write-Verbose "Retrieving the symlink: '$name'."
+			foreach ($name in $Names)
+			{
 				# If the link doesn't exist, warn the user.
 				$existingLink = $linkList | Where-Object { $_.Name -eq $name }
-				if ($null -eq $existingLink) {
-					Write-Warning "There is no symlink called: '$name'."
+				if ($null -eq $existingLink)
+				{
+					Write-Warning "There is no symlink named: '$name'."
 					continue
 				}
 				
@@ -85,15 +99,16 @@ function Get-Symlink {
 				$outputList.Add($existingLink)
 			}
 		}
-		else {
-			Write-Verbose "Retrieving all symlinks."
+		else
+		{
 			# Read in all of the symlinks.
 			$outputList = Read-Symlinks
 		}
 	}
 	
-	end {
-		# By default, outputs in List formatting.
+	end
+	{
+		# By default, this outputs in List formatting.
 		$outputList | Sort-Object -Property Name
 	}
 }
