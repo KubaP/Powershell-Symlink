@@ -1,5 +1,7 @@
-﻿function WriteHeader {
-	param(
+﻿function WriteHeader
+{
+	param
+	(
 		[Parameter(Position = 0, Mandatory = $true)]
 		[string]
 		$Message,
@@ -14,7 +16,8 @@
 	$previousColour = [System.Console]::ForegroundColor
 	
 	# Set the appropriate foreground text colour.
-	switch ($Colour) {
+	switch ($Colour)
+	{
 		"Red" 		{ [System.Console]::ForegroundColor = [System.ConsoleColor]::Red }
 		"Green" 	{ [System.Console]::ForegroundColor = [System.ConsoleColor]::Green }
 		"Blue" 		{ [System.Console]::ForegroundColor = [System.ConsoleColor]::Blue }
@@ -30,7 +33,8 @@
 	
 	# Write the top border.
 	Write-Host "+" -NoNewline
-	for ($i = 0; $i -lt $length; $i++) {
+	for ($i = 0; $i -lt $length; $i++)
+	{
 		Write-Host "-" -NoNewline
 	}
 	Write-Host "+"
@@ -42,7 +46,8 @@
 	
 	# Write the bottom border.
 	Write-Host "+" -NoNewline
-	for ($i = 0; $i -lt $length; $i++) {
+	for ($i = 0; $i -lt $length; $i++)
+	{
 		Write-Host "-" -NoNewline
 	}
 	Write-Host "+"

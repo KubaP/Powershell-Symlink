@@ -48,7 +48,8 @@
 .NOTES
 	
 #>
-param (
+param
+(
 	[string]
 	$ApiKey,
 	
@@ -72,11 +73,14 @@ param (
 . "$PSScriptRoot\vsts-helpers.ps1"
 
 # Handle Working Directory paths within Azure pipelines.
-if (-not $WorkingDirectory) {
-	if ($env:RELEASE_PRIMARYARTIFACTSOURCEALIAS) {
+if (-not $WorkingDirectory)
+{
+	if ($env:RELEASE_PRIMARYARTIFACTSOURCEALIAS)
+	{
 		$WorkingDirectory = Join-Path -Path $env:SYSTEM_DEFAULTWORKINGDIRECTORY -ChildPath $env:RELEASE_PRIMARYARTIFACTSOURCEALIAS
 	}
-	else {
+	else
+	{
 		$WorkingDirectory = $env:SYSTEM_DEFAULTWORKINGDIRECTORY
 	}
 }
@@ -110,14 +114,16 @@ $text = @()
 $processed = @()
 
 # Gather stuff to run within the module before the main logic.
-foreach ($line in (Get-Content "$PSScriptRoot\filesBefore.txt" | Where-Object { $_ -notlike "#*" })) {
+foreach ($line in (Get-Content "$PSScriptRoot\filesBefore.txt" | Where-Object { $_ -notlike "#*" }))
+{
 	if ([string]::IsNullOrWhiteSpace($line)) { continue }
 	
 	# Resolve the paths to be relative to the publish directory.
 	$basePath = Join-Path "$WorkingDirectory\Symlink" $line
 	
 	# Get each file specified by the current line inside of filesBefore.txt
-	foreach ($entry in (Resolve-Path -Path $basePath)) {
+	foreach ($entry in (Resolve-Path -Path $basePath))
+	{
 		# Get the file, discard if it's a folder.
 		$item = Get-Item $entry
 		if ($item.PSIsContainer) { continue }
@@ -131,22 +137,26 @@ foreach ($line in (Get-Content "$PSScriptRoot\filesBefore.txt" | Where-Object { 
 }
 
 # Gather commands of all public and internal functions.
-Get-ChildItem -Path "$WorkingDirectory\Symlink\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$WorkingDirectory\Symlink\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object
+{
 	$text += [System.IO.File]::ReadAllText($_.FullName)	
 }
-Get-ChildItem -Path "$WorkingDirectory\Symlink\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$WorkingDirectory\Symlink\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object
+{
 	$text += [System.IO.File]::ReadAllText($_.FullName)
 }
 
 # Gather stuff to run within the module after the main logic.
-foreach ($line in (Get-Content "$PSScriptRoot\filesAfter.txt" | Where-Object { $_ -notlike "#*" })) {
+foreach ($line in (Get-Content "$PSScriptRoot\filesAfter.txt" | Where-Object { $_ -notlike "#*" }))
+{
 	if ([string]::IsNullOrWhiteSpace($line)) { continue }
 	
 	# Resolve the paths to be relative to the publish directory.
 	$basePath = Join-Path "$WorkingDirectory\Symlink" $line
 		
 	# Get each file specified by the current line inside of filesAfter.txt
-	foreach ($entry in (Resolve-Path -Path $basePath)) {
+	foreach ($entry in (Resolve-Path -Path $basePath))
+	{
 		# Get the file, discard if it's a folder.
 		$item = Get-Item $entry
 		if ($item.PSIsContainer) { continue }
@@ -170,8 +180,10 @@ $fileData = $fileData.Replace('"<was not built>"', '"<was built>"')
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
 [System.IO.File]::WriteAllText("$($publishDir.FullName)\Symlink\Symlink.psm1", $fileData, [System.Text.Encoding]::UTF8)
 
-if (-not $SkipPublish) {
-	if ($TestRepo) {
+if (-not $SkipPublish)
+{
+	if ($TestRepo)
+	{
 		# Publish to TESTING PSGallery.
 		WriteHeader -Message "TEST Publishing to PSGallery" -Colour Green
 		
@@ -200,7 +212,8 @@ if (-not $SkipPublish) {
 		# Remove the testing repository.
 		Unregister-PSRepository -Name "test-repo" -Verbose
 	}
-	else {
+	else
+	{
 		# Publish to real repository.
 		WriteHeader -Message "Publishing to $Repository" -Colour Green
 		Publish-Module -Path "$($publishDir.FullName)\Symlink" -NuGetApiKey $ApiKey -Force `
@@ -208,7 +221,8 @@ if (-not $SkipPublish) {
 	}
 }
 
-if (-not $SkipArtifact) {
+if (-not $SkipArtifact)
+{
 	# Get the module version number for file labelling.
 	$moduleVersion = (Import-PowerShellDataFile -Path "$PSScriptRoot\..\Symlink\Symlink.psd1").ModuleVersion
 	
