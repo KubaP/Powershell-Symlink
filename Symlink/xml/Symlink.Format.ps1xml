@@ -40,7 +40,7 @@
 							<ListItem>
 								<Label>Name</Label>
 								<ScriptBlock>
-									"`e[1;4m$($_.Name)`e[0m"
+									"`e[97;4m$($_.Name)`e[0m"
 								</ScriptBlock>
 							</ListItem>
 							
@@ -48,68 +48,96 @@
 							<ListItem>
 								<Label>Path</Label>
 								<ScriptBlock>
-									$_.FullPath()
-								</ScriptBlock>
-							</ListItem>
-							
-							<!-- The symlink location's state. -->
-							<ListItem>
-								<Label>Path State</Label>
-								<ScriptBlock>
+									$output = $_.FullPath()
 									$obj = $_
-									switch ($obj.GetState())
+									switch ($obj.GetSourceState())
 									{
-										"Exists"
+										"Existent"
 										{
-											return "`e[32mExists`e[0m"
+											$output += " `e[90m(Exists)`e[0m"
 										}
-										"NotExists"
+										"Nonexistent"
 										{
-											return "`e[90mDoesn't exist`e[0m"
+											$output += " `e[90m(Doesn't exist)`e[0m"
 										}
-										"NeedsCreation"
+										"CannotValidate"
 										{
-											return "`e[31;4mNeeds creation`e[0m`e[31m!`e[0m"
+											$output += " `e[90m(Cannot be validated; could the path contain a non-present environment variable?)`e[0m"
 										}
-										"NeedsDeletion"
+										"IncorrectTarget"
 										{
-											return "`e[33mNeeds Deletion`e[0m`e[31m!`e[0m"
+											$output += " `e[90m(Exists, but the target doesn't match)`e[0m"
 										}
-										"Error"
+										"UnknownTarget"
 										{
-											return "`e[31;4mError`e[0m`e[31m!`e[0m"
+											$output += " `e[90m(Exists, but the target cannot be determined if correct)`e[0m"
 										}
 									}
+									return $output
 								</ScriptBlock>
 							</ListItem>
 							
 							<!-- The symlink target. -->
-							<!-- Present the true and expanded path. -->
 							<ListItem>
 								<Label>Target</Label>
 								<ScriptBlock>
-									$_.FullTarget()
+									$output = $_.FullTarget()
+									$obj = $_
+									switch ($obj.GetTargetState())
+									{
+										"Valid"
+										{
+											$output += " `e[90m(Exists)`e[0m"
+										}
+										"Invalid"
+										{
+											$output += " `e[90m(Cannot be validated; could the path contain a non-present environment variable?)`e[0m"
+										}
+									}
+									return $output
 								</ScriptBlock>
 							</ListItem>
 							
 							<!-- The symlink targets's state. -->
 							<ListItem>
-								<Label>Target State</Label>
+								<Label>State</Label>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.TargetState())
+									switch ($obj.GetSourceState())
 									{
-										"Valid"
+										"Existent"
 										{
-											return "`e[32mExists`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[32mValid`e[0m"
+											}
+											else
+											{
+												return "`e[33;4mRequires Deletion`e[0m`e[33m!`e[0m"
+											}
 										}
-										"Invalid"
+										"Nonexistent"
 										{
-											return "`e[31;4mInvalid`e[0m`e[31m!`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[31;4mRequires Creation`e[0m `e[31mX`e[0m"
+											}
+											else
+											{
+												return "`e[90mValid`e[0m"
+											}
 										}
-										"MissingVariable"
-										{	
-											return "`e[33;4mMissing environement variable`e[0m`e[31m!`e[0m"
+										"CannotValidate"
+										{
+											return "`e[31;4mUnknown`e[0m`e[31m?`e[0m"
+										}
+										"IncorrectTarget"
+										{
+											return "`e[36mRequires update`e[0m"
+										}
+										"UnknownTarget"
+										{
+											return "`e[33mUnknown`e[0m`e[33m!`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -134,6 +162,34 @@
 								<ScriptBlock>
 									$str = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
 									"{`n" + $str + "}"
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The creation condition state, only if there is one. -->
+							<!-- A non-existent condition should not be shown. -->
+							<ListItem>
+								<Label>Evaluation</Label>
+								<ItemSelectionCondition>
+									<ScriptBlock>
+										if ($null -ne $_._Condition)
+										{
+											return $true
+										}
+										else
+										{
+											return $false
+										}
+									</ScriptBlock>
+								</ItemSelectionCondition>
+								<ScriptBlock>
+									if (Invoke-Command -Scriptblock $_._Condition)
+									{
+										return "`e[32mMet`e[0m"
+									}
+									else
+									{
+										return "`e[90mUnmet`e[0m"
+									}
 								</ScriptBlock>
 							</ListItem>
 							
@@ -168,68 +224,96 @@
 							<ListItem>
 								<Label>Path</Label>
 								<ScriptBlock>
-									$_.FullPath()
-								</ScriptBlock>
-							</ListItem>
-							
-							<!-- The symlink location's state. -->
-							<ListItem>
-								<Label>Path State</Label>
-								<ScriptBlock>
+									$output = $_.FullPath()
 									$obj = $_
-									switch ($obj.GetState())
+									switch ($obj.GetSourceState())
 									{
-										"Exists"
+										"Existent"
 										{
-											return "`e[32mExists`e[0m"
+											$output += " `e[90m(Exists)`e[0m"
 										}
-										"NotExists"
+										"Nonexistent"
 										{
-											return "`e[90mDoesn't exist`e[0m"
+											$output += " `e[90m(Doesn't exist)`e[0m"
 										}
-										"NeedsCreation"
+										"CannotValidate"
 										{
-											return "`e[31;21mNeeds creation`e[0m❗"
+											$output += " `e[90m(Cannot be validated; could the path contain a non-present environment variable?)`e[0m"
 										}
-										"NeedsDeletion"
+										"IncorrectTarget"
 										{
-											return "`e[33mNeeds Deletion`e[0m❗"
+											$output += " `e[90m(Exists, but the target doesn't match)`e[0m"
 										}
-										"Error"
+										"UnknownTarget"
 										{
-											return "`e[31;21mError`e[0m❗"
+											$output += " `e[90m(Exists, but the target cannot be determined if correct)`e[0m"
 										}
 									}
+									return $output
 								</ScriptBlock>
 							</ListItem>
 							
 							<!-- The symlink target. -->
-							<!-- Present the true and expanded path. -->
 							<ListItem>
 								<Label>Target</Label>
 								<ScriptBlock>
-									$_.FullTarget()
+									$output = $_.FullTarget()
+									$obj = $_
+									switch ($obj.GetTargetState())
+									{
+										"Valid"
+										{
+											$output += " `e[90m(Exists)`e[0m"
+										}
+										"Invalid"
+										{
+											$output += " `e[90m(Cannot be validated; could the path contain a non-present environment variable?)`e[0m"
+										}
+									}
+									return $output
 								</ScriptBlock>
 							</ListItem>
 							
 							<!-- The symlink targets's state. -->
 							<ListItem>
-								<Label>Target State</Label>
+								<Label>State</Label>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.TargetState())
+									switch ($obj.GetSourceState())
 									{
-										"Valid"
+										"Existent"
 										{
-											return "`e[32mExists`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[32mValid`e[0m✔`u{fe0f}"
+											}
+											else
+											{
+												return "`e[33;21mRequires Deletion`e[0m⚠`u{fe0f}"
+											}
 										}
-										"Invalid"
+										"Nonexistent"
 										{
-											return "`e[31;21mInvalid`e[0m❗"
+											if ($obj.ShouldExist())
+											{
+												return "`e[31;21mRequires Creation`e[0m❌"
+											}
+											else
+											{
+												return "`e[90mValid`e[0m✔`u{fe0f}"
+											}
 										}
-										"MissingVariable"
-										{	
-											return "`e[33;21mMissing environement variable`e[0m❗"
+										"CannotValidate"
+										{
+											return "`e[31;21mUnknown`e[0m`e[31m❓`e[0m"
+										}
+										"IncorrectTarget"
+										{
+											return "`e[36mRequires update`e[0m🔄"
+										}
+										"UnknownTarget"
+										{
+											return "`e[33mUnknown`e[0m⚠`u{fe0f}"
 										}
 									}
 								</ScriptBlock>
@@ -254,6 +338,34 @@
 								<ScriptBlock>
 									$str = $_._Condition.ToString().Split("`n") | Foreach-Object { "    $_`n" }
 									"{`n" + $str + "}"
+								</ScriptBlock>
+							</ListItem>
+							
+							<!-- The creation condition state, only if there is one. -->
+							<!-- A non-existent condition should not be shown. -->
+							<ListItem>
+								<Label>Evaluation</Label>
+								<ItemSelectionCondition>
+									<ScriptBlock>
+										if ($null -ne $_._Condition)
+										{
+											return $true
+										}
+										else
+										{
+											return $false
+										}
+									</ScriptBlock>
+								</ItemSelectionCondition>
+								<ScriptBlock>
+									if (Invoke-Command -Scriptblock $_._Condition)
+									{
+										return "`e[32mMet`e[0m✔`u{fe0f}"
+									}
+									else
+									{
+										return "`e[90mUnmet`e[0m✖`u{fe0f}"
+									}
 								</ScriptBlock>
 							</ListItem>
 							
@@ -364,10 +476,18 @@
 											</ExpressionBinding>
 											<NewLine />
 											
-											<!-- The TargetState() of the symlink. -->
+											<!-- The GetSourceState() of the symlink. -->
 											<ExpressionBinding>
 												<ScriptBlock>
-													"TargetState() = $($_.TargetState())"
+													"SourceState() = $($_.GetSourceState())"
+												</ScriptBlock>
+											</ExpressionBinding>
+											<NewLine />
+											
+											<!-- The GetTargetState() of the symlink. -->
+											<ExpressionBinding>
+												<ScriptBlock>
+													"TargetState() = $($_.GetTargetState())"
 												</ScriptBlock>
 											</ExpressionBinding>
 											<NewLine />
@@ -459,7 +579,6 @@
 					<!-- BASIC Formatting -->
 					<TableRowEntry>
 						<TableColumnItems>
-							
 							<!-- The symlink name. -->
 							<TableColumnItem>
 								<PropertyName>Name</PropertyName>
@@ -470,27 +589,41 @@
 							<TableColumnItem>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.GetState())
+									switch ($obj.GetSourceState())
 									{
-										"Exists"
+										"Existent"
 										{
-											return $obj.ShortPath()
+											if ($obj.ShouldExist())
+											{
+												return "$($obj.ShortPath())"
+											}
+											else
+											{
+												return "`e[33;4m$($obj.ShortPath())`e[0m X"
+											}
 										}
-										"NeedsCreation"
+										"NonExistent"
 										{
-											return "`e[33m$($obj.ShortPath())`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[31m$($obj.ShortPath())`e[0m"
+											}
+											else
+											{
+												return "`e[90m$($obj.ShortPath())`e[0m"
+											}
 										}
-										"NeedsDeletion"
+										"CannotValidate"
 										{
-											return "`e[31m$($obj.ShortPath())`e[0m`e[31m!`e[0m"
+											return "`e[31m$($obj.ShortPath())`e[0m `e[31m‼`e[0m"
 										}
-										"NotExists"
+										"IncorrectTarget"
 										{
-											return "`e[90m$($obj.ShortPath())`e[0m"
+											return "`e[36m$($obj.ShortPath())`e[0m"
 										}
-										"Error"
+										"UnknownTarget"
 										{
-											return "`e[31m;4mError`e[0m`e[31m!`e[0m"
+											return "`e[33m$($obj.ShortPath()) ?`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -501,7 +634,11 @@
 							<TableColumnItem>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.TargetState())
+									if (($obj.GetSourceState() -eq "NonExistent" -and $obj.ShouldExist() -eq $false) -or ($obj.GetSourceState() -eq "Existent" -and $obj.ShouldExist() -eq $false))
+									{
+										return "`e[90m$($obj.ShortTarget())`e[0m"
+									}
+									switch ($obj.GetTargetState())
 									{
 										"Valid"
 										{
@@ -509,11 +646,7 @@
 										}
 										"Invalid"
 										{
-											return "`e[31;4mInvalid Target`e[0m`e[31m!`e[0m"
-										}
-										"MissingVariable"
-										{
-											return "`e[32m$($obj.ShortTarget())`e[0m"
+											return "`e[31m$($obj.ShortTarget()) ?`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -531,12 +664,12 @@
 										}
 										else
 										{
-											return "`e[31mUnmet`e[0m"
+											return "`e[33mUnmet`e[0m"
 										}
 									}
 									else
 									{
-										return "`e[33mNone`e[0m"
+										return "`e[90mNone`e[0m"
 									}
 								</ScriptBlock>
 							</TableColumnItem>
@@ -545,27 +678,41 @@
 							<TableColumnItem>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.GetState())
+									switch ($obj.GetSourceState())
 									{
-										"Exists"
+										"Existent"
 										{
-											return "`e[32m$true`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[32mYes`e[0m"
+											}
+											else
+											{
+												return "`e[33;4mYes`e[0m"
+											}
 										}
-										"NotExists"
+										"Nonexistent"
 										{
-											return "`e[33m$false`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[31;4mNo`e[0m"
+											}
+											else
+											{
+												return "`e[90mNo`e[0m"
+											}
 										}
-										"NeedsCreation"
+										"CannotValidate"
 										{
-											return "`e[31;4m$false`e[0m`e[31m!`e[0m"
+											return "`e[31m?`e[0m"
 										}
-										"NeedsDeletion"
+										"IncorrectTarget"
 										{
-											return "`e[33;4m$true`e[0m`e[31m!`e[0m"
+											return "`e[36mYes`e[0m"
 										}
-										"Error"
+										"UnknownTarget"
 										{
-											return "`e[31;4mERROR`e[0m`e[31m!`e[0m"
+											return "`e[33mYes`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -599,27 +746,41 @@
 							<TableColumnItem>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.GetState())
+									switch ($obj.GetSourceState())
 									{
-										"Exists"
+										"Existent"
 										{
-											return $obj.ShortPath()
+											if ($obj.ShouldExist())
+											{
+												return "$($obj.ShortPath())"
+											}
+											else
+											{
+												return "`e[33;21m$($obj.ShortPath())`e[0m ✖`u{fe0f}"
+											}
 										}
-										"NeedsCreation"
+										"NonExistent"
 										{
-											return "`e[33m$($obj.ShortPath())`e[0m"
+											if ($obj.ShouldExist())
+											{
+												return "`e[31m$($obj.ShortPath())`e[0m"
+											}
+											else
+											{
+												return "`e[90;9m$($obj.ShortPath())`e[0m"
+											}
 										}
-										"NeedsDeletion"
+										"CannotValidate"
 										{
-											return "`e[31m$($obj.ShortPath())`e[0m`e[31m!`e[0m"
+											return "`e[31;9m$($obj.ShortPath())`e[0m `e[31m‼`e[0m"
 										}
-										"NotExists"
+										"IncorrectTarget"
 										{
-											return "`e[90m$($obj.ShortPath())`e[0m"
+											return "`e[36m$($obj.ShortPath())`e[0m 🔄"
 										}
-										"Error"
+										"UnknownTarget"
 										{
-											return "`e[31m;21mError`e[0m`e[31m!`e[0m"
+											return "`e[33m$($obj.ShortPath()) ?`u{fe0f}`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -630,7 +791,11 @@
 							<TableColumnItem>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.TargetState())
+									if (($obj.GetSourceState() -eq "NonExistent" -and $obj.ShouldExist() -eq $false) -or ($obj.GetSourceState() -eq "Existent" -and $obj.ShouldExist() -eq $false))
+									{
+										return "`e[90m$($obj.ShortTarget())`e[0m"
+									}
+									switch ($obj.GetTargetState())
 									{
 										"Valid"
 										{
@@ -638,11 +803,7 @@
 										}
 										"Invalid"
 										{
-											return "`e[31;21mInvalid Target`e[0m`e[31m!`e[0m"
-										}
-										"MissingVariable"
-										{
-											return "`e[32m$($obj.ShortTarget())`e[0m"
+											return "`e[31m$($obj.ShortTarget()) ?`u{fe0f}`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -656,16 +817,16 @@
 									{
 										if (Invoke-Command -Scriptblock $_._Condition)
 										{
-											return "✅`e[32m(Met)`e[0m"
+											return "✔`u{fe0f}`e[32m(Met)`e[0m"
 										}
 										else
 										{
-											return "✅`e[33m(Unmet)`e[0m"
+											return "⚠`u{fe0f}`e[33m(Unmet)`e[0m"
 										}
 									}
 									else
 									{
-										return "❌"
+										return "✖`u{fe0f}"
 									}
 								</ScriptBlock>
 							</TableColumnItem>
@@ -674,27 +835,41 @@
 							<TableColumnItem>
 								<ScriptBlock>
 									$obj = $_
-									switch ($obj.GetState())
+									switch ($obj.GetSourceState())
 									{
-										"Exists"
+										"Existent"
 										{
-											return "`e[32m$true`e[0m✅"
+											if ($obj.ShouldExist())
+											{
+												return "✔`u{fe0f}`e[32m(Yes)`e[0m"
+											}
+											else
+											{
+												return "⚠`u{fe0f}`e[33;21m(Yes)`e[0m"
+											}
 										}
-										"NotExists"
+										"Nonexistent"
 										{
-											return "`e[33m$false`e[0m✅"
+											if ($obj.ShouldExist())
+											{
+												return "❌`e[31;21m(No)`e[0m"
+											}
+											else
+											{
+												return "✖`u{fe0f}`e[90m(No)`e[0m"
+											}
 										}
-										"NeedsCreation"
+										"CannotValidate"
 										{
-											return "`e[31;21m$false`e[0m❗"
+											return "❓"
 										}
-										"NeedsDeletion"
+										"IncorrectTarget"
 										{
-											return "`e[33;4m$true`e[0m❗"
+											return "🔄`e[36m(Yes)`e[0m"
 										}
-										"Error"
+										"UnknownTarget"
 										{
-											return "`e[31;21mERROR`e[0m❗"
+											return "⚠`u{fe0f}`e[33m(Yes)`e[0m"
 										}
 									}
 								</ScriptBlock>
@@ -724,42 +899,41 @@
 							<ScriptBlock>
 								$name = $_.Name
 								$obj = $_
-								switch ($obj.GetState())
+								switch ($obj.GetSourceState())
 								{
-									"Exists"
+									"Existent"
 									{
-										switch ($obj.TargetState())
+										if ($obj.ShouldExist())
 										{
-											"Valid"
-											{
-												return "`e[32m$name`e[0m"
-											}
-											"Invalid"
-											{
-												return "`e[33;4m$name`e[0m`e[31m!`e[0m"
-											}
-											"MissingVariable"
-											{
-												return "`e[33;4m$name`e[0m`e[31m!`e[0m"
-											}
+											return "`e[32m$name`e[0m"
 										}
-										
+										else
+										{
+											return "`e[33;4m$name`e[0m"
+										}
 									}
-									"NotExists"
+									"Nonexistent"
+									{
+										if ($obj.ShouldExist())
+										{
+											return "`e[31;4m$name`e[0m"
+										}
+										else
+										{
+											return "`e[90m$name`e[0m"
+										}
+									}
+									"CannotValidate"
+									{
+										return "`e[31;4m$name`e[0m"
+									}
+									"IncorrectTarget"
+									{
+										return "`e[36m$name`e[0m"
+									}
+									"UnknownTarget"
 									{
 										return "`e[33m$name`e[0m"
-									}
-									"NeedsCreation"
-									{
-										return "`e[31;4m$name`e[0m`e[31m!`e[0m"
-									}
-									"NeedsDeletion"
-									{
-										return "`e[33;4m$name`e[0m`e[31m!`e[0m"
-									}
-									"Error"
-									{
-										return "`e[31;4mERROR`e[0m`e[31m!`e[0m"
 									}
 								}
 							</ScriptBlock>
@@ -784,42 +958,41 @@
 							<ScriptBlock>
 								$name = $_.Name
 								$obj = $_
-								switch ($obj.GetState())
+								switch ($obj.GetSourceState())
 								{
-									"Exists"
+									"Existent"
 									{
-										switch ($obj.TargetState())
+										if ($obj.ShouldExist())
 										{
-											"Valid"
-											{
-												return "`e[32m$name✅`e[0m"
-											}
-											"Invalid"
-											{
-												return "`e[33;4m$name`e[0m❗"
-											}
-											"MissingVariable"
-											{
-												return "`e[33;4m$name`e[0m❗"
-											}
+											return "`e[32m$name`e[0m✔`u{fe0f}"
 										}
-										
+										else
+										{
+											return "`e[33;21m$name`e[0m⚠`u{fe0f}"
+										}
 									}
-									"NotExists"
+									"Nonexistent"
 									{
-										return "`e[33m$name✅`e[0m"
+										if ($obj.ShouldExist())
+										{
+											return "`e[31;21m$name`e[0m❌"
+										}
+										else
+										{
+											return "`e[90m$name`e[0m✖`u{fe0f}"
+										}
 									}
-									"NeedsCreation"
+									"CannotValidate"
 									{
-										return "`e[31;21m$name`e[0m❗"
+										return "`e[31;21m$name`e[0m`e[31m?`u{fe0f}`e[0m"
 									}
-									"NeedsDeletion"
+									"IncorrectTarget"
 									{
-										return "`e[33;21m$name`e[0m❗"
+										return "`e[36m$name`e[0m🔄"
 									}
-									"Error"
+									"UnknownTarget"
 									{
-										return "`e[31;21mERROR`e[0m❗"
+										return "`e[33m$name`e[0m⚠`u{fe0f}"
 									}
 								}
 							</ScriptBlock>
