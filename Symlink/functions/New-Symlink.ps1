@@ -155,9 +155,8 @@ function New-Symlink
 	$expandedPath = [System.Environment]::ExpandEnvironmentVariables($Path)
 	$expandedTarget = [System.Environment]::ExpandEnvironmentVariables($Target)
 	
-	# Validate that the target location exists. If the item isn't being moved
-	# there, check the full path, otherwise check that the parent folder
-	# is valid.
+	# Validate that the target location exists. If the item isn't being moved there, check the full path,
+	# otherwise check that the parent folder is valid.
 	if (-not (Test-Path -Path $expandedTarget -ErrorAction Ignore) -and -not $MoveExistingItem)
 	{
 		Write-Error "The target path: '$Target' points to an invalid/non-existent location!"
@@ -189,13 +188,12 @@ function New-Symlink
 	
 	if ((Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem -and $PSCmdlet.ShouldProcess("Moving and renaming existing item from '$expandedPath' to '$expandedTarget'.", "Are you sure you want to move and rename the existing item from '$expandedPath' to '$expandedTarget'?", "Move File Prompt")) 
 	{
-		# Move the item over to the target parent folder, and rename it
-		# to the specified name name given in the target path.
+		# Move the item over to the target parent folder, and rename it to the specified name given as part
+		# of the target path.
 		$fileName = Split-Path -Path $expandedPath -Leaf
 		$newFileName = Split-Path -Path $expandedTarget -Leaf
 		$targetFolder = Split-Path -Path $expandedTarget -Parent
-		# Prevent error logging in `Move-Item` cmdlet due to same 
-		# origin/destination.
+		# Only troy to move the item if the parent folders differ, otherwise 'Move-Item' will thrown an error.
 		if ((Split-Path -Path $expandedPath -Parent) -ne $targetFolder)
 		{
 			try
@@ -210,15 +208,19 @@ function New-Symlink
 			}
 		}
 		
-		try
+		# Only try to rename the item if the name differs, otherwise 'Rename-Item' will throw an error.
+		if ($fileName -ne $newFileName)
 		{
-			Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -ErrorAction Stop `
-				-WhatIf:$false -Confirm:$false | Out-Null
-		}
-		catch
-		{
-			Write-Error "Could not rename the existing item to match the target path.`nClose any programs which may be using this path and re-run the cmdlet."
-			return
+			try
+			{
+				Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -ErrorAction Stop `
+					-WhatIf:$false -Confirm:$false | Out-Null
+			}
+			catch
+			{
+				Write-Error "Could not rename the existing item to match the target path.`nClose any programs which may be using this path and re-run the cmdlet."
+				return
+			}
 		}
 	}
 	elseif (-not (Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem)
@@ -247,21 +249,18 @@ function New-Symlink
 	# Build the symbolic-link item on the filesytem.
 	if (-not $DontCreateItem -and ($newLink.TargetState() -eq "Valid") -and ($newLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 	{
-		# Appropriately delete any existing items before creating the
-		# symbolic-link.
+		# Appropriately delete any existing items before creating the symbolic-link.
 		$item = Get-Item -Path $expandedPath -ErrorAction Ignore
-		# Existing item may be in use and unable to be deleted, so retry until
-		# the user has closed any programs using the item.
+		# Existing item may be in use and unable to be deleted, so retry until the user has closed any
+		# programs using the item.
 		while (Test-Path -Path $expandedPath)
 		{
 			try
 			{
-				# Calling `Remove-Item` on a symbolic-link will delete the
-				# original items the link points to; calling Delete() will
-				# only destroy the symbolic-link iteself, whilst calling
-				# Delete() on a folder will not delete it's contents. Therefore
-				# check whether the item is a symbolic-link to call the
-				# appropriate method.
+				# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
+				# to; calling 'Delete()' will only destroy the symbolic-link iteself,
+				# whilst calling 'Delete()' on a folder will not delete it's contents. Therefore check whether the
+				# item is a symbolic-link to call the appropriate method.
 				if ($null -eq $item.LinkType)
 				{
 					Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `

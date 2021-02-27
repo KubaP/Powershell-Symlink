@@ -33,9 +33,8 @@ function Read-Symlinks
 		# Iterate through all the objects.
 		foreach ($item in $xmlData)
 		{
-			# Rather than extracting the deserialised objects, which would
-			# create a mess of serialised and non-serialised objects, create
-			# new identical copies from scratch.
+			# Rather than extracting the deserialised objects, which would create a mess of serialised and
+			# non-serialised objects, create new identical copies from scratch.
 			if ($item.pstypenames[0] -eq "Deserialized.Symlink")
 			{
 				# Create using the appropiate constructor.
@@ -52,7 +51,6 @@ function Read-Symlinks
 		}
 	}
 	
-	# Return the list as a <List> object, rather than as an array,
-	# (ps converts by default).
+	# Return the list as a <List> object, rather than as an array, (ps converts by default).
 	Write-Output $linkList -NoEnumerate
 }

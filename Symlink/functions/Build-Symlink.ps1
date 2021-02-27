@@ -120,8 +120,8 @@ function Build-Symlink
 	{
 		foreach ($link in $linkList)
 		{
-			# Check if the symlink should be created, but it has an invalid
-			# target, as in such a case it must be skipped.
+			# Check if the symlink should be created, but it has an invalid target,
+			# as in such a case it must be skipped.
 			if (($link.ShouldExist() -or $Force) -and ($link.TargetState() -ne "Valid"))
 			{
 				Write-Error "The symlink named '$($link.Name)' has a target which is invalid/non-existent!`nAborting creation of this symlink."
@@ -132,21 +132,18 @@ function Build-Symlink
 			$expandedPath = $link.FullPath()
 			if (($link.ShouldExist() -or $Force) -and ($link.TargetState() -eq "Valid") -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 			{
-				# Appropriately delete any existing items before creating the
-				# symbolic-link.
+				# Appropriately delete any existing items before creating the symbolic-link.
 				$item = Get-Item -Path $expandedPath -ErrorAction Ignore
-				# Existing item may be in use and unable to be deleted, so retry until
-				# the user has closed any programs using the item.
+				# Existing item may be in use and unable to be deleted, so retry until the user has closed
+				# any programs using the item.
 				while (Test-Path -Path $expandedPath)
 				{
 					try
 					{
-						# Calling `Remove-Item` on a symbolic-link will delete the
-						# original items the link points to; calling Delete() will
-						# only destroy the symbolic-link iteself, whilst calling
-						# Delete() on a folder will not delete it's contents. Therefore
-						# check whether the item is a symbolic-link to call the
-						# appropriate method.
+						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
+						# to; calling 'Delete()' will only destroy the symbolic-link iteself,
+						# whilst calling 'Delete()' on a folder will not delete it's contents. Therefore check
+						# whether the item is a symbolic-link to call the appropriate method.
 						if ($null -eq $item.LinkType)
 						{
 							Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `

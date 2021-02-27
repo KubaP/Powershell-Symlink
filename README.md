@@ -100,7 +100,7 @@ The following cmdlets support `-WhatIf` and `-Confirm` parameters:
 - `Set-Symlink`
 - `Build-Symlink`
 
-Use `-WhatIf` to see a list of what changes a command will do.
+Use `-WhatIf` to see a list of what changes a cmdlet will do.
 
 Use `-Confirm` to ask for a prompt for every state-altering change.
 

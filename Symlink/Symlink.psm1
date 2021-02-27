@@ -3,8 +3,7 @@ $script:ModuleRoot = $PSScriptRoot
 $script:ModuleVersion = (Import-PowerShellDataFile -Path "$ModuleRoot\Symlink.psd1").ModuleVersion
 $script:DataPath = "$env:APPDATA\Powershell\Symlink\database.xml"
 
-# For the debug output to be displayed, $DebugPreference must be set
-# to 'Continue' within the current session.
+# For the debug output to be displayed, $DebugPreference must be set to 'Continue' within the current session.
 Write-Debug "`e[4mMODULE-WIDE VARIABLES`e[0m"
 Write-Debug "Module root folder: $ModuleRoot"
 Write-Debug "Module version: $ModuleVersion"
@@ -17,8 +16,7 @@ if (-not (Test-Path -Path "$env:APPDATA\Powershell\Symlink" -ErrorAction Ignore)
 	Write-Debug "Created database folder!"
 }
 
-# Potentially force this module script to dot-source the files, rather than 
-# load them in an alternative method.
+# Potentially force this module script to dot-source the files, rather than load them in an alternative method.
 $doDotSource = $global:ModuleDebugDotSource
 $doDotSource = $true # Needed to make code coverage tests work
 
@@ -131,8 +129,8 @@ function Import-ModuleFile
 # the individual files can be imported, as they don't exist.
 
 
-# If this module file contains the compiled code, import that, but if it
-# doesn't, then import the individual files instead.
+# If this module file contains the compiled code, import that, but if it doesn't, then import the
+# individual files instead.
 $importIndividualFiles = $false
 if ("<was not built>" -eq '<was not built>')
 {

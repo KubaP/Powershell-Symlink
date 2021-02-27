@@ -98,15 +98,14 @@ function Remove-Symlink
 			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
 			if (-not $DontDeleteItem -and $existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$expandedPath'.", "Are you sure you want to delete the symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
 			{
-				# Existing item may be in use and unable to be deleted, so retry until
-				# the user has closed any programs using the item.
+				# Existing item may be in use and unable to be deleted, so retry until the user has closed
+				# any programs using the item.
 				while (Test-Path -Path $expandedPath)
 				{
 					try
 					{
-						# Calling `Remove-Item` on a symbolic-link will delete
-						# the original items the link points to; calling
-						# Delete() will only destroy the symbolic-link iteself.
+						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
+						# to; calling 'Delete()' will only destroy the symbolic-link iteself.
 						$item.Delete()
 					}
 					catch
