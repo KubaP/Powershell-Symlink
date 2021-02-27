@@ -210,15 +210,19 @@ function New-Symlink
 			}
 		}
 		
-		try
+		# Only try to rename the item if the name differs, otherwise 'Rename-Item' would throw an error.
+		if ($fileName -ne $newFileName)
 		{
-			Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -ErrorAction Stop `
-				-WhatIf:$false -Confirm:$false | Out-Null
-		}
-		catch
-		{
-			Write-Error "Could not rename the existing item to match the target path.`nClose any programs which may be using this path and re-run the cmdlet."
-			return
+			try
+			{
+				Rename-Item -Path "$targetFolder\$filename" -NewName $newFileName -Force -ErrorAction Stop `
+					-WhatIf:$false -Confirm:$false | Out-Null
+			}
+			catch
+			{
+				Write-Error "Could not rename the existing item to match the target path.`nClose any programs which may be using this path and re-run the cmdlet."
+				return
+			}
 		}
 	}
 	elseif (-not (Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem)
