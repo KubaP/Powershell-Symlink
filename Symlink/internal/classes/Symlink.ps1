@@ -81,6 +81,7 @@ class Symlink
 		return Test-Path -Path $this.FullTarget()
 	}
 	
+	# TODO: Deprecate.
 	[string] TargetState()
 	{
 		# Check if the target is a valid path.
@@ -104,6 +105,7 @@ class Symlink
 		}
 	}
 	
+	# TODO: Refactor.
 	[bool] Exists()
 	{
 		# Check if the item even exists.
@@ -189,6 +191,7 @@ class Symlink
 		return $false
 	}
 	
+	# TODO: Deprecate.
 	[SymlinkState] GetState()
 	{
 		# Return the appropiate state depending on whether the symlink

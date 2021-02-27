@@ -14,7 +14,6 @@
 			<Name>Set.Symlink</Name>
 			<Types>
 				<TypeName>Symlink</TypeName>
-				<TypeName>Deserialized.Symlink</TypeName>
 			</Types>
 		</SelectionSet>
 		

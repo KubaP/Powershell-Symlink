@@ -1,4 +1,7 @@
 ﻿# Changelog
+## 0.1.4 (2021-02-27)
+ - Update: Format.ps1xml: Improve formatting styles to present information and the state of the symbolic-links in a clearer manner.
+ - Fix: `New-Symlink`: Incorrectly throwing an error when using the *'-MoveExistingItem'* switch and when no renaming is necessary as the existing and desired item names are identical.
 ## 0.1.3 (2020-12-30)
  - Add: *'-Force'* for `New-Symlink`: Forces the creation of the symbolic-link even if the creation condition evaluates to false, and overwrites any existing symlink if the names collide.
  - Add: *'-Force'* for `Build-Symlink`: Forces the creation of the symbolic-link even if the creation condition evaluates to false.
