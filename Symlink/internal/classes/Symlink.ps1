@@ -62,6 +62,25 @@ class Symlink
 		return [System.Environment]::ExpandEnvironmentVariables($this._Target)
 	}
 	
+	[bool] IsValidPathDirectory()
+	{
+		# Remove the leaf of the path, as that part is the name the symbolic-link should take,
+		# and the link may not be created. This does not invalidate the parent path however, as the parent path
+		# must be valid for the link to exist in the first place.
+		$parentPath = Split-Path -Path $this.FullPath() -Parent
+		
+		# Now test that this path to the parent is valid. If this path is valid, then the symbolic link
+		# item can be successfully created.
+		return Test-Path -Path $parentPath
+	}
+	
+	[bool] IsValidTarget()
+	{
+		# Test that the target is valid. If any of the parent folders do not exist, or if any environmental 
+		# variables are used which do not exist, this will return false.
+		return Test-Path -Path $this.FullTarget()
+	}
+	
 	[string] TargetState()
 	{
 		# Check if the target is a valid path.
@@ -101,6 +120,55 @@ class Symlink
 		{
 			return $false
 		}
+	}
+	
+	[string] GetSourceState()
+	{
+		if (-not $this.IsValidPathDirectory())
+		{
+			# Part of the path for where the symbolic-link exists cannot be resolved correctly, either because of
+			# missing folders or because of a use of an environment variable not present on the system.
+			# Since the path cannot be validated, its unknown if the symbolic link item exists correctly or not.
+			return "CannotValidate"
+		}
+		
+		if (-not (Get-Item -Path $this.FullPath() -ErrorAction Ignore))
+		{
+			# The parent part of the path is valid, but the actual symbolic-link item does not exist.
+			return "Nonexistent"
+		}
+		
+		if (-not $this.IsValidTarget())
+		{
+			# The target is invalid, so the symbolic-link item exists but it's unknown if the target it points to
+			# doesn't exist or if the target it points to cannot be resolved.
+			return "UnknownTarget"
+		}
+		
+		if ((Get-Item -Path $this.FullPath()).Target -eq $this.FullTarget())
+		{
+			# The target of the symbolic-link matches the stored target.
+			return "Existent"
+		}
+		else
+		{
+			# The target of the symbolic-link does not match the stored target (may have changed).
+			return "IncorrectTarget"
+		}
+		
+		return "Unknown"
+	}
+	
+	[string] GetTargetState()
+	{
+		if (-not $this.IsValidTarget())
+		{
+			# The target path cannot be resolved, because either the folders don't properly exist, or because the
+			# system lacks an environmental variable for resolving.
+			return "Invalid"
+		}
+		
+		return "Valid"
 	}
 	
 	[bool] ShouldExist()
