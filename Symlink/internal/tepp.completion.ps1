@@ -12,10 +12,9 @@ $argCompleter_SymlinkName =
 	}
 	
 	# Return the names which match the currently typed in pattern.
-	# This first strips the string of any quotation marks, then matches it to 
-	# the valid names, and then inserts the quotation marks again.
-	# This is necessary so that strings with spaces have quotes, otherwise
-	# they will not be treated as one parameter.
+	# This first strips the string of any quotation marks, then matches it to the valid names,
+	# and then inserts the quotation marks again. This is necessary so that strings with spaces have quotes,
+	# otherwise they will not be treated as one parameter.
 	$linkList.Name | Where-Object { $_ -like "$($wordToComplete.Replace(`"`'`", `"`"))*" } | ForEach-Object { "'$_'" }
 	
 }
