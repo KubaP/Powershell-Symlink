@@ -94,37 +94,37 @@ CREATING A SYMLINK
     
     -Target
         Specifies the path of the target which the symbolic-link item points to.
-	    This also defines whether the symbolic-link points to a directory or
+        This also defines whether the symbolic-link points to a directory or
         a file.
     
     OPTIONAL PARAMETERS
     
     -CreationCondition
         Specifies a scriptblock to be used for this symlink. This scriptblock
-	    decides whether the symbolic-link item should be created on the
+        decides whether the symbolic-link item should be created on the
         filesystem. For detailed help, see the "CREATION CONDITION SCRIPTBLOCK"
         section in the help at: 'about_Symlink'.
     
     -DontCreateItem
         Prevents the creation of the symbolic-link item on the filesystem.
-	    (The symlink definition will still be created).
+        (The symlink definition will still be created).
     
     -Force
-		Forces this cmdlet to create an symlink that writes over an existing
+        Forces this cmdlet to create an symlink that writes over an existing
         one, and forces this cmdlet to create a symbolic-link item on the
         filesystem even if the creation condition evaluates to false.
         
         Even using this parameter, if the filesystem denies access to the
         necessary files, this cmdlet can fail.
-	
-	-WhatIf
-		Shows what would happen if the cmdlet runs. The cmdlet does not run.
-		
-	-Confirm
-		Prompts you for confirmation before running any state-altering actions
-		in this cmdlet.
-		
-	<CommonParameters>
+    
+    -WhatIf
+        Shows what would happen if the cmdlet runs. The cmdlet does not run.
+        
+    -Confirm
+        Prompts you for confirmation before running any state-altering actions
+        in this cmdlet.
+        
+    <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
         OutBuffer, PipelineVariable, and OutVariable. For more information, see
@@ -143,7 +143,7 @@ RETRIEVING A SYMLINK
     
     -Names
         Specifies the name(s) of the items to get.
-	 [!]This parameter will autocomplete to valid symlink names.
+     [!]This parameter will autocomplete to valid symlink names.
     
     OPTIONAL PARAMETERS
     
@@ -184,21 +184,21 @@ CHANGING THE PROPERTIES OF A SYMLINK
     
     -Name
         Specifies the name of the symlink to be changed.
-	 [!]This parameter will autocompleted to valid names for a symlink.
+     [!]This parameter will autocompleted to valid names for a symlink.
     
     -Property
         Specifies the name of the property to change.
-	 [!]This parameter will autocompleted to the following: "Name", "Path",
-	    "Target", "CreationCondition".
+     [!]This parameter will autocompleted to the following: "Name", "Path",
+        "Target", "CreationCondition".
     
     -Value
-	    Specifies the new value of the property being changed.
+        Specifies the new value of the property being changed.
     
     OPTIONAL PARAMETERS
     
     -WhatIf
-	    Shows what would happen if the cmdlet runs. The cmdlet does not run.
-	
+        Shows what would happen if the cmdlet runs. The cmdlet does not run.
+    
     -Confirm
         Prompts you for confirmation before running any state-altering actions
         in this cmdlet.
@@ -249,22 +249,22 @@ REMOVING A SYMLINK
     
     -Names
         Specifies the name(s) of the items to delete.
-	 [!]This parameter will autocomplete to valid symlink names.
+     [!]This parameter will autocomplete to valid symlink names.
         
     OPTIONAL PARAMETER
-	
+    
     -DontDeleteItem
         Prevents the deletion of the symbolic-link item from the filesystem.
-	    (The symlink definition will still be deleted).
+        (The symlink definition will still be deleted).
     
-	-WhatIf
-		Shows what would happen if the cmdlet runs. The cmdlet does not run.
-		
-	-Confirm
-		Prompts you for confirmation before running any state-altering actions
-		in this cmdlet.
-		
-	<CommonParameters>
+    -WhatIf
+        Shows what would happen if the cmdlet runs. The cmdlet does not run.
+        
+    -Confirm
+        Prompts you for confirmation before running any state-altering actions
+        in this cmdlet.
+        
+    <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
         OutBuffer, PipelineVariable, and OutVariable. For more information, see
@@ -287,19 +287,19 @@ BUILDING/UPDATING SYMLINKS
     OPTIONAL PARAMETERS
     
     -WhatIf
-	    Shows what would happen if the cmdlet runs. The cmdlet does not run.
-	
+        Shows what would happen if the cmdlet runs. The cmdlet does not run.
+    
     -Confirm
         Prompts you for confirmation before running any state-altering actions
         in this cmdlet.
     
     -Force
-	    Forces this cmdlet to create a symbolic-link item on the filesystem even
+        Forces this cmdlet to create a symbolic-link item on the filesystem even
         if the creation condition evaluates to false.
         
         Even using this parameter, if the filesystem denies access to the
         necessary files, this cmdlet can fail.
-	
+    
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
@@ -316,19 +316,19 @@ BUILDING/UPDATING SYMLINKS
     
     -Names
         Specifies the name(s) of the symlinks to create.
-	 [!]This parameter will autocomplete to valid symlink names.
+     [!]This parameter will autocomplete to valid symlink names.
     
     OPTIONAL PARAMETERS
     
     -WhatIf
-	    Shows what would happen if the cmdlet runs. The cmdlet does not run.
-	
+        Shows what would happen if the cmdlet runs. The cmdlet does not run.
+    
     -Confirm
         Prompts you for confirmation before running any state-altering actions
         in this cmdlet.
     
     -Force
-	    Forces this cmdlet to create a symbolic-link item on the filesystem even
+        Forces this cmdlet to create a symbolic-link item on the filesystem even
         if the creation condition evaluates to false.
         
         Even using this parameter, if the filesystem denies access to the
