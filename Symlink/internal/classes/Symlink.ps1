@@ -1,13 +1,4 @@
-﻿enum SymlinkState
-{
-	Exists
-	NotExists
-	NeedsCreation
-	NeedsDeletion
-	Error
-}
-
-class Symlink
+﻿class Symlink
 {
 	[string]$Name
 	hidden [string]$_Path
@@ -81,49 +72,6 @@ class Symlink
 		return Test-Path -Path $this.FullTarget()
 	}
 	
-	# TODO: Deprecate.
-	[string] TargetState()
-	{
-		# Check if the target is a valid path.
-		if (Test-Path -Path $this.FullTarget() -ErrorAction Ignore)
-		{
-			return "Valid"
-		}
-		else
-		{
-			# Check if the target has unexpanded environment variables,
-			# i.e. variable not present on system, hence path cannot
-			# be verified.
-			if ($this.FullTarget().Contains("%"))
-			{
-				return "MissingVariable"
-			}
-			else
-			{
-				return "Invalid"
-			}
-		}
-	}
-	
-	# TODO: Refactor.
-	[bool] Exists()
-	{
-		# Check if the item even exists.
-		if ($null -eq (Get-Item -Path $this.FullPath() -ErrorAction Ignore))
-		{
-			return $false
-		}
-		# Checks if the symlink item exists and has the correct target.
-		if ((Get-Item -Path $this.FullPath() -ErrorAction Ignore).Target -eq $this.FullTarget())
-		{
-			return $true
-		}
-		else
-		{
-			return $false
-		}
-	}
-	
 	[string] GetSourceState()
 	{
 		if (-not $this.IsValidPathDirectory())
@@ -189,29 +137,5 @@ class Symlink
 			return $true
 		}
 		return $false
-	}
-	
-	# TODO: Deprecate.
-	[SymlinkState] GetState()
-	{
-		# Return the appropiate state depending on whether the symlink
-		# exists and whether it should exist.
-		if ($this.Exists() -and $this.ShouldExist())
-		{
-			return [SymlinkState]::Exists
-		}
-		elseif ($this.Exists() -and -not $this.ShouldExist()) 
-		{
-			return [SymlinkState]::NeedsDeletion
-		}
-		elseif (-not $this.Exists() -and $this.ShouldExist())
-		{
-			return [SymlinkState]::NeedsCreation
-		}
-		elseif (-not $this.Exists() -and -not $this.ShouldExist())
-		{
-			return [SymlinkState]::NotExists
-		}
-		return [SymlinkState]::Error
 	}
 }
