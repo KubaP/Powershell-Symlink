@@ -144,7 +144,7 @@ function New-Symlink
 		return
 	}
 	
-	# Validate that the name isn't empty.
+	# Ensure that the name isn't empty.
 	Write-Verbose "Validating parameters."
 	if ([system.string]::IsNullOrWhiteSpace($Name))
 	{
@@ -155,33 +155,32 @@ function New-Symlink
 	$expandedPath = [System.Environment]::ExpandEnvironmentVariables($Path)
 	$expandedTarget = [System.Environment]::ExpandEnvironmentVariables($Target)
 	
-	# Validate that the target location exists. If the item isn't being moved there, check the full path,
-	# otherwise check that the parent folder is valid.
+	# Ensure that the target location exists. If the existing item is being moved to the target directory,
+	# check that the parent directory is valid, otherwise check the full path.
 	if (-not (Test-Path -Path $expandedTarget -ErrorAction Ignore) -and -not $MoveExistingItem)
 	{
-		Write-Error "The target path: '$Target' points to an invalid/non-existent location!"
+		Write-Error "The target path: '$Target' is invalid!"
 		return
 	}
-	if (-not (Test-Path -Path (Split-Path -Path $expandedTarget -Parent) -ErrorAction Ignore) `
-		-and $MoveExistingItem)
+	if (-not (Test-Path -Path (Split-Path -Path $expandedTarget -Parent) -ErrorAction Ignore) -and $MoveExistingItem)
 	{
 		Write-Error "Part of the target path: '$(Split-Path -Path $expandedTarget -Parent)' is invalid!"
 		return
 	}
 	
-	# Validate that the name isn't already taken.
+	# Ensure that the name isn't already taken.
 	$linkList = Read-Symlinks
 	$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
 	if ($null -ne $existingLink)
 	{
 		if ($Force)
 		{
-			Write-Verbose "Existing symlink named: '$Name' exists, but since the '-Force' switch is present, the existing symlink will be deleted."
-			$existingLink | Remove-Symlink
+			Write-Verbose "Existing symlink named: '$Name' exists, but since the '-Force' switch is present, the existing symlink will be overwritten."
+			$existingLink | Remove-Symlink -Verbose:$false | Out-Null
 		}
 		else
 		{
-			Write-Error "The name: '$Name' is already taken."
+			Write-Error "The name: '$Name' is already taken!"
 			return
 		}
 	}
@@ -193,7 +192,8 @@ function New-Symlink
 		$fileName = Split-Path -Path $expandedPath -Leaf
 		$newFileName = Split-Path -Path $expandedTarget -Leaf
 		$targetFolder = Split-Path -Path $expandedTarget -Parent
-		# Only troy to move the item if the parent folders differ, otherwise 'Move-Item' will thrown an error.
+		
+		# Only try to move the item if the parent folders differ, otherwise 'Move-Item' will thrown an error.
 		if ((Split-Path -Path $expandedPath -Parent) -ne $targetFolder)
 		{
 			try
@@ -203,7 +203,7 @@ function New-Symlink
 			}
 			catch
 			{
-				Write-Error "Could not move the existing item to the target destination.`nClose any programs which may be using this path and re-run the cmdlet."
+				Write-Error "Could not move the existing item to the target destination!`nClose any programs which may be using this path and re-run this cmdlet."
 				return
 			}
 		}
@@ -218,14 +218,14 @@ function New-Symlink
 			}
 			catch
 			{
-				Write-Error "Could not rename the existing item to match the target path.`nClose any programs which may be using this path and re-run the cmdlet."
+				Write-Error "Could not rename the existing item to match the target item name!`nClose any programs which may be using this path and re-run this cmdlet."
 				return
 			}
 		}
 	}
 	elseif (-not (Test-Path -Path $expandedPath -ErrorAction Ignore) -and $MoveExistingItem)
 	{
-		Write-Error "Cannot move the existing item from: '$expandedPath' because the location is invalid."
+		Write-Error "Cannot move the existing item from: '$expandedPath' because the path is invalid!"
 		return
 	}
 	
@@ -247,38 +247,35 @@ function New-Symlink
 	}
 	
 	# Build the symbolic-link item on the filesytem.
-	if (-not $DontCreateItem -and ($newLink.TargetState() -eq "Valid") -and ($newLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+	if (-not $DontCreateItem -and ($newLink.GetTargetState() -eq "Valid") -and ($newLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
 	{
-		# Appropriately delete any existing items before creating the symbolic-link.
-		$item = Get-Item -Path $expandedPath -ErrorAction Ignore
-		# Existing item may be in use and unable to be deleted, so retry until the user has closed any
-		# programs using the item.
-		while (Test-Path -Path $expandedPath)
+		# Existing item may be in use and unable to be deleted, so retry until the user has closed
+		# any programs using the item.
+		while (Test-Path -Path $expandedPath -ErrorAction Ignore)
 		{
-			try
+			$result = Delete-Existing -Path $expandedPath
+			if (-not $result)
 			{
-				# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-				# to; calling 'Delete()' will only destroy the symbolic-link iteself,
-				# whilst calling 'Delete()' on a folder will not delete it's contents. Therefore check whether the
-				# item is a symbolic-link to call the appropriate method.
-				if ($null -eq $item.LinkType)
-				{
-					Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `
-						-Confirm:$false | Out-Null
-				}
-				else
-				{
-					$item.Delete()
-				}
-			}
-			catch
-			{
-				Write-Error "The item located at: '$expandedPath' could not be deleted to make room for the symbolic-link."
-				Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
+				Write-Error "Could not delete the existing item located at: '$expandedPath' to create the symbolic-link in its place! Could a file be in use?"
+				Read-Host -Prompt "Press any key to retry..."
 			}
 		}
-		New-Item -ItemType SymbolicLink -Path $expandedPath -Value $expandedTarget -Force -WhatIf:$false `
-			-Confirm:$false | Out-Null
+		
+		try
+		{
+			# There is no real way to check if the path is fully valid, especially since this invocation
+			# is meant to create any missing parent folders. A path can contain % symbols as valid
+			# characters, so 'C:\%test%\link' can be as valid as '%windir%\link'.
+			# Only way to ensure nothing goes wrong is by attempting to perform this creation, and then
+			# if the path truly cannot be resolved, then this will catch the error.
+			New-Item -ItemType SymbolicLink -Path $expandedPath -Value $expandedTarget -Force -WhatIf:$false `
+				-Confirm:$false | Out-Null
+		}
+		catch
+		{
+			Write-Error "The symlink named: '$($link.Name)' could not be created at the path: '$($link.FullPath())'!`nCould this path be invalid?"
+			continue
+		}
 	}
 	
 	Write-Output $newLink

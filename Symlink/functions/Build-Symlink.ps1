@@ -105,6 +105,7 @@ function Build-Symlink
 	
 		# Store lists to notify user which symlinks were created.
 		$createdList = New-Object System.Collections.Generic.List[Symlink] 
+		$updatedList = New-Object System.Collections.Generic.List[Symlink] 
 		
 		if ($All)
 		{
@@ -112,7 +113,7 @@ function Build-Symlink
 		}
 		else
 		{
-			$linkList = Get-Symlink -Names $Names -Verbose:$false
+			$linkList = Read-Symlinks | Where-Object { $Names.Contains($_.Name) }
 		}
 	}
 	
@@ -120,51 +121,74 @@ function Build-Symlink
 	{
 		foreach ($link in $linkList)
 		{
-			# Check if the symlink should be created, but it has an invalid target,
-			# as in such a case it must be skipped.
-			if (($link.ShouldExist() -or $Force) -and ($link.TargetState() -ne "Valid"))
+			if (-not $link.ShouldExist() -or -not $Force)
 			{
-				Write-Error "The symlink named '$($link.Name)' has a target which is invalid/non-existent!`nAborting creation of this symlink."
+				# The symbolic-link isn't meant to exist, so skip it.
+				Write-Verbose "The symlink named: '$($link.Name)' is not being created."
 				continue
 			}
 			
-			# Build the symbolic-link item on the filesytem.
-			$expandedPath = $link.FullPath()
-			if (($link.ShouldExist() -or $Force) -and ($link.TargetState() -eq "Valid") -and $PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+			# Ensure the symlink's target is valid and can be pointed to.
+			if ($link.GetTargetState() -eq "Invalid")
 			{
-				# Appropriately delete any existing items before creating the symbolic-link.
-				$item = Get-Item -Path $expandedPath -ErrorAction Ignore
+				Write-Error "The symlink named: '$($link.Name)' has a target which is invalid: '$($link.FullTarget())'!`nCannot create this symlink."
+				continue
+			}
+			
+			# Check for an unknown issue.
+			if ($link.GetSourceState() -eq "Unknown")
+			{
+				Write-Error "An unknown error has come up; this should never occur!"
+				continue
+			}
+			
+			# Check the path can be validated.
+			if ($link.GetSourceState() -eq "CannotValidate")
+			{
+				Write-Error "Could not validate the path for the symbolic-link: '$name'! Could it contain a non-present environment variable?"
+				continue
+			}
+			
+			# Keep track of changes.
+			if ($link.GetSourceState() -eq "IncorrectTarget")
+			{
+				$updatedList.Add($link)
+			}
+			else
+			{
+				$createdList.Add($link)
+			}
+			
+			$expandedPath = $link.FullPath()
+			if ($PSCmdlet.ShouldProcess("Creating symbolic-link item at '$expandedPath'.", "Are you sure you want to create the symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+			{
 				# Existing item may be in use and unable to be deleted, so retry until the user has closed
 				# any programs using the item.
-				while (Test-Path -Path $expandedPath)
+				while (Test-Path -Path $expandedPath -ErrorAction Ignore)
 				{
-					try
+					$result = Delete-Existing -Path $expandedPath
+					if (-not $result)
 					{
-						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-						# to; calling 'Delete()' will only destroy the symbolic-link iteself,
-						# whilst calling 'Delete()' on a folder will not delete it's contents. Therefore check
-						# whether the item is a symbolic-link to call the appropriate method.
-						if ($null -eq $item.LinkType)
-						{
-							Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `
-								-Confirm:$false | Out-Null
-						}
-						else
-						{
-							$item.Delete()
-						}
-					}
-					catch
-					{
-						Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link."
-						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
+						Write-Error "Could not delete the existing item located at: '$expandedPath' to create the symbolic-link in its place! Could a file be in use?"
+						Read-Host -Prompt "Press any key to retry..."
 					}
 				}
 				
-				New-Item -ItemType SymbolicLink -Path $link.FullPath() -Value $link.FullTarget() -Force `
-					-WhatIf:$false -Confirm:$false | Out-Null
-				
-				$createdList.Add($link)
+				try
+				{
+					# There is no real way to check if the path is fully valid, especially since this invocation
+					# is meant to create any missing parent folders. A path can contain % symbols as valid
+					# characters, so 'C:\%test%\link' can be as valid as '%windir%\link'.
+					# Only way to ensure nothing goes wrong is by attempting to perform this creation, and then
+					# if the path truly cannot be resolved, then this will catch the error.
+					New-Item -ItemType SymbolicLink -Path $link.FullPath() -Value $link.FullTarget() -Force `
+						-WhatIf:$false -Confirm:$false -ErrorAction Stop | Out-Null
+				}
+				catch
+				{
+					Write-Error "The symlink named: '$($link.Name)' could not be created at the path: '$($link.FullPath())'!`nCould this path be invalid?"
+					continue
+				}
 			}
 		}
 	}
@@ -174,8 +198,13 @@ function Build-Symlink
 		# By default, outputs in List formatting.
 		if ($createdList.Count -gt 0)
 		{
-			Write-Host "Created the following new symlinks:"
-			Write-Output $createdList
+			Write-Host "Created the following new symbolic-links:"
+			$createdList | Sort-Object -Property Name
+		}
+		if ($updatedList.Count -gt 0)
+		{
+			Write-Host "Updated the following symbolic-links:"
+			$updatedList | Sort-Object -Property Name
 		}
 	}
 }

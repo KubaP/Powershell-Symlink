@@ -121,7 +121,7 @@ function Set-Symlink
 		$existingLink = $linkList | Where-Object { $_.Name -eq $Name }
 		if ($null -eq $existingLink)
 		{
-			Write-Error "There is no symlink named: '$Name'."
+			Write-Error "There is no symlink named: '$Name'!"
 			return
 		}
 		
@@ -158,151 +158,142 @@ function Set-Symlink
 		}
 		elseif ($Property -eq "Path")
 		{
-			# Validate the new path isn't empty.
-			if ([System.String]::IsNullOrWhiteSpace($Value))
+			# Ensure the symbolic-link can be created at the new path.
+			if (-not (Test-Path -Path $Value))
 			{
-				Write-Error "The new path cannot be blank or empty!"
-				return
-			}
-			# Validate that the target exists.
-			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($existingLink.FullTarget())) `
-					-ErrorAction Ignore))
-			{
-				Write-Error "The symlink's target path: '$($existingLink.FullTarget())' points to an invalid location!"
-				return
+				Write-Error "The new path is invalid!`nCannot re-create this symlink."
 			}
 			
-			# Firstly, delete the symlink from the filesystem at the original path location.
-			$expandedPath = $existingLink.FullPath()
-			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
-			if ($existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting old symbolic-link at '$expandedPath'.", "Are you sure you want to delete the old symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
+			# Ensure the symlink's target is valid and can be pointed to.
+			if ($existingLink.GetTargetState() -eq "Invalid")
 			{
-				# Existing item may be in use and unable to be deleted, so retry until the user has closed
-				# any programs using the item.
-				while (Test-Path -Path $expandedPath)
-				{
-					try
-					{
-						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-						# to; calling 'Delete()' will only destroy the symbolic-link iteself.
-						$item.Delete()
-					}
-					catch
-					{
-						Write-Error "The old symbolic-link located at '$expandedPath' could not be deleted."
-						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
-					}
-				}
+				Write-Error "The symlink has a target which is invalid: '$($existingLink.FullTarget())'!`nCannot re-create this symlink."
+				continue
 			}
 			
-			# Then change the path property, and re-create the symlink at the new location, taking into account
-			# that there may be existing items at the new path.
+			# Check for an unknown issue.
+			if ($existingLink.GetSourceState() -eq "Unknown")
+			{
+				Write-Error "An unknown error has come up; this should never occur!"
+				continue
+			}
+			
+			# Check the path can be validated.
+			if ($existingLink.GetSourceState() -eq "CannotValidate")
+			{
+				Write-Error "Could not validate the path for the symlink! Could it contain a non-present environment variable?"
+				continue
+			}
+			
+			if (-not $existingLink.ShouldExist() -or -not $Force)
+			{
+				# The symbolic-link isn't meant to exist, so skip it.
+				Write-Warning "The symlink path is being updated, but it will not be re-created."
+				continue
+			}
+			
+			# Store the previous path of the symbolic-link, to be able to delete the old content as a way
+			# of "moving" the symbolic-link.
+			$oldPath = $existingLink.FullPath()
+			
+			# Update the symlink values.
 			$existingLink._Path = $Value
-			$expandedPath = $existingLink.FullPath()
-			if (($existingLink.ShouldExist() -or $Force) -and ($existingLink.TargetState() -eq "Valid") -and $PSCmdlet.ShouldProcess("Creating new symbolic-link item at '$expandedPath'.", "Are you sure you want to create the new symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+			
+			# If the symbolic-link is going to be re-created, delete the old one first.
+			if (($existingLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Moving existing symbolic-link to '$Value'.", "Are you sure you want to move the existing symbolic-link to '$Value'?", "Move Symbolic-Link Prompt"))
 			{
-				# Appropriately delete any existing items before creating the symbolic-link.
-				$item = Get-Item -Path $expandedPath -ErrorAction Ignore
 				# Existing item may be in use and unable to be deleted, so retry until the user has closed
 				# any programs using the item.
-				while (Test-Path -Path $expandedPath)
+				while (Test-Path -Path $oldPath -ErrorAction Ignore)
 				{
-					try
+					$result = Delete-Existing -Path $oldPath
+					if (-not $result)
 					{
-						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-						# to; calling 'Delete()' will only destroy the symbolic-link iteself,
-						# whilst calling 'Delete()' on a folder will not delete it's contents. Therefore check
-						# whether the item is a symbolic-link to call the appropriate method.
-						if ($null -eq $item.LinkType)
-						{
-							Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `
-								-Confirm:$false | Out-Null
-						}
-						else
-						{
-							$item.Delete()
-						}
-					}
-					catch
-					{
-						Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link."
-						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
+						Write-Error "Could not delete the existing item located at: '$oldPath'! Could a file be in use?"
+						Read-Host -Prompt "Press any key to retry..."
 					}
 				}
 				
-				New-Item -ItemType SymbolicLink -Path $existingLink.FullPath() -Value $existingLink.FullTarget() `
-					-Force -WhatIf:$false -Confirm:$false | Out-Null
+				try
+				{
+					# There is no real way to check if the path is fully valid, especially since this invocation
+					# is meant to create any missing parent folders. A path can contain % symbols as valid
+					# characters, so 'C:\%test%\link' can be as valid as '%windir%\link'.
+					# Only way to ensure nothing goes wrong is by attempting to perform this creation, and then
+					# if the path truly cannot be resolved, then this will catch the error.
+					New-Item -ItemType SymbolicLink -Path $existingLink.FullPath() -Value $existingLink.FullTarget() `
+						-Force -WhatIf:$false -Confirm:$false | Out-Null
+				}
+				catch
+				{
+					Write-Error "The symlink could not be moved to the new path: '$($existingLink.FullPath())'!`nCould this path be invalid?"
+					continue
+				}
 			}
 		}
 		elseif ($Property -eq "Target")
 		{
-			# Validate that the target exists.
-			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)) `
-					-ErrorAction Ignore))
+			# Ensure that the new target exists.
+			if (-not (Test-Path -Path ([System.Environment]::ExpandEnvironmentVariables($Value)) -ErrorAction Ignore))
 			{
-				Write-Error "The new target path: '$Value' points to an invalid/non-existent location!"
+				Write-Error "The new target path: '$Value' is invalid!"
 				return
 			}
 			
-			# Firstly, delete the symlink with the old target value from the filesystem.
-			$expandedPath = $existingLink.FullPath()
-			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
-			if ($existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting outdated symbolic-link at '$expandedPath'.", "Are you sure you want to delete the outdated symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
+			# Check for an unknown issue.
+			if ($existingLink.GetSourceState() -eq "Unknown")
 			{
-				# Existing item may be in use and unable to be deleted, so retry until the user has closed
-				# any programs using the item.
-				while (Test-Path -Path $expandedPath)
-				{
-					try
-					{
-						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-						# to; calling 'Delete()' will only destroy the symbolic-link iteself.
-						$item.Delete()
-					}
-					catch
-					{
-						Write-Error "The outdated symbolic-link located at '$expandedPath' could not be deleted."
-						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
-					}
-				}
+				Write-Error "An unknown error has come up; this should never occur!"
+				continue
 			}
 			
-			# Then change the target property, and re-create the symlink at the with the new target,
-			# taking into account that there may be existing items at the new path.
-			$existingLink._Target = $Value
-			$expandedPath = $existingLink.FullPath()
-			if (($existingLink.ShouldExist() -or $Force) -and ($existingLink.TargetState() -eq "Valid") -and $PSCmdlet.ShouldProcess("Creating new symbolic-link item at '$expandedPath'.", "Are you sure you want to create the new symbolic-link item at '$expandedPath'?", "Create Symbolic-Link Prompt"))
+			# Check the path can be validated.
+			if ($existingLink.GetSourceState() -eq "CannotValidate")
 			{
-				# Appropriately delete any existing items before creating the symbolic-link.
-				$item = Get-Item -Path $expandedPath -ErrorAction Ignore
+				Write-Error "Could not validate the path for the symlink! Could it contain a non-present environment variable?"
+				continue
+			}
+			
+			if (-not $existingLink.ShouldExist() -or -not $Force)
+			{
+				# The symbolic-link isn't meant to exist, so skip it.
+				Write-Warning "The symlink target is being updated, but it will not be re-created."
+				continue
+			}
+			
+			# Update the symlink value.
+			$existingLink._Target = $Value
+			
+			$expandedPath = $existingLink.FullPath()
+			if (($existingLink.ShouldExist() -or $Force) -and $PSCmdlet.ShouldProcess("Updating the target of the symbolic-link at '$expandedPath'.", "Are you sure you want to update the target of the outdated symbolic-link at '$expandedPath'?", "Updating Symbolic-Link Prompt"))
+			{
 				# Existing item may be in use and unable to be deleted, so retry until the user has closed
 				# any programs using the item.
-				while (Test-Path -Path $expandedPath)
+				while (Test-Path -Path $expandedPath -ErrorAction Ignore)
 				{
-					try
+					$result = Delete-Existing -Path $expandedPath
+					if (-not $result)
 					{
-						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-						# to; calling 'Delete()' will only destroy the symbolic-link iteself,
-						# whilst calling 'Delete()' on a folder will not delete it's contents. Therefore check
-						# whether the item is a symbolic-link to call the appropriate method.
-						if ($null -eq $item.LinkType)
-						{
-							Remove-Item -Path $expandedPath -Force -Recurse -ErrorAction Stop -WhatIf:$false `
-								-Confirm:$false | Out-Null
-						}
-						else
-						{
-							$item.Delete()
-						}
-					}
-					catch
-					{
-						Write-Error "The item located at '$expandedPath' could not be deleted to make room for the symbolic-link."
-						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
+						Write-Error "Could not delete the existing item located at: '$expandedPath'! Could a file be in use?"
+						Read-Host -Prompt "Press any key to retry..."
 					}
 				}
-				New-Item -ItemType SymbolicLink -Path $existingLink.FullPath() -Value $existingLink.FullTarget() `
-					-Force -WhatIf:$false -Confirm:$false | Out-Null
+				
+				try
+				{
+					# There is no real way to check if the path is fully valid, especially since this invocation
+					# is meant to create any missing parent folders. A path can contain % symbols as valid
+					# characters, so 'C:\%test%\link' can be as valid as '%windir%\link'.
+					# Only way to ensure nothing goes wrong is by attempting to perform this creation, and then
+					# if the path truly cannot be resolved, then this will catch the error.
+					New-Item -ItemType SymbolicLink -Path $existingLink.FullPath() -Value $existingLink.FullTarget() `
+						-Force -WhatIf:$false -Confirm:$false | Out-Null
+				}
+				catch
+				{
+					Write-Error "The symlink could not be moved to the new path: '$($existingLink.FullPath())'!`nCould this path be invalid?"
+					continue
+				}
 			}
 		}
 		elseif ($Property -eq "CreationCondition")

@@ -93,25 +93,43 @@ function Remove-Symlink
 				continue
 			}
 			
-			# Delete the symlink from the filesystem.
+			# Check for an unknown issue.
+			if ($existingLink.GetSourceState() -eq "Unknown")
+			{
+				Write-Error "An unknown error has come up; this should never occur!"
+				continue
+			}
+			
+			# If deleting the symbolic-link item, ensure that the path can be validated,
+			# otherwise it makes no sense to try to delete it.
+			if (-not $DontDeleteItem -and ($existingLink.GetSourceState() -eq "CannotValidate"))
+			{
+				Write-Error "Could not validate the path for the symbolic-link: '$name'! Could it contain a non-present environment variable?"
+				continue
+			}
+			
+			# Check if the symbolic-link doesn't exist.
+			if ($existingLink.GetSourceState() -eq "NonExistent")
+			{
+				Write-Verbose "The symbolic-link: '$name' is not present on the filesystem. Skipping its deletion."
+			}
+			
+			# Ensure that the symbolic-link does exist on the filesystem.
+			$doesExist = ($existingLink.GetSourceState() -eq "Existent") -or ($existingLink.GetSourceState() -eq "UnknownTarget") -or ($existingLink.GetSourceState() -eq "IncorrectTarget")
+			# Get the item.
 			$expandedPath = $existingLink.FullPath()
 			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
-			if (-not $DontDeleteItem -and $existingLink.Exists() -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$expandedPath'.", "Are you sure you want to delete the symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
+			if (-not $DontDeleteItem -and $doesExist -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$expandedPath'.", "Are you sure you want to delete the symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
 			{
 				# Existing item may be in use and unable to be deleted, so retry until the user has closed
 				# any programs using the item.
-				while (Test-Path -Path $expandedPath)
+				while (Test-Path -Path $expandedPath -ErrorAction Ignore)
 				{
-					try
+					$result = Delete-Existing -Path $expandedPath
+					if (-not $result)
 					{
-						# Calling 'Remove-Item' on a symbolic-link will delete the original items the link points
-						# to; calling 'Delete()' will only destroy the symbolic-link iteself.
-						$item.Delete()
-					}
-					catch
-					{
-						Write-Error "The symbolic-link located at: '$expandedPath' could not be deleted."
-						Read-Host -Prompt "Close any programs using this path, and enter any key to retry"
+						Write-Error "Could not delete the symbolic-link: '$name' located at: '$expandedPath'! Could a file be in use?"
+						Read-Host -Prompt "Press any key to retry..."
 					}
 				}
 			}
