@@ -1,4 +1,9 @@
-﻿class Symlink
+﻿function ShortenPath([string] $path)
+{
+	return $path.Replace("$env:APPDATA\", "%APPDATA%\").Replace("$env:LOCALAPPDATA\", "%LOCALAPPDATA%\").Replace("$env:USERPROFILE\", "~\").Replace("$env:HOME\", "~\")
+}
+
+class Symlink
 {
 	[string]$Name
 	hidden [string]$_Path
@@ -26,10 +31,7 @@
 	[string] ShortPath()
 	{
 		# Return the path after replacing common variable string.
-		$path = $this._Path.Replace("$env:APPDATA\", "%APPDATA%\")
-		$path = $path.Replace("$env:LOCALAPPDATA\", "%LOCALAPPDATA%\")
-		$path = $path.Replace("$env:USERPROFILE\", "~\")
-		return $path
+		return ShortenPath($this._Path)
 	}
 	
 	[string] FullPath()
@@ -41,10 +43,7 @@
 	[string] ShortTarget()
 	{
 		# Return the path after replacing common variable string.
-		$path = $this._Target.Replace($env:APPDATA, "%APPDATA%")
-		$path = $path.Replace($env:LOCALAPPDATA, "%LOCALAPPDATA%")
-		$path = $path.Replace($env:USERPROFILE, "~")
-		return $path
+		return ShortenPath($this._Target)
 	}
 	
 	[string] FullTarget()
