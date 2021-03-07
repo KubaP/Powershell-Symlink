@@ -118,7 +118,6 @@ function Remove-Symlink
 			$doesExist = ($existingLink.GetSourceState() -eq "Existent") -or ($existingLink.GetSourceState() -eq "UnknownTarget") -or ($existingLink.GetSourceState() -eq "IncorrectTarget")
 			# Get the item.
 			$expandedPath = $existingLink.FullPath()
-			$item = Get-Item -Path $expandedPath -ErrorAction Ignore
 			if (-not $DontDeleteItem -and $doesExist -and $PSCmdlet.ShouldProcess("Deleting symbolic-link at '$expandedPath'.", "Are you sure you want to delete the symbolic-link at '$expandedPath'?", "Delete Symbolic-Link Prompt"))
 			{
 				# Existing item may be in use and unable to be deleted, so retry until the user has closed

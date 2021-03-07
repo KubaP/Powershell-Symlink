@@ -64,6 +64,7 @@
 #>
 function Build-Symlink
 {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Names')]
 	[Alias("bsl")]
 	
 	[CmdletBinding(DefaultParameterSetName = "All", SupportsShouldProcess = $true)]
