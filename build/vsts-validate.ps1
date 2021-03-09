@@ -5,6 +5,14 @@ if (($null -ne (Get-Module -Name "Pester")) -and (Get-Module -Name "Pester").Ver
 {
 	Remove-Module -Name "Pester" -Force -ErrorAction Stop
 }
-Import-Module -Name "Pester" -RequiredVersion "4.10.1" -Force -ErrorAction Stop
+try
+{
+	Import-Module -Name "Pester" -RequiredVersion "4.10.1" -Force -ErrorAction Stop
+}
+catch
+{
+	Write-Header -Message "Could not load 'Pester' v4.10.1" -Colour Red
+}
+
 # Run internal pester tests.
 & "$PSScriptRoot\..\Symlink\tests\pester.ps1"
