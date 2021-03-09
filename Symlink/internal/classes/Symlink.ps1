@@ -55,20 +55,41 @@ class Symlink
 	[bool] IsValidPathDirectory()
 	{
 		# Remove the leaf of the path, as that part is the name the symbolic-link should take,
-		# and the link may not be created. This does not invalidate the parent path however, as the parent path
+		# and the link may not yet be created. This does not invalidate the parent path however, as the parent path
 		# must be valid for the link to exist in the first place.
 		$parentPath = Split-Path -Path $this.FullPath() -Parent
 		
-		# Now test that this path to the parent is valid. If this path is valid, then the symbolic link
-		# item can be successfully created.
-		return Test-Path -Path $parentPath
+		# Now test that the parent path is valid. Firstly, convert a relative path to an absolute one, i.e.
+		#	if a PSDrive "Test" exists with a root at "C:\Users\Kuba\Desktop",
+		#	convert "Test\link" to "C:\Users\Kuba\Desktop\link"
+		# The conversion (using 'Convert-Path') must be done in a try-catch since if a PSDrive doesn't exist,
+		# the cmdlet will throw an error, and that would cause 'Test-Path' to thrown an error, which in turn
+		# wouldn't return the a correct boolean value.
+		try
+		{
+			$parentPath = Convert-Path -Path $parentPath -ErrorAction Stop
+		}
+		catch
+		{
+			return $false
+		}
+		return (Test-Path -Path $parentPath)
 	}
 	
 	[bool] IsValidTarget()
 	{
 		# Test that the target is valid. If any of the parent folders do not exist, or if any environmental 
 		# variables are used which do not exist, this will return false.
-		return Test-Path -Path $this.FullTarget()
+		# Firstly however, convert the path to an absolute one (see above for explanation).
+		try
+		{
+			$targetPath = Convert-Path -Path $this.FullTarget() -ErrorAction Stop
+		}
+		catch
+		{
+			return $false
+		}
+		return (Test-Path -Path $targetPath)
 	}
 	
 	[string] GetSourceState()
@@ -76,12 +97,22 @@ class Symlink
 		if (-not $this.IsValidPathDirectory())
 		{
 			# Part of the path for where the symbolic-link exists cannot be resolved correctly, either because of
-			# missing folders or because of a use of an environment variable not present on the system.
+			# missing folders, or because of a use of an environment variable not present on the system,
+			# or bacause of a use of a PSDrive which cannot be converted to an absolute path (i.e. doesn't exist).
 			# Since the path cannot be validated, its unknown if the symbolic link item exists correctly or not.
 			return "CannotValidate"
 		}
 		
-		if (-not (Get-Item -Path $this.FullPath() -ErrorAction Ignore))
+		# As the parent directory path was successfully validated, we now need to convert the entire path
+		# (in case it does require conversion). The issue is that the symbolic-link item may not exist, which will
+		# make 'Convert-Path' fail. Therefore, we need to only convert the parent portion of the path, and then
+		# join it back together.
+		$parent = Split-Path -Path $this.FullPath() -Parent
+		$leaf = Split-Path -Path $this.FullPath() -Leaf
+		$parent = Convert-Path -Path $parent
+		$path = Join-Path -Path $parent -ChildPath $leaf
+		
+		if (-not (Get-Item -Path $path -ErrorAction Ignore))
 		{
 			# The parent part of the path is valid, but the actual symbolic-link item does not exist.
 			return "Nonexistent"
@@ -94,7 +125,7 @@ class Symlink
 			return "UnknownTarget"
 		}
 		
-		if ((Get-Item -Path $this.FullPath()).Target -eq $this.FullTarget())
+		if ((Get-Item -Path $path).Target -eq (Convert-Path -Path $this.FullTarget()))
 		{
 			# The target of the symbolic-link matches the stored target.
 			return "Existent"
