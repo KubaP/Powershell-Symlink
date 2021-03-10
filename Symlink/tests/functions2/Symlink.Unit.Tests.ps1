@@ -175,13 +175,13 @@
 BeforeAll `
 {
 	# Instead of importing the module, which will not give access to the class itself, dot source the class to
-	# have access to the type for unit testing.
+	# have access to the type to allow for unit testing.
 	. "$PSScriptRoot\..\..\internal\classes\Symlink.ps1"
 }
 
 Describe "[Symlink]" `
 {
-	Context "Valid signature" -Foreach $testCases `
+	Context "Valid signature" -Tag "Valid" -Foreach $testCases `
 	{
 		BeforeAll `
 		{
@@ -193,10 +193,6 @@ Describe "[Symlink]" `
 			Remove-Item -Path "TestDrive:\target3" -Force
 			
 			$env:TEST = "TestDrive:"
-		}
-		
-		BeforeEach `
-		{
 		}
 		
 		It "3-argument Constructor" `
@@ -274,8 +270,76 @@ Describe "[Symlink]" `
 			Remove-Item -Path "Env:\TEST"
 		}
 	}
-}
-
-AfterAll `
-{
+	
+	Context "Invalid Signature" -Tag "Invalid" `
+	{
+		Context "0-argument constructor" `
+		{
+			It "Empty" `
+			{
+				try
+				{
+					$obj = [Symlink]::new()
+				}
+				catch
+				{
+					$_ | Should -Not -BeNullOrEmpty -Because "this is an invalid constructor"
+				}
+			}
+		}
+		
+		Context "1-argument constructor" `
+		{
+			It "Correct Types" `
+			{
+				try
+				{
+					$obj = [Symlink]::new("test")
+				}
+				catch
+				{
+					$_ | Should -Not -BeNullOrEmpty -Because "this is an invalid constructor"
+				}
+			}
+			
+			It "Incorrect Types" `
+			{
+				try
+				{
+					$obj = [Symlink]::new(213)
+				}
+				catch
+				{
+					$_ | Should -Not -BeNullOrEmpty -Because "this is an invalid constructor"
+				}
+			}
+		}
+		
+		Context "2-argument constructor" `
+		{
+			It "Correct Types" `
+			{
+				try
+				{
+					$obj = [Symlink]::new("test", "some\path")
+				}
+				catch
+				{
+					$_ | Should -Not -BeNullOrEmpty -Because "this is an invalid constructor"
+				}
+			}
+			
+			It "Incorrect Types" `
+			{
+				try
+				{
+					$obj = [Symlink]::new(213, { return $true })
+				}
+				catch
+				{
+					$_ | Should -Not -BeNullOrEmpty -Because "this is an invalid constructor"
+				}
+			}
+		}
+	}
 }
