@@ -1,0 +1,22 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>System.Collections.Generic.List`1[[Symlink, PowerShell Class Assembly, Version=1.0.0.2, Culture=neutral, PublicKeyToken=null]]</T>
+      <T>System.Object</T>
+    </TN>
+    <LST>
+      <Obj RefId="1">
+        <TN RefId="1">
+          <T>Symlink</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Symlink</ToString>
+        <Props>
+          <S N="Name">test</S>
+          <S N="_Target">C:\Users\Kuba\Desktop\target1</S>
+          <Nil N="_Condition" />
+        </Props>
+      </Obj>
+    </LST>
+  </Obj>
+</Objs>
