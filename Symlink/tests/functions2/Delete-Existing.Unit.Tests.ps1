@@ -14,7 +14,7 @@ Describe "Delete-Existing" -Tag "Internal", "Unit" `
 		New-Item -Path "TestDrive:\" -Name "src1" -Value (Convert-Path -Path "TestDrive:\target1") -ItemType SymbolicLink
 	}
 	
-	It "Non-blocking" -Tag "Valid" -Foreach @(
+	It "Non-blocking" -Tag "Valid", "NoIssue" -Foreach @(
 		@{Path = "TestDrive:\src1"},
 		@{Path = "TestDrive:\file1"},
 		@{Path = "TestDrive:\src2"},
@@ -26,7 +26,7 @@ Describe "Delete-Existing" -Tag "Internal", "Unit" `
 		(Test-Path -Path $path) | Should -Be $false
 	}
 	
-	It "Blocking" -Tag "Valid" -Foreach @(
+	It "Blocking" -Tag "Valid", "HaltingIssue" -Foreach @(
 		#@{Path = "TestDrive:\src1"; File = "TestDrive:\src1\file1"}, # Opening a file through a symlink; can still delete symlink itself though.
 		@{Path = "TestDrive:\file1"; File = "TestDrive:\file1"},
 		@{Path = "TestDrive:\target1"; File = "TestDrive:\target1\file1"}

@@ -7,7 +7,7 @@
 
 Describe "Read-Symlinks" -Tag "Internal", "Unit" `
 {
-	Context "Valid data" -Tag "Valid" `
+	Context "Valid data" -Tag "Valid", "NoIssue" `
 	{
 		It "1 object" `
 		{
@@ -48,7 +48,7 @@ Describe "Read-Symlinks" -Tag "Internal", "Unit" `
 		}
 	}
 	
-	Context "Invalid data" -Tag "Invalid" `
+	Context "Invalid data" -Tag "Invalid", "HaltingIssue" `
 	{
 		It "Invalid formatting" `
 		{
