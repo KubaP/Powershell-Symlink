@@ -41,7 +41,7 @@ Describe "Read-Symlinks" -Tag "Internal", "Unit" `
 			$obj._Condition.ToString() | Should -Be "return `$true"
 			
 			$obj = $objs[2]
-			$obj.Name | Should -Be "test3"
+			$obj.Name | Should -Be "Atest3"
 			$obj._Path | Should -Be "C:\Users\Kuba\Desktop\src1"
 			$obj._Target | Should -Be "C:\Users\Kuba\Desktop\target3"
 			$obj._Condition.ToString() | Should -Be "return `$false"

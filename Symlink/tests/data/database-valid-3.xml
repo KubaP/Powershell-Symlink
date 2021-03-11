@@ -32,7 +32,7 @@
         <TNRef RefId="1" />
         <ToString>Symlink</ToString>
         <Props>
-          <S N="Name">test3</S>
+          <S N="Name">Atest3</S>
           <S N="_Path">C:\Users\Kuba\Desktop\src1</S>
           <S N="_Target">C:\Users\Kuba\Desktop\target3</S>
           <SBK N="_Condition">return $false</SBK>
