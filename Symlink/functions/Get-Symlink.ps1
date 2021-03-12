@@ -58,9 +58,8 @@ function Get-Symlink
 	[CmdletBinding(DefaultParameterSetName = "Specific")]
 	param
 	(
-		
 		# Tab completion.
-		[Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "Specific")]
+		[Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "Specific")]
 		[Alias("Name")]
 		[string[]]
 		$Names,
@@ -68,7 +67,6 @@ function Get-Symlink
 		[Parameter(Position = 0, Mandatory = $true, ParameterSetName = "All")]
 		[switch]
 		$All
-		
 	)
 	
 	begin
