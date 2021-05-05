@@ -15,6 +15,10 @@ Symlink/Symlink.psproj.bak
 Symlink/Symlink.psprojs
 Symlink/Symlink.psproj
 
+# ignore C# bin/obj files
+Symlink/bin
+Symlink/obj
+
 # ignore the TestResults
 TestResults/*
 

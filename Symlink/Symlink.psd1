@@ -1,4 +1,4 @@
-﻿@{
+@{
 	# Script module or binary module file associated with this manifest
 	RootModule = 'Symlink.psm1'
 	
@@ -29,6 +29,9 @@
 	RequiredModules = @(
 		@{ ModuleName='name'; ModuleVersion='1.0.0' }
 	)#>
+	
+	# Assemblies that are part of this module.
+	NestedModules = @('bin\Debug\netstandard2.0\Symlink.dll')
 	
 	# Assemblies that must be loaded prior to importing this module
 	# RequiredAssemblies = @('bin\Symlink.dll')
